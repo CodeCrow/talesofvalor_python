@@ -1,0 +1,10 @@
+*.scssc
+*.pyc
+.DS_Store
+.scss*
+ENV
+.sass-cache
+.sass-cache/*
+
+/talesofvalor/settings/local.py
+/media/
