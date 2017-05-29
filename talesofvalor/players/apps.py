@@ -2,6 +2,6 @@
 
 from django.apps import AppConfig
 
-class PlayersConfig(AppConfig):
+class PlayerConfig(AppConfig):
     name = 'talesofvalor.players'
-    verbose_name = "Players"
+    verbose_name = "Player"

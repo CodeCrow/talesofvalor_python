@@ -1,1 +1,1 @@
-default_app_config = 'talesofvalor.players.apps.PlayersConfig'
+default_app_config = 'talesofvalor.players.apps.PlayerConfig'

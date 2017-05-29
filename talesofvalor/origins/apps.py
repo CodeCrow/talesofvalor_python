@@ -1,4 +1,4 @@
-# rock_n_roll/apps.py
+# talesofvalor/apps.py
 
 from django.apps import AppConfig
 
