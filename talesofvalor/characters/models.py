@@ -4,6 +4,8 @@ Describes the character models.
 These models describe a character and its relationship
 to players.
 """
+import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -50,16 +52,18 @@ class Character(models.Model):
     cp_available = models.PositiveIntegerField(default=0)
     cp_transferred = models.PositiveIntegerField(default=0)
     # The headers and skills that a character has.
-    headers = models.ManyToManyField(Header, null=True),
-    skills = models.ManyToManyField(Skill, null=True, through='ChracterSkills')
+    headers = models.ManyToManyField(Header)
+    skills = models.ManyToManyField(Skill, through='CharacterSkills')
 
     created = models.DateTimeField(
         _('date created'),
+        null=True,
         auto_now_add=True,
         editable=False
     )
     modified = models.DateTimeField(
         _('last updated'),
+        null=True,
         auto_now=True,
         editable=False
     )
@@ -107,6 +111,6 @@ class CharacterLog(models.Model):
     created_by = models.ForeignKey(
         User,
         editable=False,
-        related_name='%(app_label)s_%(class)s_author ',
+        related_name='%(app_label)s_%(class)s_author',
         null=True
     )

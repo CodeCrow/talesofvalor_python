@@ -16,7 +16,7 @@ from django.utils.translation import ugettext as _
 from djangocms_text_ckeditor.fields import HTMLField
 
 from talesofvalor.characters.models import Character
-from talesofvalor.players.modesl import Player
+from talesofvalor.players.models import Player
 from talesofvalor.skills.models import Skill
 from talesofvalor.events.models import Event
 

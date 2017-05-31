@@ -7,6 +7,8 @@ django authentication user models.
 from django.contrib.auth.models import User
 from django.db import models
 
+from talesofvalor.events.models import Event
+
 
 class Player(models.Model):
     """

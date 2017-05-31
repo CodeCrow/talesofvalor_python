@@ -81,7 +81,7 @@ SITE_ID = 1
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'talesofvalor', 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'talesofvalor', 'templates'), ],
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
@@ -154,6 +154,8 @@ INSTALLED_APPS = (
     'talesofvalor.origins',
     'talesofvalor.events',
     'talesofvalor.characters',
+    'talesofvalor.betweengameskills',
+    'talesofvalor.attendance',
 )
 
 LANGUAGES = (
