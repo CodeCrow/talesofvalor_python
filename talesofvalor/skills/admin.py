@@ -1,4 +1,4 @@
-"""Back end set up for Events."""
+"""Back end set up for Skills."""
 from django.contrib import admin
 
 from talesofvalor.skills.models import Header, Skill
