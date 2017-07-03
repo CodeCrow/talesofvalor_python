@@ -151,6 +151,7 @@ INSTALLED_APPS = (
     'talesofvalor.characters',
     'talesofvalor.betweengameskills',
     'talesofvalor.attendance',
+    'talesofvalor.charactermessages',
     'talesofvalor.comments',
 )
 

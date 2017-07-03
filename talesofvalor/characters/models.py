@@ -4,8 +4,6 @@ Describes the character models.
 These models describe a character and its relationship
 to players.
 """
-import datetime
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -13,6 +11,7 @@ from django.utils.translation import ugettext as _
 from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
+from talesofvalor.events.models import Event
 from talesofvalor.skills.models import Header, Skill
 
 
@@ -114,3 +113,35 @@ class CharacterLog(models.Model):
         related_name='%(app_label)s_%(class)s_author',
         null=True
     )
+
+class CharacterGrant(models.Model):
+    """
+    Tracks special skills and headers granted to a character.
+
+    Some origins or events trigger the granting of headers or skills.
+    These do not count against spent character points.
+
+    TODO: I feel like there is a way to do this without grants since the
+    system will know what rules have been or should run.
+
+    Grants would then turn into a "special" that could be granted by a
+    staff member.
+    """
+
+    SKILL_GRANT = 'SkillGrant'
+    HEADER_GRANT = 'HeaderGrant'
+    STATUS_CHOICES = (
+        (SKILL_GRANT, 'Skill Grant'),
+        (HEADER_GRANT, 'Header Grant')
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='SkillGrant'
+    )
+    character = models.ForeignKey(Character)
+    correlated_id = models.PositiveIntegerField()
+    reason = models.TextField()
+    free = models.BooleanField(default=False)
+    picks_remaining = models.PositiveIntegerField(default=10000)
+

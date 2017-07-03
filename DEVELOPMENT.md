@@ -11,3 +11,6 @@
 
 #skills
 	#headers
+
+Tagging: 
+https://pypi.python.org/pypi/django-taggit
