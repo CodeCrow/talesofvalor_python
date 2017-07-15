@@ -25,12 +25,36 @@ class Player(models.Model):
     game_started = models.ForeignKey(Event, null=True)
     cp_available = models.PositiveIntegerField(default=0)
 
+
+class Registration(models.Model):
+    """
+    Registration for events.
+
+    Holds the registration for users for a specific event.
+    """
+
+    player = models.ForeignKey(Player)
+    event = models.ForeignKey(Event)
+    cabin = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        help_text=_("What cabin is the player staying in?")
+    )
+    mealplan_flag = models.BooleanField(
+        default=False,
+        help_text=_("Has the player signed up for a meal plan.")
+    )
+    notes = models.TextField(blank=True, default='')
+
+
 class PEL(models.Model):
     """
     (P)ost (E)vent (L)etter.
 
     Letter and information describing a player's experience at an event.
     """
+
     RATINGS_CHOICES = (
         (5, 'Amazing'),
         (4, 'Good'),

@@ -11,7 +11,6 @@ from django.utils.translation import ugettext as _
 from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
-from talesofvalor.events.models import Event
 from talesofvalor.skills.models import Header, Skill
 
 
@@ -130,13 +129,13 @@ class CharacterGrant(models.Model):
 
     SKILL_GRANT = 'SkillGrant'
     HEADER_GRANT = 'HeaderGrant'
-    STATUS_CHOICES = (
+    TYPE_CHOICES = (
         (SKILL_GRANT, 'Skill Grant'),
         (HEADER_GRANT, 'Header Grant')
     )
     type = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
+        choices=TYPE_CHOICES,
         default='SkillGrant'
     )
     character = models.ForeignKey(Character)
