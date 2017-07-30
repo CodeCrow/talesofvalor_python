@@ -1,3 +1,10 @@
+"""
+Overarching routing for the application.  
+
+The routers for each of the sub-application (players, characters, etc) should
+be included as a separate file.
+"""
+
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -19,6 +26,14 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),  # NOQA
+    url(  # router for the player application.
+        r'^players/',
+        include(
+            'talesofvalor.players.urls',
+            namespace="players",
+            app_name="talesofvalor"
+        )
+    ),
     url(r'^', include('cms.urls')),
 )
 

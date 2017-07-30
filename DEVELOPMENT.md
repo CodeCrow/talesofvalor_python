@@ -12,6 +12,9 @@
 #skills
 	#headers
 
+# Public messaging:
+The ability to make announcements.
+
 Tagging: 
 https://pypi.python.org/pypi/django-taggit
 
