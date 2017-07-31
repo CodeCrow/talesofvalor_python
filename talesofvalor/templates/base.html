@@ -4,6 +4,9 @@
     <head>
         <title>{% block title %}This is my new project home page{% endblock title %}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <!-- Latest compiled and minified CSS for bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <style type="text/css">
             .nav {
                 padding-left: 0;
@@ -36,6 +39,15 @@
             </ul>
             {% block content %}{% endblock content %}
         </div>
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+        <!-- Latest compiled JavaScript for bootstrap -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         {% render_block "js" %}
     </body>
 </html>
+
+
+

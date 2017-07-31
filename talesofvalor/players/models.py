@@ -22,7 +22,7 @@ class Player(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    game_started = models.ForeignKey(Event, null=True)
+    game_started = models.ForeignKey(Event, blank=True, null=True)
     cp_available = models.PositiveIntegerField(default=0)
 
 

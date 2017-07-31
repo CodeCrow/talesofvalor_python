@@ -1,12 +1,17 @@
 """Router for views for players."""
 from django.conf.urls import url
 
-from .views import PlayerCreateView
+from .views import PlayerCreateView, PlayerUpdateView
 
 urlpatterns = [
     url(
-        r'^(?P<username>[-\w]+)/$',
+        r'^add/?$',
         PlayerCreateView.as_view(),
         name='player_create'
+    ),
+    url(
+        r'^(?P<username>[-\w]+)/?$',
+        PlayerUpdateView.as_view(),
+        name='player_update'
     ),
 ]
