@@ -17,7 +17,7 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default.
         'OPTIONS': {
             'init_command':'SET storage_engine=MYISAM',
-            'read_default_file': '/home/talesofvalor/config/mysql.cnf',
+            'read_default_file': '/home/murderofone/tov.crowbringsdaylight.com/config/mysql.cnf',
         }
     }
 }
