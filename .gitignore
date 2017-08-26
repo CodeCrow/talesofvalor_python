@@ -8,3 +8,4 @@ ENV
 
 /talesofvalor/settings/local.py
 /media/
+/config/
