@@ -11,10 +11,10 @@ from fabric.operations import get, local
 try:
     local_db = importlib.import_module(os.environ['DJANGO_SETTINGS_MODULE']).DATABASES
 except:
-    from .settings.local import DATABASES as local_db
+    from talesofvalor.settings.local import DATABASES as local_db
 
-from .settings.stage import DATABASES as stage_db
-from .settings.production import DATABASES as prod_db
+from talesofvalor.settings.stage import DATABASES as stage_db
+from talesofvalor.settings.production import DATABASES as prod_db
 
 LOCAL_DUMPDATA_FOLDER = '../dumpdata'
 
@@ -27,7 +27,7 @@ env.mysql_defaults_file = '~/.my.cnf'
 try:
     env.settings_module_for_management_commands = os.environ['DJANGO_SETTINGS_MODULE']
 except KeyError:
-    env.settings_module_for_management_commands = '.settings.local'
+    env.settings_module_for_management_commands = 'talesofvalor.settings.local'
 
 
 def _prep_bool_arg(arg):
@@ -49,7 +49,7 @@ def stage():
     env.forward_agent = True
     env.hosts = ['murderofone@bonanza.dreamhost.com']
     env.db_settings = stage_db['default']
-    env.db_dump_dir = '/home/wgbh/Masterpiece/dumpdata'
+    env.db_dump_dir = '/home/murderofone/tov.crowbringsdaylight.com/dumpdata'
     env.virtualenv_path = (
         '/home/murderofone/.virtualenvs/talesofvalor'
     )
@@ -57,14 +57,13 @@ def stage():
         '/home/murderofone/tov.crowbringsdaylight.com'
     )
     env.default_project_branch = 'stage'
-    env.restart_webserver_command = 'sudo service apache2 restart'
     env.refresh_app_command = (
         'pkill python'
     ).format(
         env.project_dir
     )
-    env.settings_module_for_management_commands = '.settings.prod'
-    env.mysql_defaults_file = '/home/wgbh/Masterpiece/.mysql-mp_bookpod.cnf'
+    env.settings_module_for_management_commands = 'talesofvalor.settings.stage'
+    env.mysql_defaults_file = '/home/murderofone/tov.talesofvalor.com/config/mysql.cnf'
 
 
 
