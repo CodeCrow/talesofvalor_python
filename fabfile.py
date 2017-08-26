@@ -116,7 +116,7 @@ def deploy(branch=None, migrate=False, update_requirements=False):
             if branch is None:
                 branch = env.default_project_branch
             run(
-                'echo Pulling mp_bookpod on {}...'.format(
+                'echo Pulling talesofvalor on {}...'.format(
                     env.verbose_name
                 )
             )
