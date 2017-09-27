@@ -42,6 +42,14 @@ urlpatterns += i18n_patterns(
             app_name="talesofvalor"
         )
     ),
+    url(  # router for the character application.
+        r'^characters/',
+        include(
+            'talesofvalor.characters.urls',
+            namespace="characters",
+            app_name="talesofvalor"
+        )
+    ),
     url(r'^', include('cms.urls')),
 )
 
