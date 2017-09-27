@@ -21,3 +21,9 @@ https://pypi.python.org/pypi/django-taggit
 Try this for the typography!: 
 
 https://www.smashingmagazine.com/2016/05/fluid-typography/
+
+# Advertising
+
+Could we do this?  Sell monthly subscriptions?  Or an ad network?
+
+How cheaply could we do that?  $20 a month would cover the hosting cost.

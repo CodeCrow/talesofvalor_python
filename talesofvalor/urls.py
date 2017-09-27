@@ -34,6 +34,14 @@ urlpatterns += i18n_patterns(
             app_name="talesofvalor"
         )
     ),
+    url(  # router for the event application.
+        r'^events/',
+        include(
+            'talesofvalor.events.urls',
+            namespace="events",
+            app_name="talesofvalor"
+        )
+    ),
     url(r'^', include('cms.urls')),
 )
 
