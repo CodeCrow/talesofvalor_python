@@ -3,6 +3,7 @@
 REFERENCE:
 
 https://simpleisbetterthancomplex.com/tutorial/2017/02/18/how-to-create-user-sign-up-view.html
+https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#abstractbaseuser
 """
 from django.views.generic.edit import CreateView, UpdateView, FormView
 
