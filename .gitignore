@@ -5,6 +5,7 @@
 ENV
 .sass-cache
 .sass-cache/*
+npm-debug.log
 
 /talesofvalor/settings/local.py
 /media/

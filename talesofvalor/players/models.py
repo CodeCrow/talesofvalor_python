@@ -6,6 +6,8 @@ django authentication user models.
 """
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -24,6 +26,27 @@ class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     game_started = models.ForeignKey(Event, blank=True, null=True)
     cp_available = models.PositiveIntegerField(default=0)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """
+    A User has been created.
+    
+    When a user is created, we also have to create a profile object and attach
+    it to the user.  This uses the 'post_save' signal.
+    """
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    """
+    A User has been updated.
+    
+    When a user has been updated, we have to make sure that the profile attached to
+    it has as well.  This uses the 'post_save' signal.
+    """
+    instance.profile.save()
 
 
 class Registration(models.Model):

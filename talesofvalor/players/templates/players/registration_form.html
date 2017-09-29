@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ user_form.as_p }}
+  {{ profile_form.as_p }}
+  <button type="submit">Save changes</button>
+</form>
+
+{% endblock content %}
