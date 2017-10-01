@@ -39,7 +39,37 @@ class RegistrationView(FormView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
-        form.send_email()
+        context = self.get_context_data()
+        result = super(ThemeCreate, self).form_valid(form)
+        variants = context['variants']
+        variants.instance = self.object
+        try:
+            project = Project.objects.get(pk=self.kwargs['pid'])
+            self.object.project.add(project)
+            self.object.save()
+        except KeyError:
+            pass
+        for variant in variants.forms:
+            variant.data["%s-theme" % (variant.prefix)] = self.object.id
+        if variants.is_valid() and variants.has_changed():
+            variants.save()
+        else:
+            print("dammit!  Variants are broken!")
+            print variants.errors
+
+        attributes = context['attributes']
+        attributes.instance = self.object
+        contenttype = ContentType.objects.get_for_model(self.object)
+        for attribute in attributes.forms:
+            attribute.data["%s-content_type" % (attribute.prefix)] = contenttype.id
+            attribute.data["%s-object_id" % (attribute.prefix)] = self.object.id
+        if attributes.is_valid():
+            attributes.save()
+        else:
+            print("dammit!  Theme attributes are broken!")
+            print attributes.errors
+
+        return result
         return super(RegistrationView, self).form_valid(form)
 
     def get_success_url(self):
