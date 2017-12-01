@@ -31,7 +31,11 @@ class UserForm(forms.ModelForm):
         the password when we clean it.
         """
 
-        cleaned_data = super(NewAccountForm, self).clean()
+        cleaned_data = super(UserForm, self).clean()
+        print "ERRORS"
+        print self.errors
+        print "ERRORS"
+
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
         if password and password_confirm:
@@ -44,6 +48,12 @@ class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = []
+
+    def clean(self):
+        cleaned_data = super(PlayerForm, self).clean()
+        print "ERRORS"
+        print self.errors
+        print "ERRORS"
 
 class RegistrationForm(forms.ModelForm):
 
