@@ -8,5 +8,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^14.5.0",
+    "gulp-sass": "^3.1.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
 }

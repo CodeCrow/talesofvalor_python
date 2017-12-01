@@ -5,31 +5,43 @@
  */
 
 var gulp = require('gulp'),
-    compass = require('gulp-sass'),
-    path = require('path'),
+    sass = require('gulp-sass'),
+    path = require('path'),    browserify = require('browserify'),
+    source = require('vinyl-source-stream'),
     paths = {
-        js: 'project_static/js/**/*.js',
-        scss: 'project_static/scss/**/*.scss',
-        css: 'project_static/css'
+        // this is the starting point for the scripts.  
+        // add in other scripts in this file by using the "require"
+        // provided by browserfy.
+        js: 'static/js_source/scripts.js',
+        scss: 'static/sass/**/*.scss',
+        css: 'static/css'
     };
 
 
 
-gulp.task('sass', function(){
+gulp.task('sass', function () {
   return gulp.src(paths.scss)
-    .pipe(sass())
-    .pipe(gulp.dest(paths.css))
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest(paths.css));
 });
 
+gulp.task('browserify', function () {
+    var b = browserify({
+            entries: [paths.js]
+        });
+    return b.bundle()
+        .pipe(source('main.js'))
+        .pipe(gulp.dest('static/js'));
+});
 
-
-gulp.task('build', ['sass'], function(){
+gulp.task('build', ['sass','browserify'], function(){
 
 });
 
 
 gulp.task('watch', function () {
     gulp.watch(paths.scss, ['sass']);
+    gulp.watch(paths.js, ['browserify']);
 });
 
 gulp.task('default', ['build', 'watch'], function () {
