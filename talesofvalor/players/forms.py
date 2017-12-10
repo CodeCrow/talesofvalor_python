@@ -55,8 +55,31 @@ class PlayerForm(forms.ModelForm):
         print self.errors
         print "ERRORS"
 
-class RegistrationForm(forms.ModelForm):
+class RegistrationForm(forms.Form):
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.EmailField()
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    password_confirm = forms.CharField(widget=forms.PasswordInput)
 
-    class Meta: 
-        model = Player
-        fields = '__all__'
+    def clean(self):
+        """
+        Clean the full form data.
+
+        We have a confirm password here, so we have to check that it matches
+        the password when we clean it.
+        """
+
+        cleaned_data = super(RegistrationForm, self).clean()
+        print "ERRORS"
+        print self.errors
+        print "ERRORS"
+
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password and password_confirm:
+            if password != password_confirm:
+                msg = "The two password fields must match."
+                self.add_error('password_confirm', msg)
+        return cleaned_data
