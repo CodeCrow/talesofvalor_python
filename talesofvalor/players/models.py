@@ -36,7 +36,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     it to the user.  This uses the 'post_save' signal.
     """
     if created:
-        Profile.objects.create(user=instance)
+        Player.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
@@ -46,14 +46,17 @@ def save_user_profile(sender, instance, **kwargs):
     When a user has been updated, we have to make sure that the profile attached to
     it has as well.  This uses the 'post_save' signal.
     """
-    instance.profile.save()
+    instance.player.save()
 
 
 class Registration(models.Model):
     """
     Registration for events.
 
-    Holds the registration for users for a specific event.
+    Holds the registration for players for a specific event.
+
+    If this is a player's first event, their record is updated for the 
+    field "game_started"
     """
 
     player = models.ForeignKey(Player)

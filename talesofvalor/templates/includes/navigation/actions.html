@@ -1,0 +1,30 @@
+{% if user.is_authenticated %}
+<ul id="navigation_action">
+    <li class="heading">Events
+        <li><a href="#">Registration</a></li>
+    </li>
+</ul>
+<ul id="navigation_action_staff">
+    <li class="heading">Staff Info
+        <li><a href="#">PELS</a></li>
+        <li><a href="#">BGS</a></li>
+        <li><a href="#">Messages</a></li>
+        <li><a href="#">Plots</a></li>
+        <li><a href="#">Tags</a></li>
+    </li>
+    <li class="heading">Characters
+        <li><a href="#">New</a></li>
+        <li><a href="#">List</a></li>
+    </li>
+    <li class="heading">Players
+        <li><a href="#">New</a></li>
+        <li><a href="#">List</a></li>
+    </li>
+</ul>
+{% else %}
+<ul id="navigation_action">
+    <li class="heading">Welcome!
+        <li><a href="{% url 'players:registration' %}">Register</a></li>
+    </li>
+</ul>
+{% endif %}

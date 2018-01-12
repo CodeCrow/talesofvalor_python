@@ -11,10 +11,34 @@
     <body>
         {% cms_toolbar %}
         <div class="container">
-            <ul class="nav">
+
+            <header class="row">
+                <div class="col-sm-8">
+                    HEADER
+                </div>
+                <div class="col-sm-4">
+                    {% include "includes/navigation/user.html" %}
+                </div>
+            </header>
+            <nav class="nav">page menu
+                {% comment %}
+                    This is the menu for the current django cms page.
+                {% endcomment %}
                 {% show_menu 0 100 100 100 %}
-            </ul>
-            {% block content %}{% endblock content %}
+            </nav>
+            <div class="row">
+                <div id="action_menu" class="col-sm-3 sidebar">
+                    {% include "includes/navigation/actions.html" %}
+                </div>
+                <div id="main_content" class="col-sm-9 main-content">
+                    {% block content %}{% endblock content %}
+                </div>
+            </div>
+            <footer class="row">
+                <div class="col-sm-12">
+                    FOOTER
+                </div>
+            </footer>
         </div>
 
         <!-- jQuery library -->

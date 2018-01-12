@@ -27,3 +27,7 @@ https://www.smashingmagazine.com/2016/05/fluid-typography/
 Could we do this?  Sell monthly subscriptions?  Or an ad network?
 
 How cheaply could we do that?  $20 a month would cover the hosting cost.
+
+# Questions:
+
+When a user registers, do they start with any CP, or is that strictly for characters when created?

@@ -1,0 +1,7 @@
+{% if user.is_authenticated %}
+<nav id="navigation_user" class="navigation-user">
+Player:<a class="indent" href="">{{ user.get_username }}</a><br />
+Character:<a class="indent" href="">#Current Character#</a><br />
+<a href="logout">Log Out</a>
+</nav>
+{% endif %}
