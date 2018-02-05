@@ -6,7 +6,7 @@ https://simpleisbetterthancomplex.com/tutorial/2017/02/18/how-to-create-user-sig
 https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#abstractbaseuser
 """
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -33,15 +33,28 @@ class PlayerDetailView(DetailView):
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username']) # or request.POST
 
+
 class RegistrationView(FormView):
-    # We are making this too hard by tryig to link the 2 forms.
-    # Just make one registration form (even if it has duplicates of the model fields!)
-    # It will be easier and it will GET IT DONE.
+    """
+    View where players first register.
+
+    This is where the players will first sign up for the game.
+    Originally, this was going to use the ModelView, but combining
+    the user and player forms ended up being too hard.
+
+    When the player is first registered, they are added to the
+    'Player' group.
+    """
+
     template_name = 'players/registration_form.html'
     form_class = RegistrationForm
 
     def form_invalid(self, form):
-        print "I'm fucked!"
+        """
+        The form is invalid.
+
+        There was an error.  Return the form and show errors.
+        """
         print form.errors
         return super(RegistrationView, self).form_invalid(form)
 
@@ -55,9 +68,9 @@ class RegistrationView(FormView):
         Add that player to the 'player' group.
         Drop the user into their detail.
 
-        The player will not get an 'event started' until the register for their first event.
+        The player will not get an 'event started' until they register
+        for their first event.
         """
-        print "The form is valid.  Create a new user."
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         user = User.objects.create_user(
@@ -67,11 +80,17 @@ class RegistrationView(FormView):
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name']
         )
+        # Find the player group and then add this user to it.
+        try:
+            player_group = Group.objects.get(name="Player")
+        except Group.DoesNotExist:
+            pass
+        else:
+            user.groups.add(player_group)
         # The player is automatically created using post_save signals on the "Player" model
         self.instance = user.player
         user = authenticate(username=user.username, password=form.cleaned_data['password'])
         login(self.request, user)
-        print user
         # return result
         return super(RegistrationView, self).form_valid(form)
 

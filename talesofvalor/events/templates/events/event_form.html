@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags %}
+{% load cms_tags sekizai_tags %}
 
 {% block title %}{{ object.name }} | {{ object.event_date }}{% endblock title %}
 
@@ -8,4 +8,13 @@
     {{ form.as_p }}
     <input type="submit" value="Update" />
 </form>
+
+{% addtoblock "js" %}
+<script>
+    $(document).ready(function() {
+        console.log("We are doing this!");
+        $('.datepicker').datepicker();
+    });
+</script>
+{% endaddtoblock %}
 {% endblock content %}

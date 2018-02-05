@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 from django.conf import settings
 
+def load_initial_groups_from_fixture(apps, schema_editor):
+    from django.core.management import call_command
+    call_command("loaddata", "initial_groups")
 
 class Migration(migrations.Migration):
 
@@ -22,4 +25,6 @@ class Migration(migrations.Migration):
                 ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
         ),
+
+        migrations.RunPython(load_initial_groups_from_fixture),
     ]
