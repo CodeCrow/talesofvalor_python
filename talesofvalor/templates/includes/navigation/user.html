@@ -2,6 +2,8 @@
 <nav id="navigation_user" class="navigation-user">
 Player:<a class="indent" href="">{{ user.get_username }}</a><br />
 Character:<a class="indent" href="">#Current Character#</a><br />
-<a href="logout">Log Out</a>
+<a href="{% url "players:logout" %}">Log Out</a>
 </nav>
+{% else %}
+<a href="{% url "players:login" %}">Log In</a>
 {% endif %}

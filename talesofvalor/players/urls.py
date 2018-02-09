@@ -1,10 +1,13 @@
 """Router for views for players."""
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from .views import PlayerCreateView, PlayerUpdateView, PlayerDetailView,\
     RegistrationView
 
 urlpatterns = [
+    url(
+        r'^', include('django.contrib.auth.urls')
+    ),
     url(
         r'^register/?$',
         RegistrationView.as_view(),

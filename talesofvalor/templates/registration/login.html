@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block content %}
+<div class="login_contain">
+    {% if form.errors %}
+        <p>Your username and password didn't match. Please try again.</p>
+    {% endif %}
+    <div class="form_contain login">
+        <form method="post" action="{% url 'players:login' %}">
+        {% csrf_token %}
+        <table>
+        {{ form }}
+        </table>
+        <input type="submit" value="Log In" class="button" />
+        </form>
+    <p>Forgot your password?  <a href="{% url 'players:password_reset' %}">Click here!</a></p>
+    </div>
+</div>
+
+{% endblock %}

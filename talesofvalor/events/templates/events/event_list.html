@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Events{% endblock title %}
+
+{% block content %}
+<table class="list">
+{% for event in object_list %}
+    <tr>
+        <td>{{ event.name }}</td>
+    </tr>
+{% empty %}
+    <tr><td>No Events Yet.{% if perms.events.add_event %}  <a href="{% url "events:event_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
+{% endfor %}
+</table>
+
+{% endblock content %}
