@@ -4,5 +4,21 @@
 {% block title %}{{ object.user.username }}{% endblock title %}
 
 {% block content %}
+    <div class="row">
+        <div id="player_detail_character_update" class="col-sm-6">
+            Character Update
+        </div>
+        <div id="player_detail_player_info" class="col-sm-3">
+            Player Info
+        </div>
+    </div>
+    <div class="row">
+        <table id="player_detail_character_list" class="col-sm-9 list list-characters">
+            <tr>
+                <td>Table</td>
+                <td>Blah table</td>
+            </tr>
+        </table>
+    </div>
 This is where the player stuff will go.
 {% endblock content %}
