@@ -1,3 +1,6 @@
+table.list {
+  width: 100%; }
+
 .nav {
   padding-left: 0; }
 
@@ -6,17 +9,11 @@
   list-style-type: none;
   padding-right: 20px; }
 
-.container {
-  width: 940px;
-  margin: 0 auto; }
-
-.content {
-  float: left;
-  width: 80%; }
-
-.sidebar {
-  float: left;
-  width: 20%; }
+.box {
+  margin: 0.25em;
+  padding: 1em;
+  border: 1px solid #000;
+  border-radius: 1em; }
 
 html {
   box-sizing: border-box; }

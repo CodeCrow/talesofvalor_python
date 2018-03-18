@@ -1,4 +1,4 @@
-{% load cms_tags menu_tags sekizai_tags %}
+{% load cms_tags menu_tags sekizai_tags staticfiles %}
 <!doctype html>
 <html>
     <head>
@@ -6,6 +6,10 @@
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <!-- Latest compiled and minified CSS for bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        {% comment %}
+        This is our main css file.
+        {% endcomment %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
         {% render_block "css" %}
     </head>
     <body>
@@ -17,20 +21,22 @@
                     HEADER
                 </div>
                 <div class="col-sm-4">
-                    {% include "includes/navigation/user.html" %}
+                    <div class="box">
+                        {% include "includes/navigation/user.html" %}
+                    </div>
                 </div>
             </header>
-            <nav class="nav">page menu
+            <nav class="nav row">page menu
                 {% comment %}
                     This is the menu for the current django cms page.
                 {% endcomment %}
                 {% show_menu 0 100 100 100 %}
             </nav>
             <div class="row">
-                <div id="action_menu" class="col-sm-3 sidebar">
+                <div id="action_menu" class="col-sm-2 sidebar">
                     {% include "includes/navigation/actions.html" %}
                 </div>
-                <div id="main_content" class="col-sm-9 main-content">
+                <div id="main_content" class="col-sm-10 main-content">
                     {% block content %}{% endblock content %}
                 </div>
             </div>

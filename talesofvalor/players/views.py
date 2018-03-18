@@ -6,6 +6,8 @@ https://simpleisbetterthancomplex.com/tutorial/2017/02/18/how-to-create-user-sig
 https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#abstractbaseuser
 """
 
+from django.contrib.auth.mixins import UserPassesTestMixin,\
+    LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
 from django.views.generic import DetailView
@@ -15,20 +17,46 @@ from django.urls import reverse
 from .forms import UserForm, PlayerForm, RegistrationForm
 from .models import Player
 
-class PlayerCreateView(CreateView):
-    model = Player
-    fields = '__all__'
 
-class PlayerUpdateView(UpdateView):
+
+class PlayerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Player
     fields = '__all__'
+    permission_required = ('players.create_player', )
+
+
+class PlayerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Player
+    fields = '__all__'
+    permission_required = ('players.change_player', )
+
+    def test_func(self):
+        if self.request.user.has_perm('players.change_any_player'):
+            return True
+        try:
+            player = Player.objects.get(user__username=self.kwargs['username'])
+            return (player.user == self.request.user)
+        except DoesNotExist:
+            return False
+        return False
 
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username']) # or request.POST
 
-class PlayerDetailView(DetailView):
+class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Player
     fields = '__all__'
+
+    def test_func(self):
+        print("I'm in the testing function")
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Player.objects.get(user__username=self.kwargs['username'])
+            return (player.user == self.request.user)
+        except DoesNotExist:
+            return False
+        return False
 
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username']) # or request.POST

@@ -70,6 +70,7 @@ STATICFILES_DIRS = (
 )
 SITE_ID = 1
 
+LOGIN_URL = 'players:login'
 LOGIN_REDIRECT_URL = '/'
 
 TEMPLATES = [

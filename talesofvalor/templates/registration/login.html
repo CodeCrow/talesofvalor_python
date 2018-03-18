@@ -9,6 +9,7 @@
     <div class="form_contain login">
         <form method="post" action="{% url 'players:login' %}">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
         <table>
         {{ form }}
         </table>

@@ -1,5 +1,5 @@
 """
-Overarching routing for the application.  
+Overarching routing for the application.
 
 The routers for each of the sub-application (players, characters, etc) should
 be included as a separate file.
@@ -58,4 +58,4 @@ if settings.DEBUG:
     urlpatterns = [
         url(r'^media/(?P<path>.*)$', serve,
             {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
-        ] + staticfiles_urlpatterns() + urlpatterns
+    ] + staticfiles_urlpatterns() + urlpatterns

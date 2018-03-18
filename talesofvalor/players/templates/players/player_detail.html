@@ -5,20 +5,30 @@
 
 {% block content %}
     <div class="row">
-        <div id="player_detail_character_update" class="col-sm-6">
-            Character Update
+        <div id="player_detail_character_update" class="col-sm-7">
+            <div class="box">
+                <p>CP Available: {{ object.cp_available }}</p>
+                <p>Transfer CP to character list</p>
+                <p><a href={% url "characters:character_create" %}>New Character</a></p>
+            </div>
         </div>
-        <div id="player_detail_player_info" class="col-sm-3">
-            Player Info
+        <div id="player_detail_player_info" class="col-sm-5">
+            <div class="box">
+                <p>Username: {{ object.user.username }}</p>
+                <p>Email: {{ object.user.email }}</p>
+                <p>Game Started: {{ object.game_started }}</p>
+            </div>
         </div>
     </div>
     <div class="row">
-        <table id="player_detail_character_list" class="col-sm-9 list list-characters">
+        <div class="col-sm-12">
+        <table id="player_detail_character_list" class="list list-characters">
             <tr>
                 <td>Table</td>
                 <td>Blah table</td>
             </tr>
         </table>
+        </div>
     </div>
 This is where the player stuff will go.
 {% endblock content %}

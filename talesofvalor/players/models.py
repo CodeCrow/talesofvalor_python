@@ -27,6 +27,13 @@ class Player(models.Model):
     game_started = models.ForeignKey(Event, blank=True, null=True)
     cp_available = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        """Add permissions."""
+        permissions = (
+            ("change_any_player", "Can change any player"),
+            ("view_any_player", "Can view any player"),
+        )
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     """

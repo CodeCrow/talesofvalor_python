@@ -1,9 +1,9 @@
-{% if user.is_authenticated %}
 <nav id="navigation_user" class="navigation-user">
-Player:<a class="indent" href="">{{ user.get_username }}</a><br />
-Character:<a class="indent" href="">#Current Character#</a><br />
-<a href="{% url "players:logout" %}">Log Out</a>
-</nav>
+{% if user.is_authenticated %}
+<p>Player:<a class="indent" href="">{{ user.get_username }}</a></p>
+<p>Character:<a class="indent" href="">#Current Character#</a></p>
+<p><a href="{% url "players:logout" %}">Log Out</a></p>
 {% else %}
-<a href="{% url "players:login" %}">Log In</a>
+<p><a href="{% url "players:login" %}">Log In</a></p>
 {% endif %}
+</nav>
