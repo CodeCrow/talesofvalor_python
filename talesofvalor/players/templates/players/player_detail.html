@@ -9,7 +9,7 @@
             <div class="box">
                 <p>CP Available: {{ object.cp_available }}</p>
                 <p>Transfer CP to character list</p>
-                <p><a href={% url "characters:character_create" %}>New Character</a></p>
+                <p><a href="{% url "characters:character_create" %}?player={{ object.pk }}">New Character</a></p>
             </div>
         </div>
         <div id="player_detail_player_info" class="col-sm-5">
@@ -22,11 +22,15 @@
     </div>
     <div class="row">
         <div class="col-sm-12">
+        <hr />
         <table id="player_detail_character_list" class="list list-characters">
+            <caption>Existing Characters</caption>
+            {% for character in object.character_set.all %}
             <tr>
-                <td>Table</td>
+                <td>{{ character.name }}</td>
                 <td>Blah table</td>
             </tr>
+            {% endfor %}
         </table>
         </div>
     </div>

@@ -27,31 +27,41 @@ class Player(models.Model):
     game_started = models.ForeignKey(Event, blank=True, null=True)
     cp_available = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        """General display of model."""
+        return "{} {}".format(
+            self.first_name,
+            self.last_name
+        )
+
     class Meta:
         """Add permissions."""
+
         permissions = (
             ("change_any_player", "Can change any player"),
             ("view_any_player", "Can view any player"),
         )
 
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     """
     A User has been created.
-    
+
     When a user is created, we also have to create a profile object and attach
     it to the user.  This uses the 'post_save' signal.
     """
     if created:
         Player.objects.create(user=instance)
 
+
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     """
     A User has been updated.
-    
-    When a user has been updated, we have to make sure that the profile attached to
-    it has as well.  This uses the 'post_save' signal.
+
+    When a user has been updated, we have to make sure that the profile
+    attached to it has as well.  This uses the 'post_save' signal.
     """
     instance.player.save()
 
@@ -62,7 +72,7 @@ class Registration(models.Model):
 
     Holds the registration for players for a specific event.
 
-    If this is a player's first event, their record is updated for the 
+    If this is a player's first event, their record is updated for the
     field "game_started"
     """
 
@@ -76,7 +86,7 @@ class Registration(models.Model):
     )
     mealplan_flag = models.BooleanField(
         default=False,
-        help_text=_("Has the player signed up for a meal plan.")
+        help_text=_("Has the player signed up for a meal plan?")
     )
     notes = models.TextField(blank=True, default='')
 

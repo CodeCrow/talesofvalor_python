@@ -7,7 +7,7 @@
         <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
     <div class="form_contain login">
-        <form method="post" action="{% url 'players:login' %}">
+        <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.GET.next }}" />
         <table>
@@ -15,7 +15,7 @@
         </table>
         <input type="submit" value="Log In" class="button" />
         </form>
-    <p>Forgot your password?  <a href="{% url 'players:password_reset' %}">Click here!</a></p>
+    <p>Forgot your password?  <a href="{% url 'password_reset' %}">Click here!</a></p>
     </div>
 </div>
 

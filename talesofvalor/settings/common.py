@@ -32,7 +32,10 @@ ALLOWED_HOSTS = []
 
 ROOT_URLCONF = 'talesofvalor.urls'
 
-
+# Who to send problems to
+ADMINS = [
+    ('Rob Archer', 'rob@crowbringsdaylight.com'),
+]
 
 WSGI_APPLICATION = 'talesofvalor.wsgi.application'
 
@@ -70,13 +73,15 @@ STATICFILES_DIRS = (
 )
 SITE_ID = 1
 
-LOGIN_URL = 'players:login'
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'talesofvalor', 'templates'), ],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'talesofvalor', 'templates'),
+        ],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -116,7 +121,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.admin',
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
@@ -148,6 +152,7 @@ INSTALLED_APPS = (
     'talesofvalor.attendance',
     'talesofvalor.charactermessages',
     'talesofvalor.comments',
+    'django.contrib.admin',
 )
 
 LANGUAGES = (

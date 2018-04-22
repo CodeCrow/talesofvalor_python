@@ -6,9 +6,6 @@ from .views import PlayerCreateView, PlayerUpdateView, PlayerDetailView,\
 
 urlpatterns = [
     url(
-        r'^', include('django.contrib.auth.urls')
-    ),
-    url(
         r'^register/?$',
         RegistrationView.as_view(),
         name='registration'
@@ -28,4 +25,5 @@ urlpatterns = [
         PlayerUpdateView.as_view(),
         name='player_update'
     ),
+    
 ]
