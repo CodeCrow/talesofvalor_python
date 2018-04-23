@@ -11,7 +11,7 @@ urlpatterns = [
         name='event_create'
     ),
     url(
-        r'^(?P<pk>[0-9]+)/update?$',
+        r'^(?P<pk>[0-9]+)/update/?$',
         EventUpdateView.as_view(),
         name='event_update'
     ),

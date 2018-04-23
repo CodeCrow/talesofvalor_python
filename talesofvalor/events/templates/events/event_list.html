@@ -4,13 +4,15 @@
 {% block title %}Events{% endblock title %}
 
 {% block content %}
+{% if perms.events.add_event and object_list %}<a href="{% url "events:event_create" %}">Add one&hellip;</a>{% endif %}
 <table class="list">
 {% for event in object_list %}
     <tr>
-        <td>{{ event.name }}</td>
+        <td><a href="{% url "events:event_detail" pk=event.pk %}">{{ event.name }}</a></td>
+        <td><a href="{% url "events:event_update" pk=event.pk %}">edit</a></td>
     </tr>
 {% empty %}
-    <tr><td>No Events Yet.{% if perms.events.add_event %}  <a href="{% url "events:event_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
+    <tr><td colspan="2">No Events Yet.{% if perms.events.add_event %}  <a href="{% url "events:event_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
 {% endfor %}
 </table>
 

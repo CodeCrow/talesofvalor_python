@@ -1,6 +1,9 @@
 
 table.list {
     width:100%;
+    td {
+        padding: 1em .25em;
+    }
 }
 
 .nav {
@@ -10,6 +13,9 @@ table.list {
     display: inline;
     list-style-type: none;
     padding-right: 20px;
+    &.heading {
+        margin-left:-1em;
+    }
 }
 
 .box {

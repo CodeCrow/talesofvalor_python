@@ -1,5 +1,14 @@
+.heading {
+  font-size: 1.3em;
+  font-weight: 600; }
+
+li.heading {
+  list-style: none; }
+
 table.list {
   width: 100%; }
+  table.list td {
+    padding: 1em .25em; }
 
 .nav {
   padding-left: 0; }
@@ -8,6 +17,8 @@ table.list {
   display: inline;
   list-style-type: none;
   padding-right: 20px; }
+  .nav li.heading {
+    margin-left: -1em; }
 
 .box {
   margin: 0.25em;
