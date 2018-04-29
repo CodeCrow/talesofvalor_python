@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
 from django.views.generic import DetailView
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.urls import reverse
 
@@ -43,12 +44,35 @@ class PlayerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTe
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username']) # or request.POST
 
+class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
+    """
+    Redirect to the detail page of the player who is logged in.
+
+    We are using this so that when a user logs in or goes to a 'home' page,
+    this will move them to the appropriate player detail page.
+    """
+
+    pattern_name = 'players:player_detail'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Figure out where the user should be redirected to.
+
+        User the user object that is in the request, redirect the
+        browser to the correct player detail.
+        """
+
+        player = self.request.user
+        kwargs['username'] = player.username
+        print(player)
+        print(kwargs)
+        return super(PlayerRedirectDetailView, self).get_redirect_url(*args, **kwargs)
+
 class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Player
     fields = '__all__'
 
     def test_func(self):
-        print("I'm in the testing function")
         if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
