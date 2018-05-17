@@ -78,7 +78,7 @@ class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         try:
             player = Player.objects.get(user__username=self.kwargs['username'])
             return (player.user == self.request.user)
-        except DoesNotExist:
+        except Player.DoesNotExist:
             return False
         return False
 
