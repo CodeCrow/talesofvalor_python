@@ -30,8 +30,8 @@ class Player(models.Model):
     def __str__(self):
         """General display of model."""
         return "{} {}".format(
-            self.first_name,
-            self.last_name
+            self.user.first_name,
+            self.user.last_name
         )
 
     class Meta:

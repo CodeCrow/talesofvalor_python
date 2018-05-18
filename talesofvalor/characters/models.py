@@ -25,9 +25,11 @@ class Character(models.Model):
 
     ALIVE = 'alive'
     DEAD = 'dead'
+    RETIRED = 'retired'
     STATUS_CHOICES = (
         (ALIVE, 'Alive'),
-        (DEAD, 'Dead')
+        (DEAD, 'Dead'),
+        (RETIRED, 'Retired'),
     )
 
     player = models.ForeignKey(Player)

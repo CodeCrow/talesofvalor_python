@@ -2,10 +2,12 @@
 from django.views.generic.edit import CreateView, UpdateView
 
 from .models import Character
+from .forms import CharacterForm
 
 class CharacterCreateView(CreateView):
     model = Character
-    fields = '__all__'
+    form_class = CharacterForm
+
 
     def get_initial(self):
         # Get the initial dictionary from the superclass method
