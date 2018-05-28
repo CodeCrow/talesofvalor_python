@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block title %}Players{% endblock title %}
+
+{% block content %}
+    <table id="player_list" class="list list-players">
+        {% for player in objects %}
+        <tr>
+            <td>{{ player }}</td>
+            <td>Blah table</td>
+        </tr>
+        {% endfor %}
+    </table>
+This is where the player stuff will go.
+{% endblock content %}

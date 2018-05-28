@@ -10,3 +10,5 @@ npm-debug.log
 /talesofvalor/settings/local.py
 /media/
 /config/
+/node_modules
+/node_modules/*

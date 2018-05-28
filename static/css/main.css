@@ -26,6 +26,13 @@ table.list {
   border: 1px solid #000;
   border-radius: 1em; }
 
+.data td, .data th {
+  padding: 0.25em; }
+
+.data tr th:first-child {
+  text-align: right;
+  vertical-align: top; }
+
 html {
   box-sizing: border-box; }
 

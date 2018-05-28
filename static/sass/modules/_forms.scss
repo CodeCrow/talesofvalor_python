@@ -1,0 +1,9 @@
+.data {
+    td, th {
+        padding:0.25em;
+    }
+    tr th:first-child {
+        text-align:right;
+        vertical-align: top;
+    }
+}

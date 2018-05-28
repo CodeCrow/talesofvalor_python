@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.urls import reverse
@@ -64,11 +64,16 @@ class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
 
         player = self.request.user
         kwargs['username'] = player.username
-        print(player)
-        print(kwargs)
         return super(PlayerRedirectDetailView, self).get_redirect_url(*args, **kwargs)
 
 class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """
+    Show the details for a player.
+
+    This acts as the "home page" for a player that will show their characters,
+    information about the player, and player actions.
+    """
+
     model = Player
     fields = '__all__'
 
@@ -107,7 +112,6 @@ class RegistrationView(FormView):
 
         There was an error.  Return the form and show errors.
         """
-        print form.errors
         return super(RegistrationView, self).form_invalid(form)
 
     def form_valid(self, form):
@@ -148,3 +152,12 @@ class RegistrationView(FormView):
 
     def get_success_url(self):
         return reverse('players:player_detail', kwargs={'username': self.instance.user.username})
+
+class PlayerListView(LoginRequiredMixin, ListView):
+    """
+    Lists the players.
+
+    A list of the players.  In the view, admin/staff will be able to edit/view any of the players.
+    """
+
+    model = Player
