@@ -8,7 +8,8 @@ li.heading {
 table.list {
   width: 100%; }
   table.list td {
-    padding: 1em .25em; }
+    padding: 1em .25em;
+    vertical-align: top; }
 
 .nav {
   padding-left: 0; }
@@ -25,6 +26,9 @@ table.list {
   padding: 1em;
   border: 1px solid #000;
   border-radius: 1em; }
+
+.content-align-right {
+  text-align: right; }
 
 .data td, .data th {
   padding: 0.25em; }

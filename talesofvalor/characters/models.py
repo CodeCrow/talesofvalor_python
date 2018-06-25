@@ -6,12 +6,14 @@ to players.
 """
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
 from talesofvalor.skills.models import Header, Skill
+from talesofvalor.origins.models import Origin
 
 
 class Character(models.Model):
@@ -54,6 +56,8 @@ class Character(models.Model):
     # The headers and skills that a character has.
     headers = models.ManyToManyField(Header)
     skills = models.ManyToManyField(Skill, through='CharacterSkills')
+    # origins.  Should only be as many as there are types.
+    origins = models.ManyToManyField(Origin)
 
     created = models.DateTimeField(
         _('date created'),
@@ -79,6 +83,9 @@ class Character(models.Model):
         related_name='%(app_label)s_%(class)s_updater',
         null=True
     )
+
+    def get_absolute_url(self):
+        return reverse('characters:character_detail', kwargs={'pk': self.pk})
 
 
 class CharacterSkills(models.Model):

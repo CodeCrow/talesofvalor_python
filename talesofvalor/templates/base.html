@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>{% block title %}This is my new project home page{% endblock title %}</title>
+        <title>{% block bar_title %}This is my new project home page{% endblock bar_title %}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <!-- Latest compiled and minified CSS for bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -19,6 +19,7 @@
             <header class="row">
                 <div class="col-sm-8">
                     HEADER
+                    {% block title %}This is my new project home page{% endblock title %}
                 </div>
                 <div class="col-sm-4">
                     <div class="box">

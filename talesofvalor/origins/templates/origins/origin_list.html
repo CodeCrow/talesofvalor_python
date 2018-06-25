@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Origins{% endblock bar_title %}
+{% block title %}Origins{% endblock title %}
+
+{% block content %}
+
+
+<table class="list">
+<tr>
+    <td class="table-navigation content-align-right" colspan="4">
+        <a class="btn btn-primary" href="{% url 'origins:origin_create' %}">add origin</a>
+    </td>
+</tr>
+<tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>&nbsp;</th>
+</tr>
+{% for origin in object_list %}
+<tr>
+    <td><p><a href="{% url 'origins:origin_update' pk=origin.id %}">{{ origin.name }}</a></p></td>
+    <td>{{ origin.description|truncatewords_html:10 }}</td>
+    <td><p>{{ origin.type }}</p></td>
+    <td>
+        <nav class="item-navigation">
+            <a href="{% url 'origins:origin_update' pk=origin.id %}">Edit</a>
+            Add Skills
+            <a href="{% url 'origins:origin_delete' pk=origin.id %}">Destroy</a>
+        </nav>
+    </td> 
+</tr>
+{% endfor %}
+</table>
+
+
+{% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+{% endblock content %}

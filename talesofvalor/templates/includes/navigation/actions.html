@@ -1,31 +1,44 @@
 {% if user.is_authenticated %}
 <ul id="navigation_action">
-    <li class="heading">Events
-        <li><a href="#">Registration</a></li>
-        <li><a href="{% url 'events:event_list' %}">List</a></li>
+    <li class="heading">Events</li>
+    <li><a href="#">Registration</a></li>
+    <li><a href="{% url 'events:event_list' %}">List</a></li>
     </li>
+    <li class="heading">Basic Info</li>
+    <li><a href="{% url 'origins:origin_list' %}">Backgrounds</a></li>
+    <li><a href="#">Headers</a></li>
+    <li><a href="#">Skills</a></li>
+    <li><a href="#">Skill Tree</a></li>
+    {% if perms.skills.can_edit %}
+    <li><a href="#">Skill Rules</a></li>
+    {% endif %}
 </ul>
+
+{% if perms.skills.view_any_player %}
 <ul id="navigation_action_staff">
-    <li class="heading">Staff Info
-        <li><a href="#">PELS</a></li>
-        <li><a href="#">BGS</a></li>
-        <li><a href="#">Messages</a></li>
-        <li><a href="#">Plots</a></li>
-        <li><a href="#">Tags</a></li>
-    </li>
-    <li class="heading">Characters
-        <li><a href="#">New</a></li>
-        <li><a href="#">List</a></li>
-    </li>
-    <li class="heading">Players
-        <li><a href="#">New</a></li>
-        <li><a href="#">List</a></li>
-    </li>
+    <li class="heading">Staff Info</li>
+    <li><a href="#">PELS</a></li>
+    <li><a href="#">BGS</a></li>
+    <li><a href="#">Messages</a></li>
+    <li><a href="#">Plots</a></li>
+    <li><a href="#">Tags</a></li>
+
+    <li class="heading">Characters</li>
+    <li><a href="#">New</a></li>
+    <li><a href="#">List</a></li>
+        
+    <li class="heading">Players</li>
+    <li><a href="#">New</a></li>
+    <li><a href="#">List</a></li>
+
 </ul>
+{% endif %}
 {% else %}
 <ul id="navigation_action">
     <li class="heading">Welcome!
-        <li><a href="{% url 'players:registration' %}">Register</a></li>
+        <ul>
+            <li><a href="{% url 'players:registration' %}">Register</a></li>
+        </ul>
     </li>
 </ul>
 {% endif %}

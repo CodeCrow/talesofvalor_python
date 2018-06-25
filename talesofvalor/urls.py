@@ -52,6 +52,14 @@ urlpatterns += i18n_patterns(
             app_name="talesofvalor"
         )
     ),
+    url(  # router for the origins application.
+        r'^origins/',
+        include(
+            'talesofvalor.origins.urls',
+            namespace="origins",
+            app_name="talesofvalor"
+        )
+    ),
     url(r'^', include('cms.urls')),
 )
 

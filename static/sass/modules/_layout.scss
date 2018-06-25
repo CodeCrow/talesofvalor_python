@@ -3,6 +3,7 @@ table.list {
     width:100%;
     td {
         padding: 1em .25em;
+        vertical-align: top;
     }
 }
 
@@ -23,4 +24,8 @@ table.list {
     padding: 1em;
     border: 1px solid $black;
     border-radius: 1em;
+}
+
+.content-align-right {
+    text-align:right;
 }
