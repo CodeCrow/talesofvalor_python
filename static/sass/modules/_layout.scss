@@ -7,6 +7,10 @@ table.list {
     }
 }
 
+li.heading {
+    margin-left:-1em;
+}
+
 .nav {
     padding-left: 0;
 }
@@ -14,9 +18,6 @@ table.list {
     display: inline;
     list-style-type: none;
     padding-right: 20px;
-    &.heading {
-        margin-left:-1em;
-    }
 }
 
 .box {

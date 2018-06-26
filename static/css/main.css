@@ -11,6 +11,9 @@ table.list {
     padding: 1em .25em;
     vertical-align: top; }
 
+li.heading {
+  margin-left: -1em; }
+
 .nav {
   padding-left: 0; }
 
@@ -18,8 +21,6 @@ table.list {
   display: inline;
   list-style-type: none;
   padding-right: 20px; }
-  .nav li.heading {
-    margin-left: -1em; }
 
 .box {
   margin: 0.25em;

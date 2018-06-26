@@ -32,8 +32,18 @@ class Skill(models.Model):
     bgs_flag = models.BooleanField(default=False)
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
-    created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True)
-    modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True)
+    created_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_author',
+        null=True
+    )
+    modified_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_updater',
+        null=True
+    )
 
 class Header(models.Model):
     """
@@ -54,10 +64,27 @@ class Header(models.Model):
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
-    created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True)
-    modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True)
+    created_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_author',
+        null=True
+    )
+    modified_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_updater',
+        null=True
+    )
 
 class HeaderSkill(models.Model):
+    """
+    Links up the Header and skills.
+
+    This also holds the cost for a skill under a specific header,
+    because skills cost different amounts under different headers.
+    """
+
     header = models.ForeignKey(Header, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(null=False, blank=False)

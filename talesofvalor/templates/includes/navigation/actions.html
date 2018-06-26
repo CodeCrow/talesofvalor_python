@@ -3,10 +3,9 @@
     <li class="heading">Events</li>
     <li><a href="#">Registration</a></li>
     <li><a href="{% url 'events:event_list' %}">List</a></li>
-    </li>
     <li class="heading">Basic Info</li>
     <li><a href="{% url 'origins:origin_list' %}">Backgrounds</a></li>
-    <li><a href="#">Headers</a></li>
+    <li><a href="{% url 'skills:header_list' %}">Headers</a></li>
     <li><a href="#">Skills</a></li>
     <li><a href="#">Skill Tree</a></li>
     {% if perms.skills.can_edit %}
