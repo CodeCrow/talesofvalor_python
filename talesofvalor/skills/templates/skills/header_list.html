@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Headers{% endblock bar_title %}
+{% block title %}Headers{% endblock title %}
+
+{% block content %}
+
+
+<table class="list">
+<tr>
+    <td class="table-navigation content-align-right" colspan="4">
+        <a class="btn btn-primary" href="{% url 'skills:header_create' %}">add header</a>
+    </td>
+</tr>
+<tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>&nbsp;</th>
+</tr>
+{% for header in object_list %}
+<tr>
+    <td><p><a href="{% url 'skills:header_update' pk=header.id %}">{{ header.name }}</a></p></td>
+    <td>{{ header.description|truncatewords_html:10 }}</td>
+    <td><p>{{ header.type }}</p></td>
+    <td>
+        <nav class="item-navigation">
+            <a href="{% url 'skills:header_update' pk=header.id %}">Edit</a>
+            Add Skills
+            <a href="{% url 'skills:header_delete' pk=header.id %}">Destroy</a>
+        </nav>
+    </td> 
+</tr>
+{% endfor %}
+</table>
+
+
+{% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+{% endblock content %}
