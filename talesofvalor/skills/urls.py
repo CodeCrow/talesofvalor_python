@@ -2,7 +2,9 @@
 from django.conf.urls import url
 
 from .views import HeaderCreateView, HeaderUpdateView,\
-    HeaderDetailView, HeaderListView, HeaderDeleteView
+    HeaderDetailView, HeaderListView, HeaderDeleteView,\
+    SkillCreateView, SkillUpdateView,\
+    SkillDetailView, SkillListView, SkillDeleteView
 
 urlpatterns = [
     url(
@@ -16,18 +18,43 @@ urlpatterns = [
         name='header_create'
     ),
     url(
-        r'headers/^(?P<pk>[0-9]+)/?$',
+        r'^headers/(?P<pk>[0-9]+)/?$',
         HeaderDetailView.as_view(),
         name='header_detail'
     ),
     url(
-        r'headers/^(?P<pk>[0-9]+)/edit/?$',
+        r'^headers/(?P<pk>[0-9]+)/edit/?$',
         HeaderUpdateView.as_view(),
         name='header_update'
     ),
     url(
-        r'headers/^(?P<pk>[0-9]+)/delete/?$',
+        r'^headers/(?P<pk>[0-9]+)/delete/?$',
         HeaderDeleteView.as_view(),
         name='header_delete'
+    ),
+    url(
+        r'^$',
+        SkillListView.as_view(),
+        name='skill_list'
+    ),
+    url(
+        r'^add/?$',
+        SkillCreateView.as_view(),
+        name='skill_create'
+    ),
+    url(
+        r'^(?P<pk>[0-9]+)/?$',
+        SkillDetailView.as_view(),
+        name='skill_detail'
+    ),
+    url(
+        r'^(?P<pk>[0-9]+)/edit/?$',
+        SkillUpdateView.as_view(),
+        name='skill_update'
+    ),
+    url(
+        r'^(?P<pk>[0-9]+)/delete/?$',
+        SkillDeleteView.as_view(),
+        name='skill_delete'
     ),
 ]
