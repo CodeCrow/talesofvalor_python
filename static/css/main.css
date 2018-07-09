@@ -28,6 +28,9 @@ li.heading {
   border: 1px solid #000;
   border-radius: 1em; }
 
+.item-navigation {
+  margin-right: 0.25em; }
+
 .content-align-right {
   text-align: right; }
 

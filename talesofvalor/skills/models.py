@@ -24,7 +24,6 @@ class Skill(models.Model):
 
     Attached to headers that are attached to characters.
     """
-
     name = models.CharField(max_length=100)
     tag = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
@@ -45,6 +44,13 @@ class Skill(models.Model):
         null=True
     )
 
+    def __str__(self):
+        return self.name
+
+    @property
+    def headers(self):
+        return ', '.join([i for i in self.headerskill_set.values_list("header__name", flat=True)])
+
 class Header(models.Model):
     """
     Header containing skills.
@@ -60,7 +66,7 @@ class Header(models.Model):
     category = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
     cost = models.PositiveIntegerField(null=False, blank=False)
-    hidden_flag = models.BooleanField(default=False)
+    hidden_flag = models.BooleanField("hidden?", default=False)
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
@@ -77,6 +83,10 @@ class Header(models.Model):
         null=True
     )
 
+    def __str__(self):
+        return self.name
+
+
 class HeaderSkill(models.Model):
     """
     Links up the Header and skills.
@@ -89,3 +99,9 @@ class HeaderSkill(models.Model):
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{header}:{skill}".format(
+            header=self.header,
+            skill=self.skill
+        )

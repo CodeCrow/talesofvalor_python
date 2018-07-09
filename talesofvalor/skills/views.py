@@ -3,15 +3,17 @@ These are views that are used for viewing and editing headers and skills.
 """
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView,\
     DeleteView
 from django.views.generic import DetailView, ListView
 
 from .models import Header, Skill
+from .forms import SkillForm, HeaderSkillFormSet
 
 
-INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "skills"]
+INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag"]
 INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "attention_flag", "bgs_flag"]
 
 class HeaderCreateView(PermissionRequiredMixin, CreateView):
@@ -69,16 +71,51 @@ class HeaderListView(LoginRequiredMixin, ListView):
     model = Header
     paginate_by = 25
 
+    def get_queryset(self):
+        filter_args = {}
+        name_filter = self.request.GET.get('name', None)
+        category_filter = self.request.GET.get('category', None)
+        description_filter = self.request.GET.get('description', None)
+        hidden_filter = self.request.GET.get('hidden_flag', None)
+        if name_filter and len(name_filter):
+            filter_args['name'] = name_filter
+        if category_filter and len(category_filter):
+            filter_args['category'] = category_filter
+        if description_filter and len(description_filter):
+            filter_args['description'] = description_filter
+        if hidden_filter and len(hidden_filter):
+            filter_args['hidden_flag'] = (int(hidden_filter) == 1)
+        new_context = self.model.objects.filter(**filter_args)
+        return new_context
+
 class SkillCreateView(PermissionRequiredMixin, CreateView):
     """
     Allows the creation of a skill.
     """
 
     model = Skill
-    fields = INCLUDE_FOR_EDIT_SKILL
+    form_class = SkillForm
     permission_required = ('skills.can_edit', )
     success_url = reverse_lazy('skills:skill_list')
 
+    def get_context_data(self, **kwargs):
+        context = super(SkillCreateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['headerskill_formset'] = HeaderSkillFormSet(self.request.POST)
+        else:
+            context['headerskill_formset'] = HeaderSkillFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['headerskill_formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return redirect(self.success_url)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 class SkillUpdateView(PermissionRequiredMixin, UpdateView):
     """
@@ -86,9 +123,29 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
     """
 
     model = Skill
-    fields = INCLUDE_FOR_EDIT_SKILL
+    form_class = SkillForm
     permission_required = ('skills.can_edit', )
     success_url = reverse_lazy('skills:skill_list')
+
+    def get_context_data(self, **kwargs):
+        context = super(SkillUpdateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['headerskill_formset'] = HeaderSkillFormSet(self.request.POST, instance=self.object)
+            context['headerskill_formset'].full_clean()
+        else:
+            context['headerskill_formset'] = HeaderSkillFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['headerskill_formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return redirect(self.success_url)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 class SkillDeleteView(PermissionRequiredMixin, DeleteView):
     """
@@ -121,3 +178,25 @@ class SkillListView(LoginRequiredMixin, ListView):
 
     model = Skill
     paginate_by = 25
+
+    def get_queryset(self):
+        filter_args = {}
+        name_filter = self.request.GET.get('name', None)
+        description_filter = self.request.GET.get('description', None)
+        hidden_filter = self.request.GET.get('hidden_flag', None)
+        bgs_filter = self.request.GET.get('bgs_flag', None)
+        unlinked_filter = self.request.GET.get('unlinked_flag', None)
+        if name_filter and len(name_filter):
+            filter_args['name'] = name_filter
+        if description_filter and len(description_filter):
+            filter_args['description'] = description_filter
+        if hidden_filter and len(hidden_filter):
+            filter_args['headerskill__header__hidden_flag'] = (int(hidden_filter) == 1)
+        if bgs_filter and len(bgs_filter):
+            filter_args['bgs_flag'] = (int(bgs_filter) == 1)
+        if unlinked_filter:
+            print("I'm unlinking")
+            filter_args['headerskill__isnull'] = True
+        print(filter_args)
+        new_context = self.model.objects.filter(**filter_args)
+        return new_context
