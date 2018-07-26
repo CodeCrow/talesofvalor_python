@@ -7,7 +7,7 @@
     <li><a href="{% url 'origins:origin_list' %}">Backgrounds</a></li>
     <li><a href="{% url 'skills:header_list' %}">Headers</a></li>
     <li><a href="{% url 'skills:skill_list' %}">Skills</a></li>
-    <li><a href="#">Skill Tree</a></li>
+    <li><a href="{% url 'skills:skill_tree' %}">Skill Tree</a></li>
     {% if perms.skills.can_edit %}
     <li><a href="#">Skill Rules</a></li>
     {% endif %}

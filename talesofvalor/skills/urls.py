@@ -3,7 +3,7 @@ from django.conf.urls import url
 
 from .views import HeaderCreateView, HeaderUpdateView,\
     HeaderDetailView, HeaderListView, HeaderDeleteView,\
-    SkillCreateView, SkillUpdateView,\
+    SkillCreateView, SkillUpdateView, SkillTreeView,\
     SkillDetailView, SkillListView, SkillDeleteView
 
 urlpatterns = [
@@ -36,6 +36,11 @@ urlpatterns = [
         r'^$',
         SkillListView.as_view(),
         name='skill_list'
+    ),
+    url(
+        r'^tree/$',
+        SkillTreeView.as_view(),
+        name='skill_tree'
     ),
     url(
         r'^add/?$',

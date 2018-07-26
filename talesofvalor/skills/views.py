@@ -195,8 +195,26 @@ class SkillListView(LoginRequiredMixin, ListView):
         if bgs_filter and len(bgs_filter):
             filter_args['bgs_flag'] = (int(bgs_filter) == 1)
         if unlinked_filter:
-            print("I'm unlinking")
             filter_args['headerskill__isnull'] = True
-        print(filter_args)
-        new_context = self.model.objects.filter(**filter_args)
-        return new_context
+        queryset = self.model.objects.filter(**filter_args)
+        return queryset
+
+class SkillTreeView(ListView):
+    """
+    Show Skills with Headers, Grouped by category
+
+    Show a list of headers, grouped by category.
+
+    All headers of a category will appear under that category, then a list of skills under that header.
+    """
+
+    model = Header
+    fields = '__all__'
+    template_name = 'skills/skill_tree.html'
+
+    def get_queryset(self):
+        queryset = self.model.objects.all().order_by('category')
+        return queryset
+
+
+
