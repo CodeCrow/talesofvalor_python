@@ -30,4 +30,9 @@ urlpatterns = [
         OriginDeleteView.as_view(),
         name='origin_delete'
     ),
+    url(
+        r'^(?P<pk>[0-9])/addskill/?$',
+        OriginAddSkillView.as_view(),
+        name='origin_addskill'
+    )
 ]

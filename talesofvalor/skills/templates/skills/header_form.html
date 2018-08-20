@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load cms_tags %}
 
-{% block bar_title %}{{ object.name }} : Skills{% endblock bar_title %}
-{% block title %}{{ object.name }}{% endblock title %}
+{% block bar_title %}{% if object.name %}{{ object.name }}{% else %}Add Header{% endif %} : Headers{% endblock bar_title %}
+{% block title %}{% if object.name %}{{ object.name }}{% else %}Add Header{% endif %} : Headers{% endblock title %}
 
 {% block content %}
 <form action="" method="post">{% csrf_token %}

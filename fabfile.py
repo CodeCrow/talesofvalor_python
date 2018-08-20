@@ -1,12 +1,13 @@
 import datetime
 import importlib
+import logging
 import os
 from distutils.util import strtobool
 
 from django.conf import settings
 
-from fabric.api import env, hide, prefix, run
-from fabric.operations import get, local
+from fabric import Config, Connection, task
+from invoke import Exit
 
 try:
     local_db = importlib.import_module(os.environ['DJANGO_SETTINGS_MODULE']).DATABASES
@@ -22,6 +23,11 @@ LOCAL_PROJECT_DIR = os.path.abspath(
     os.path.dirname(__file__)
 )
 
+class Environment(object):
+    verbose_name = 'default'
+
+env = Environment();
+
 env.project_name = 'talesofvalor'
 env.mysql_defaults_file = '~/.my.cnf'
 try:
@@ -29,6 +35,8 @@ try:
 except KeyError:
     env.settings_module_for_management_commands = 'talesofvalor.settings.local'
 
+FORMAT="%(name)s %(funcName)s:%(lineno)d %(message)s"
+logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 def _prep_bool_arg(arg):
     """
@@ -40,74 +48,19 @@ def _prep_bool_arg(arg):
     """
     return bool(strtobool(str(arg)))
 
-def stage():
-    """
-    Sets the environment variables needed for the Masterpiece Book Club
-    Podcast publishing box.
-    """
-    env.verbose_name = 'stage'
-    env.forward_agent = True
-    env.hosts = ['murderofone@bonanza.dreamhost.com']
-    env.db_settings = stage_db['default']
-    env.db_dump_dir = '/home/murderofone/tov.crowbringsdaylight.com/dumpdata'
-    env.virtualenv_path = (
-        '/home/murderofone/.virtualenvs/talesofvalor'
-    )
-    env.project_dir = (
-        '/home/murderofone/tov.crowbringsdaylight.com'
-    )
-    env.default_project_branch = 'stage'
-    env.refresh_app_command = (
-        'pkill python'
-    ).format(
-        env.project_dir
-    )
-    env.settings_module_for_management_commands = 'talesofvalor.settings.stage'
-    env.mysql_defaults_file = '/home/murderofone/tov.talesofvalor.com/config/mysql.cnf'
-
-
-
-
-def production():
-    """
-    Sets the environment variables needed for the Masterpiece Book Club
-    Podcast publishing box.
-    """
-    env.verbose_name = 'production'
-    env.forward_agent = True
-    env.hosts = ['wgbh@184.72.241.218']
-    env.db_settings = prod_db['default']
-    env.db_dump_dir = '/home/wgbh/Masterpiece/dumpdata'
-    env.virtualenv_path = (
-        '/home/wgbh/__virtualenvs/Stacks-Masterpiece-BookClubPodcast'
-    )
-    env.project_dir = (
-        '/home/wgbh/Masterpiece/Stacks-Masterpiece-BookClubPodcast'
-    )
-    env.default_project_branch = 'master '
-    env.restart_webserver_command = 'sudo service apache2 restart'
-    env.refresh_app_command = (
-        'touch {0}/mp_bookpod/wsgi/prod.py'
-    ).format(
-        env.project_dir
-    )
-    env.settings_module_for_management_commands = 'mp_bookpod.settings.prod'
-    env.mysql_defaults_file = '/home/wgbh/Masterpiece/.mysql-mp_bookpod.cnf'
-    env.live_publish_rsync_root = (
-        '/home/wgbh/Masterpiece/Stacks-Masterpiece-BookClubPodcast/'
-        'STATIC_SITE_FILES/wgbh/masterpiece/podcast-book-club'
-    )
-
-
-def deploy(branch=None, migrate=False, update_requirements=False):
+@task
+def deploy(c, environment, branch=None, migrate=False, update_requirements=False):
     """
     Deploys the mp_bookpod application to an environment as dictated
     by an environment setup function (like `staging`)
     """
-    migrate = _prep_bool_arg(migrate)
-    update_requirements = _prep_bool_arg(update_requirements)
-    with hide('running'):
-        with prefix(
+    # migrate = _prep_bool_arg(migrate)
+    # update_requirements = _prep_bool_arg(update_requirements)
+    print("PRINTING WHATEVER C IS")
+    env = c.config[environment]
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+        c.run('ls')
+        with c.prefix(
             'source {}/bin/activate && cd {}'.format(
                 env.virtualenv_path,
                 env.project_dir
@@ -115,26 +68,26 @@ def deploy(branch=None, migrate=False, update_requirements=False):
         ):
             if branch is None:
                 branch = env.default_project_branch
-            run(
+            c.run(
                 'echo Pulling talesofvalor on {}...'.format(
                     env.verbose_name
                 )
             )
-            run('git pull')
-            run(
+            c.run('git pull')
+            c.run(
                 'echo Checking out {} branch...'.format(
                     branch
                 )
             )
-            run('git checkout {}'.format(branch))
+            c.run('git checkout {}'.format(branch))
 
             if update_requirements is True:
-                run('echo Updating requirements...')
-                run('pip install -r requirements.txt')
+                c.run('echo Updating requirements...')
+                c.run('pip install -r requirements.txt')
 
             if migrate is True:
-                run('echo Migrating database schema...')
-                run(
+                c.run('echo Migrating database schema...')
+                c.run(
                     'python manage.py migrate --settings={settings_module}'
                     .format(
                         settings_module=env.
@@ -142,18 +95,18 @@ def deploy(branch=None, migrate=False, update_requirements=False):
                     )
                 )
 
-            run('echo Updating static files...')
-            run(
+            c.run('echo Updating static files...')
+            c.run(
                 'python manage.py collectstatic --ignore=node_modules '
                 '--ignore=sass --ignore=hacks --noinput '
                 '--settings={settings_module}'.format(
                     settings_module=env.settings_module_for_management_commands
                 )
             )
-            run('echo Refreshing application...')
-            run(env.refresh_app_command)
+            c.run('echo Refreshing application...')
+            c.run(env.refresh_app_command)
 
-
+'''
 def _dump_remote_db():
     """
     Dumps a remote MySQL database
@@ -304,4 +257,4 @@ def sync_all(ingest_db=True):
     """
     sync_database(ingest=ingest_db)
     sync_media()
-
+'''

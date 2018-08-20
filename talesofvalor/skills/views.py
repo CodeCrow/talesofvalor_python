@@ -78,15 +78,17 @@ class HeaderListView(LoginRequiredMixin, ListView):
         description_filter = self.request.GET.get('description', None)
         hidden_filter = self.request.GET.get('hidden_flag', None)
         if name_filter and len(name_filter):
-            filter_args['name'] = name_filter
+            filter_args['name__istartswith'] = name_filter
         if category_filter and len(category_filter):
-            filter_args['category'] = category_filter
+            filter_args['category__istartswith'] = category_filter
         if description_filter and len(description_filter):
-            filter_args['description'] = description_filter
+            filter_args['description__icontains'] = description_filter
         if hidden_filter and len(hidden_filter):
             filter_args['hidden_flag'] = (int(hidden_filter) == 1)
-        new_context = self.model.objects.filter(**filter_args)
-        return new_context
+        queryset = self.model.objects.filter(**filter_args)
+        print("CONTEXT:")
+        print(filter_args)
+        return queryset
 
 class SkillCreateView(PermissionRequiredMixin, CreateView):
     """
@@ -187,15 +189,17 @@ class SkillListView(LoginRequiredMixin, ListView):
         bgs_filter = self.request.GET.get('bgs_flag', None)
         unlinked_filter = self.request.GET.get('unlinked_flag', None)
         if name_filter and len(name_filter):
-            filter_args['name'] = name_filter
+            filter_args['name__istartswith'] = name_filter
         if description_filter and len(description_filter):
-            filter_args['description'] = description_filter
+            filter_args['description__icontains'] = description_filter
         if hidden_filter and len(hidden_filter):
             filter_args['headerskill__header__hidden_flag'] = (int(hidden_filter) == 1)
         if bgs_filter and len(bgs_filter):
             filter_args['bgs_flag'] = (int(bgs_filter) == 1)
         if unlinked_filter:
             filter_args['headerskill__isnull'] = True
+        print("SKILLS CONTEXT:")
+        print(filter_args)
         queryset = self.model.objects.filter(**filter_args)
         return queryset
 
