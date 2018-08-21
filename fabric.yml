@@ -1,12 +1,15 @@
+project_name: talesofvalor
 stage: 
   verbose_name: stage
   forward_agent: True
   hosts:
     bonanza.dreamhost.com
   user: murderofone
-  db_dump_dir: /home/murderofone/tov.crowbringsdaylight.com/dumpdata
+  db_dump_dir: /home/murderofone/tov.crowbringsdaylight.com/dumpdata 
+  db_name: talesofvalor
   virtualenv_path: /home/murderofone/.virtualenvs/talesofvalor
   project_dir: /home/murderofone/tov.crowbringsdaylight.com
+  media_path: /home/murderofone/tov.crowbringsdaylight.com/public/media
   default_project_branch: stage 
   refresh_app_command: pkill python
   settings_module_for_management_commands: talesofvalor.settings.stage
@@ -18,8 +21,10 @@ production:
     talesofvalor.com
   user: talesof
   db_dump_dir: /home/talesof/rhiven.talesofvalor.com/dumpdata
+  db_name: talesofvalor_python
   virtualenv_path: /home/talesof/rhiven.talesofvalor.com/ENV
   project_dir: /home/talesof/rhiven.talesofvalor.com
+  media_path: /home/talesof/rhiven.talesofvalor.com/public/media
   default_project_branch: master 
   refresh_app_command: touch /home/talesof/rhiven.talesofvalor.com/tmp/restart.txt
   settings_module_for_management_commands: talesofvalor.settings.production

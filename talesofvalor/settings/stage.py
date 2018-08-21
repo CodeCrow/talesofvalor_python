@@ -7,10 +7,10 @@ ALLOWED_HOSTS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'talesof_rhiven',
-        'USER': 'fodder',
-        'PASSWORD': 'wereunicorn',
-        'HOST': 'mysql.talesofvalor.com'
+        'NAME': 'talesofvalor',
+        'USER': 'cr0w_us3r',
+        'PASSWORD': 't3stc0rvid',
+        'HOST': 'mysql.crowbringsdaylight.com'
     }
 }
 

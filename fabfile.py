@@ -30,10 +30,7 @@ env = Environment();
 
 env.project_name = 'talesofvalor'
 env.mysql_defaults_file = '~/.my.cnf'
-try:
-    env.settings_module_for_management_commands = os.environ['DJANGO_SETTINGS_MODULE']
-except KeyError:
-    env.settings_module_for_management_commands = 'talesofvalor.settings.local'
+
 
 FORMAT="%(name)s %(funcName)s:%(lineno)d %(message)s"
 logging.basicConfig(format=FORMAT, level=logging.INFO)
@@ -48,15 +45,20 @@ def _prep_bool_arg(arg):
     """
     return bool(strtobool(str(arg)))
 
+def _get_settings_file():
+    try:
+        return os.environ['DJANGO_SETTINGS_MODULE']
+    except KeyError:
+        return 'talesofvalor.settings.local'
+
 @task
 def deploy(c, environment, branch=None, migrate=False, update_requirements=False):
     """
     Deploys the mp_bookpod application to an environment as dictated
     by an environment setup function (like `staging`)
     """
-    # migrate = _prep_bool_arg(migrate)
-    # update_requirements = _prep_bool_arg(update_requirements)
-    print("PRINTING WHATEVER C IS")
+    migrate = _prep_bool_arg(migrate)
+    update_requirements = _prep_bool_arg(update_requirements)
     env = c.config[environment]
     with Connection(env.hosts, user=env.user, config=c.config) as c:
         c.run('ls')
@@ -106,17 +108,17 @@ def deploy(c, environment, branch=None, migrate=False, update_requirements=False
             c.run('echo Refreshing application...')
             c.run(env.refresh_app_command)
 
-'''
-def _dump_remote_db():
+
+def _dump_remote_db(c):
     """
     Dumps a remote MySQL database
     """
+    env = c.config
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
     dump_filename_base = "{project_name}-{file_key}-{timestamp}.sql"
     file_key = env.verbose_name
     dump_dir = env.db_dump_dir
-    command = run
-    database_name = env.db_settings.get('NAME')
+    database_name = env.db_name
     file_key = "{}-full".format(file_key)
 
     dump_filename = dump_filename_base.format(
@@ -129,11 +131,12 @@ def _dump_remote_db():
         dump_dir, dump_filename
     )
 
-    with hide('running'):
-        command(
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+
+        c.run(
             'echo Dumping {} database...'.format(env.verbose_name)
         )
-        command(
+        c.run(
             'mysqldump --defaults-file={defaults_file} '
             '{database_name} > {backup_location}'.format(
                 defaults_file=env.mysql_defaults_file,
@@ -144,7 +147,7 @@ def _dump_remote_db():
     return backup_location
 
 
-def _ingest_db(location):
+def _ingest_db(c, location):
     """
     Ingests a MySQL database from a dumpfile
     """
@@ -188,7 +191,7 @@ def _ingest_db(location):
         )
 
 
-def _retrieve_db_dumpfile(location):
+def _retrieve_db_dumpfile(c, location):
     """
     Retrieves a .sql file on a remote server (at `location`)
     into LOCAL_DUMPDATA_FOLDER.
@@ -199,22 +202,24 @@ def _retrieve_db_dumpfile(location):
     Requires that a env setup function (like `demo_server`) be run prior e.g.:
     $ fab demo_server retrieve_database_dump
     """
-    with hide('running'):
-        local(
+    env = c.config
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+        c.run(
             'echo Retrieving {} into {}...'.format(
                 location,
                 LOCAL_DUMPDATA_FOLDER
             )
         )
-        get(location, LOCAL_DUMPDATA_FOLDER)
         path, filename = os.path.split(location)
-        return os.path.join(
+        destination = os.path.join(
             LOCAL_DUMPDATA_FOLDER,
             filename
         )
+        c.get(location, destination)
+        return destination
 
-
-def sync_database(ingest=True):
+@task
+def sync_database(c, environment, ingest=True):
     """
     Dumps out a remote database (as specified by an environment setup
     function like `demo_server`) and ingests it into the local database.
@@ -223,38 +228,43 @@ def sync_database(ingest=True):
               immediately ingested
     """
     ingest = _prep_bool_arg(ingest)
-
-    remote_location = _dump_remote_db()
-    local_dumpfile_location = _retrieve_db_dumpfile(remote_location)
+    env = c.config[environment]
+    c.config.load_overrides(env)
+    settings.configure()
+    current_settings = _get_settings_file()
+    remote_location = _dump_remote_db(c)
+    local_dumpfile_location = _retrieve_db_dumpfile(c, remote_location)
 
     if ingest is True:
-        _ingest_db(local_dumpfile_location)
+       pass #  _ingest_db(env, local_dumpfile_location)
 
-
-def sync_media():
+@task
+def sync_media(c, environment):
     """
     Downloads user-uploaded media from a server to the
     local settings.MEDIA_ROOT
     """
-    local(
+    env = c.config[environment]
+    settings.configure()
+    current_settings = _get_settings_file()
+    c.run(
         'echo Getting media files from {}...'.format(env.verbose_name)
     )
-    with hide('running'):
-        local(
-            'rsync -avz --rsh="ssh" {remote_host}:'
-            '{remote_folder}/ {media_root}/'.format(
-                remote_host=env.host_string,
-                remote_folder=env.media_folder.rstrip('/'),
-                media_root=settings.MEDIA_ROOT.rstrip('/')
-            )
+    c.run(
+        'rsync -avz --rsh="ssh" {remote_user}@{remote_host}:'
+        '{remote_folder}/ {media_root}/'.format(
+            remote_user=env.user,
+            remote_host=env.hosts,
+            remote_folder=env.media_path.rstrip('/'),
+            media_root=settings.MEDIA_ROOT.rstrip('/')
         )
+    )
 
-
-def sync_all(ingest_db=True):
+@task
+def sync_all(c, environment, ingest_db=True):
     """
     Downloads all user-uploaded media and installs a database dump from
     a remote server
     """
-    sync_database(ingest=ingest_db)
-    sync_media()
-'''
+    sync_database(c, environment, ingest=ingest_db)
+    sync_media(c, environment)
