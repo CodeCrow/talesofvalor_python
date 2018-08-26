@@ -1,4 +1,4 @@
-{% load cms_tags menu_tags sekizai_tags staticfiles %}
+{% load cms_tags menu_tags sekizai_tags staticfiles page_tags %}
 <!doctype html>
 <html>
     <head>
@@ -20,6 +20,7 @@
                 <div class="col-sm-8">
                     HEADER
                     {% block title %}This is my new project home page{% endblock title %}
+                    {% include_page_tags request.current_page %}
                 </div>
                 <div class="col-sm-4">
                     <div class="box">

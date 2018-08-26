@@ -8,15 +8,15 @@ be included as a separate file.
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from cms.sitemaps import CMSSitemap
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.contrib.sitemaps.views import sitemap
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.static import serve
+
+from cms.sitemaps import CMSSitemap
 
 admin.autodiscover()
 
@@ -28,6 +28,11 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),  # NOQA
     url(r'^', include('django.contrib.auth.urls')),
+    url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')), # For tags
+    # for the wiki
+    url(r'^notifications/', include('django_nyt.urls')),
+    url(r'^wiki/', include('wiki.urls')),
+    # main application
     url(  # router for the player application.
         r'^players/',
         include(

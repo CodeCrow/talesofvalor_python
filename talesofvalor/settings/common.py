@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+    'wiki.plugins.macros.apps.MacrosConfig',
     'cms',
     'menus',
     'sekizai',
@@ -142,6 +143,20 @@ INSTALLED_APPS = (
     'djangocms_snippet',
     'djangocms_googlemap',
     'djangocms_video',
+    # wiki
+    'django.contrib.humanize.apps.HumanizeConfig',
+    'django_nyt.apps.DjangoNytConfig',
+    'mptt',
+    'sorl.thumbnail',
+    'wiki.apps.WikiConfig',
+    'wiki.plugins.attachments.apps.AttachmentsConfig',
+    'wiki.plugins.notifications.apps.NotificationsConfig',
+    'wiki.plugins.images.apps.ImagesConfig',
+    # For tagging
+    'taggit',
+    'taggit_autosuggest',
+    'djangocms_page_tags',
+    # Main ToV code
     'talesofvalor',
     'talesofvalor.players',
     'talesofvalor.skills',

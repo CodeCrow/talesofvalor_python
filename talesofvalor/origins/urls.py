@@ -2,7 +2,8 @@
 from django.conf.urls import url
 
 from .views import OriginCreateView, OriginUpdateView,\
-    OriginDetailView, OriginListView, OriginDeleteView
+    OriginDetailView, OriginListView, OriginDeleteView,\
+    OriginAddSkillView
 
 urlpatterns = [
     url(
