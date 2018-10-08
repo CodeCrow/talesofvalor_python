@@ -29,9 +29,6 @@ urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),  # NOQA
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')), # For tags
-    # for the wiki
-    url(r'^notifications/', include('django_nyt.urls')),
-    url(r'^wiki/', include('wiki.urls')),
     # main application
     url(  # router for the player application.
         r'^players/',

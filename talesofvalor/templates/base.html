@@ -20,7 +20,9 @@
                 <div class="col-sm-8">
                     HEADER
                     {% block title %}This is my new project home page{% endblock title %}
-                    {% include_page_tags request.current_page %}
+                    {% if request.current_page %}
+                        {% include_page_tags request.current_page %}
+                    {% endif %}
                 </div>
                 <div class="col-sm-4">
                     <div class="box">
