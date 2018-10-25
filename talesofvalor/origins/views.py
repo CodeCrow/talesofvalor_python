@@ -66,6 +66,7 @@ class OriginAddSkillView(LoginRequiredMixin, FormView):
     """
     template_name = 'origins/origin_addskill.html'
     form_class = OriginAddSkillForm
+    success_url = reverse_lazy('origins:origin_list')
 
 class OriginListView(LoginRequiredMixin, ListView):
     """

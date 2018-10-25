@@ -28,7 +28,7 @@
     <td>
         <nav class="item-navigation">
             <a href="{% url 'origins:origin_update' pk=origin.id %}">Edit</a>
-            Add Skills
+            <a href="{% url 'origins:origin_addskill' pk=origin.id %}">Add Skills</a>
             <a href="{% url 'origins:origin_delete' pk=origin.id %}">Destroy</a>
         </nav>
     </td> 
