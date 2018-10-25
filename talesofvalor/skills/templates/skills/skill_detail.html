@@ -19,7 +19,7 @@
 <h2>Skills</h2>
 <ul>
 	{% for headerskill in object.headerskill_set.all %}
-	<li><a href="{% url 'skills:skill_detail' pk=headerskill.skill.id %}">{{ headerskill.skill }}</a>&mdash;{{ headerskill.cost }} CPs</li>
+	<li><a href="{% url 'skills:header_detail' pk=headerskill.header.id %}">{{ headerskill.header }}</a>&mdash;{{ headerskill.cost }} CPs</li>
 	{% endfor %}
 </ul>
 
