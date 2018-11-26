@@ -27,7 +27,7 @@ class Player(models.Model):
     game_started = models.ForeignKey(Event, blank=True, null=True)
     cp_available = models.PositiveIntegerField(default=0)
 
-    def __str__(self):
+    def __unicode__(self):
         """General display of model."""
         return "{} {}".format(
             self.user.first_name,

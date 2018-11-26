@@ -1,33 +1,33 @@
 """Router for views for characters."""
 from django.conf.urls import url
 
-from .views import RulesCreateView, RulesUpdateView,\
-    RulesDetailView, RulesListView, RulesDeleteView
+from .views import RuleCreateView, RuleUpdateView,\
+    RuleDetailView, RuleListView, RuleDeleteView
 
 urlpatterns = [
     url(
         r'^$',
-        RulesListView.as_view(),
-        name='rules_list'
+        RuleListView.as_view(),
+        name='rule_list'
     ),
     url(
         r'^add/?$',
-        RulesCreateView.as_view(),
-        name='rules_create'
+        RuleCreateView.as_view(),
+        name='rule_create'
     ),
     url(
         r'^(?P<pk>[0-9]+)/?$',
-        RulesDetailView.as_view(),
-        name='rules_detail'
+        RuleDetailView.as_view(),
+        name='rule_detail'
     ),
     url(
         r'^(?P<pk>[0-9]+)/edit/?$',
         RuleUpdateView.as_view(),
-        name='rules_update'
+        name='rule_update'
     ),
     url(
         r'^(?P<pk>[0-9]+)/delete/?$',
         RuleDeleteView.as_view(),
-        name='rules_delete'
+        name='rule_delete'
     )
 ]

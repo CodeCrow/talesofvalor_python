@@ -70,6 +70,14 @@ urlpatterns += i18n_patterns(
             app_name="talesofvalor"
         )
     ),
+    url(  # router for the skills application.
+        r'^rules/',
+        include(
+            'talesofvalor.rules.urls',
+            namespace="rules",
+            app_name="talesofvalor"
+        )
+    ),
     url(r'^', include('cms.urls')),
 )
 
