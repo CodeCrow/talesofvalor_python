@@ -70,7 +70,15 @@ urlpatterns += i18n_patterns(
             app_name="talesofvalor"
         )
     ),
-    url(  # router for the skills application.
+    url(  # router for the between game skills application.
+        r'^betweengameskills/',
+        include(
+            'talesofvalor.betweengameskills.urls',
+            namespace="betweengameskills",
+            app_name="talesofvalor"
+        )
+    ),
+    url(  # router for the rules application.
         r'^rules/',
         include(
             'talesofvalor.rules.urls',

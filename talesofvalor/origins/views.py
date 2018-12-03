@@ -27,7 +27,7 @@ class OriginCreateView(PermissionRequiredMixin, CreateView):
 
 class OriginUpdateView(PermissionRequiredMixin, UpdateView):
     """
-    Edits and origin that has already been created
+    Edits an origin that has already been created
     """
 
     model = Origin

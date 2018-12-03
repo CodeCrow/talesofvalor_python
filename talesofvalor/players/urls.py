@@ -30,5 +30,10 @@ urlpatterns = [
         PlayerUpdateView.as_view(),
         name='player_update'
     ),
+    url(
+        r'^$',
+        PlayerListView.as_view(),
+        name='player_list'
+    ),
 
 ]

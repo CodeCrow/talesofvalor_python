@@ -4,13 +4,61 @@
 {% block title %}Players{% endblock title %}
 
 {% block content %}
-    <table id="player_list" class="list list-players">
-        {% for player in objects %}
-        <tr>
-            <td>{{ player }}</td>
-            <td>Blah table</td>
-        </tr>
-        {% endfor %}
-    </table>
-This is where the player stuff will go.
+
+<div class="row">
+    <div id="player_list_filter" class="col-sm-7">
+        <div class="box">
+            <p>Filter: All | Players | Staff | Admin | Selected</p>
+            <p>Name: <input type="text" /></p>
+            <p>Regsitered For:</p>
+            <p>Attended:</p>
+        </div>
+    </div>
+    <div id="player_list_actions" class="col-sm-5">
+        <div class="box">
+            <p>Username: {{ object.user.username }}</p>
+            <p>Email: {{ object.user.email }}</p>
+            <p>Game Started: {{ object.game_started }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<table id="player_list" class="list list-players">
+		    {% for player in objects %}
+		    <tr>
+		        <td>{{ player }}</td>
+		        <td>Blah table</td>
+		    </tr>
+		    {% endfor %}
+		</table>
+	</div>
+</div>
+
+
+
+ {% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+{% endblock content %}
 {% endblock content %}

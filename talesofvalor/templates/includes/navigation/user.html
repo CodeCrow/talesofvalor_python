@@ -1,6 +1,6 @@
 <nav id="navigation_user" class="navigation-user">
 {% if user.is_authenticated %}
-<p>Player:<a class="indent" href="">{{ user.get_username }}</a></p>
+<p>Player:<a class="indent" href="{% url 'players:player_detail' username=user.get_username %}">{{ user.get_username }}</a></p>
 <p>Character:<a class="indent" href="">#Current Character#</a></p>
 <p><a href="{% url "logout" %}">Log Out</a></p>
 {% else %}
