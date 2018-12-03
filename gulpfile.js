@@ -12,9 +12,9 @@ var gulp = require('gulp'),
         // this is the starting point for the scripts.  
         // add in other scripts in this file by using the "require"
         // provided by browserfy.
-        js: 'static/js_source/scripts.js',
-        scss: 'static/sass/**/*.scss',
-        css: 'static/css'
+        js: 'static_global/js_source/scripts.js',
+        scss: 'static_global/sass/**/*.scss',
+        css: 'static_global/css'
     };
 
 
@@ -31,7 +31,7 @@ gulp.task('browserify', function () {
         });
     return b.bundle()
         .pipe(source('main.js'))
-        .pipe(gulp.dest('static/js'));
+        .pipe(gulp.dest('static_global/js'));
 });
 
 gulp.task('build', ['sass','browserify'], function(){

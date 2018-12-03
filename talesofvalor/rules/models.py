@@ -24,12 +24,15 @@ class Rule(models.Model):
 
     Rules track those changes and should be run when adding up
     character point changes/totals.
+
+    Grant skills are skills that have the Boolean "free" field set to true:  Then they fulfill the requirement, 
+    they get the skill automatically without having to buy it.
     """
 
     SKILL_RULE = 'SkillRule'
     HEADER_RULE = 'HeaderRule'
     ORIGIN_RULE = 'OriginRule'
-    GRANT_RULE = 'GrantRule'
+    GRANT_RULE = 'GrantRule' # happens without having to purchase the skill:  The skill is given automatically.
     RULE_REQUIREMENT_CHOICES = (
         (SKILL_RULE, 'Skill Rule'),
         (HEADER_RULE, 'Header Rule'),
@@ -52,19 +55,13 @@ class Rule(models.Model):
 
     )
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('requirement', 'object_id')
-    # the resulting change in cost
-    change_type = models.CharField(
-        max_length=20,
-        choices=RULE_REQUIREMENT_CHOICES,
-        default=SKILL_RULE
-    )
+    content_object = GenericForeignKey('content_type', 'object_id')
     # the skill that this will effect
     skill = models.ForeignKey(Skill)
     # the new cost of the skill
     new_cost = models.PositiveIntegerField(default=0)
     # The character just gets this skill for free, without having to buy it at all.
-    free = models.BooleanField(default=False)
+    free = models.BooleanField(default=False, help_text=_("This is granted for free if the requirements are met."))
     # There are a limited number of times that the user can choose this skill as a result of fulfilling
     # The requirement.  Defaults to infinite.
     picks_remaining = models.PositiveIntegerField(null=True, blank=True)
@@ -74,3 +71,9 @@ class Rule(models.Model):
         return "{}".format(
             self.name
         )
+
+    @property
+    def type(self):
+        if self.free:
+            return self.GRANT_RULE
+        return "{} Rule".format(self.content_type.name.capitalize())

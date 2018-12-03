@@ -16,10 +16,17 @@
     <th>Type</th>
     <th>&nbsp;</th>
 </tr>
-    {% for rule in objects %}
+    {% for rule in object_list %}
     <tr>
         <td>{{ rule }}</td>
-        <td>Blah table</td>
+        <td>{{ rule.description }}</td>
+        <td>{{ rule.type }}</td>
+        <td>
+        <nav class="item-navigation">
+            <a href="{% url 'rules:rule_update' pk=rule.id %}">Edit</a>
+            <a href="{% url 'rules:rule_delete' pk=rule.id %}">Destroy</a>
+        </nav>
+    </td> 
     </tr>
     {% endfor %}
 </table>

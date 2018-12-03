@@ -44,6 +44,10 @@ class Origin(models.Model):
     created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True)
     modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True)
 
+    def __unicode__(self): 
+        return self.name
+
+
 class OriginSkill(models.Model):
     """
     Links up skills and Origins.

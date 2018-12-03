@@ -15,19 +15,26 @@ from django.views.generic.edit import CreateView, UpdateView,\
     DeleteView
 from django.urls import reverse_lazy
 
+from .forms import RuleForm
 from .models import Rule
 
 
 class RuleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Rule
-    fields = '__all__'
-    permission_required = ('rule.create_rule', )
+    permission_required = ('rules.create_rule', )
+    success_url = reverse_lazy('rules:rule_list')
+
+    template_name = 'rules/rule_form.html'
+    form_class = RuleForm
 
 
 class RuleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Rule
-    fields = '__all__'
-    permission_required = ('rule.change_rule', )
+    permission_required = ('rules.change_rule', )
+    success_url = reverse_lazy('rules:rule_list')
+
+    template_name = 'rules/rule_form.html'
+    form_class = RuleForm
 
 
 class RuleDeleteView(PermissionRequiredMixin, DeleteView):
@@ -39,8 +46,8 @@ class RuleDeleteView(PermissionRequiredMixin, DeleteView):
     """
 
     model = Rule
-    permission_required = ('rule.change_rule', )
-    success_url = reverse_lazy('rule:rule_list')
+    permission_required = ('rules.change_rule', )
+    success_url = reverse_lazy('rules:rule_list')
 
 
 class RuleDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
@@ -48,7 +55,7 @@ class RuleDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     model = Rule
     fields = '__all__'
-    permission_required = ('rule.change_rule', )
+    permission_required = ('rules.change_rule', )
 
 class RuleListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
@@ -58,4 +65,4 @@ class RuleListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """
 
     model = Rule
-    permission_required = ('rule.change_rule', )
+    permission_required = ('rules.change_rule', )

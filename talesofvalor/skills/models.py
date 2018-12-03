@@ -44,7 +44,7 @@ class Skill(models.Model):
         null=True
     )
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
     @property
@@ -83,7 +83,7 @@ class Header(models.Model):
         null=True
     )
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 
@@ -100,7 +100,7 @@ class HeaderSkill(models.Model):
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __unicode__(self):
         return "{header}:{skill}".format(
             header=self.header,
             skill=self.skill
