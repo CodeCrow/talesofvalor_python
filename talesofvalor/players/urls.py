@@ -2,7 +2,8 @@
 from django.conf.urls import url
 
 from .views import PlayerCreateView, PlayerUpdateView,\
-    PlayerRedirectDetailView, PlayerDetailView, RegistrationView
+    PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
+    PlayerListView, PlayerDeleteView
 
 urlpatterns = [
     url(
@@ -29,6 +30,11 @@ urlpatterns = [
         r'^(?P<username>[-\w]+)/update/?$',
         PlayerUpdateView.as_view(),
         name='player_update'
+    ),
+    url(
+        r'^(?P<username>[-\w]+)/delete/?$',
+        PlayerDeleteView.as_view(),
+        name='player_delete'
     ),
     url(
         r'^$',

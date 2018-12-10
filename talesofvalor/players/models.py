@@ -34,6 +34,21 @@ class Player(models.Model):
             self.user.last_name
         )
 
+    @property
+    def active_character(self):
+        """
+        The active character of the Player.
+
+        Gets the active character from the list of characters associated with 
+        this player.
+
+        TODO:
+        if there is more than one character returned here, it should error out (try/except)
+        The error should set the player to "needs attention flag"
+        There should be a message added to the message queue explaining what happened.
+        """
+        return self.character_set.get(active_flag=True)
+
     class Meta:
         """Add permissions."""
 
@@ -41,6 +56,7 @@ class Player(models.Model):
             ("change_any_player", "Can change any player"),
             ("view_any_player", "Can view any player"),
         )
+
 
 
 @receiver(post_save, sender=User)

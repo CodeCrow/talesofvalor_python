@@ -16,9 +16,11 @@
     </div>
     <div id="player_list_actions" class="col-sm-5">
         <div class="box">
-            <p>Username: {{ object.user.username }}</p>
-            <p>Email: {{ object.user.email }}</p>
-            <p>Game Started: {{ object.game_started }}</p>
+            <p>Select Filtered | Unselect All</p>
+            <p>Bulk Email</p>
+            <p>Bulk Grant CP</p>
+            <p><button>Register Selected</button></p>
+            <p><button>Mark Selected as Attended</button></p>
         </div>
     </div>
 </div>
@@ -26,11 +28,31 @@
 <div class="row">
 	<div class="col-sm-12">
 		<table id="player_list" class="list list-players">
-		    {% for player in objects %}
-		    <tr>
-		        <td>{{ player }}</td>
-		        <td>Blah table</td>
-		    </tr>
+        <tr>
+          <th>&check;</th>
+          <th>Player</th>
+          <th>Active Character</th>
+          <th>Type</th>
+          <th>Edit</th>
+          <th>Destroy</th>
+          <th>Assign</th><!-- this should be moved to a character list -->
+        </tr>
+		    {% for player in object_list %}
+        <tr>
+            <td><input type="checkbox" name="player_select" value="{{ player.id }}"></td>
+            <td><a href="{% url 'players:player_detail' username=player.user.username %}">{{ player }}</td>
+            <td>
+              {% if player.active_character %}
+                <a href="{% url 'characters:character_detail' pk=player.active_character.id %}">{{ player.active_character }}</a>
+              {% endif %}
+            </td>
+            <td>{{ player.user.username }}</td>
+            <td><a href="{% url 'players:player_update' username=player.user.username %}">Edit</a></td>
+            <td><a href="{% url 'players:player_delete' username=player.user.username %}">Destroy</a></td>
+            <td>Assign{% comment %} <a href="{% url players:player_reassign username=player.user.username %}">Assign</a> {% endcomment %}</td><!-- this should be moved to a character list -->
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No Players Yet.</td></tr>
 		    {% endfor %}
 		</table>
 	</div>
@@ -38,7 +60,7 @@
 
 
 
- {% if is_paginated %}
+{% if is_paginated %}
   <ul class="pagination">
     {% if page_obj.has_previous %}
       <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
@@ -60,5 +82,4 @@
   </ul>
 {% endif %}
 
-{% endblock content %}
 {% endblock content %}

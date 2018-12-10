@@ -87,6 +87,8 @@ class Character(models.Model):
     def get_absolute_url(self):
         return reverse('characters:character_detail', kwargs={'pk': self.pk})
 
+    def __unicode__(self):
+        return self.name
 
 class CharacterSkills(models.Model):
     """

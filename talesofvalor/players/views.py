@@ -10,10 +10,11 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
+from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.urls import reverse
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.urls import reverse, reverse_lazy
 
 from .forms import UserForm, PlayerForm, RegistrationForm
 from .models import Player
@@ -43,6 +44,32 @@ class PlayerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTe
 
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username']) # or request.POST
+
+class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
+    """
+    Removes an player permanantly.
+
+    This should have a confirmation, but it should never actually be deleted.
+    It would have too many knock on effects (messages, etc)
+    It should just become impossible to get to this player.
+    """
+
+    model = Player
+    permission_required = ('player.can_edit', )
+    success_url = reverse_lazy('players:player_list')
+
+    def delete(request, *args, **kwargs):
+        """
+        Do the actual deletion work.
+
+        This actually just correctly sets the status of the player and 
+        the characters associated with the player.
+        """
+        print("Nah man, we ain't actually going to do that.  It's too dangerous.")
+        print(args)
+        print(kwargs)
+        return HttpResponseRedirect(reverse('players:player_list'))
+
 
 class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
     """
@@ -158,6 +185,8 @@ class PlayerListView(LoginRequiredMixin, ListView):
     Lists the players.
 
     A list of the players.  In the view, admin/staff will be able to edit/view any of the players.
+    There will also be ways of filtering players and taking bulk actions.
     """
 
     model = Player
+    paginate_by = 100
