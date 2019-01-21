@@ -1,11 +1,17 @@
 """Router for views for players."""
 from django.conf.urls import url
 
+from rest_framework.routers import DefaultRouter
+
 from .views import PlayerCreateView, PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
-    PlayerListView, PlayerDeleteView
+    PlayerListView, PlayerDeleteView, PlayerViewSet
 
 urlpatterns = [
+    url(r'^select/$',
+        PlayerViewSet.as_view(),
+        name='player_select'
+    ),
     url(
         r'^register/?$',
         RegistrationView.as_view(),
@@ -41,5 +47,4 @@ urlpatterns = [
         PlayerListView.as_view(),
         name='player_list'
     ),
-
 ]

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags %}
+{% load cms_tags sekizai_tags %}
 
 {% block title %}Players{% endblock title %}
 
@@ -8,8 +8,16 @@
 <div class="row">
     <div id="player_list_filter" class="col-sm-7">
         <div class="box">
-            <p>Filter: All | Players | Staff | Admin | Selected</p>
-            <p>Name: <input type="text" /></p>
+            <p>Filter: 
+              <a href="{% url 'players:player_list' %}">All</a> | 
+              <a href="{% url 'players:player_list' %}?group=Player">Players</a> | 
+              <a href="{% url 'players:player_list' %}?group=Staff">Staff</a> | 
+              <a href="{% url 'players:player_list' %}?group=Admin">Admin</a> | 
+              <a href="{% url 'players:player_list' %}?selected=True">Selected</a>
+            </p>
+            <form>
+            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /><button class="btn btn-primary" type="submit" name="search">Search</button></p>
+            </form>
             <p>Regsitered For:</p>
             <p>Attended:</p>
         </div>
@@ -24,7 +32,6 @@
         </div>
     </div>
 </div>
-
 <div class="row">
 	<div class="col-sm-12">
 		<table id="player_list" class="list list-players">
@@ -32,6 +39,7 @@
           <th>&check;</th>
           <th>Player</th>
           <th>Active Character</th>
+          <th>Player</th>
           <th>Type</th>
           <th>Edit</th>
           <th>Destroy</th>
@@ -39,7 +47,7 @@
         </tr>
 		    {% for player in object_list %}
         <tr>
-            <td><input type="checkbox" name="player_select" value="{{ player.id }}"></td>
+            <td><input type="checkbox" class="save-select" name="player_select" data-id="{{ player.id }}" value="{{ player.id }}"{% if player.id in request.session.player_select %} checked{% endif %}></td>
             <td><a href="{% url 'players:player_detail' username=player.user.username %}">{{ player }}</td>
             <td>
               {% if player.active_character %}
@@ -47,6 +55,7 @@
               {% endif %}
             </td>
             <td>{{ player.user.username }}</td>
+            <td>{% for group in player.user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
             <td><a href="{% url 'players:player_update' username=player.user.username %}">Edit</a></td>
             <td><a href="{% url 'players:player_delete' username=player.user.username %}">Destroy</a></td>
             <td>Assign{% comment %} <a href="{% url players:player_reassign username=player.user.username %}">Assign</a> {% endcomment %}</td><!-- this should be moved to a character list -->
@@ -81,5 +90,15 @@
     {% endif %}
   </ul>
 {% endif %}
+{% addtoblock "js" %}
+<script type="text/javascript">
+  // set up the selection handler
+  $(document).ready(function(){
+    $('.save-select').selectionSave({
+      selectionEndPoint: "{% url 'players:player_select' %}",
+      valueSelector: "id"
+    });
+  });</script>
+{% endaddtoblock %}
 
 {% endblock content %}

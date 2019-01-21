@@ -73,8 +73,6 @@ class OriginAddSkillView(LoginRequiredMixin, FormView):
 
         Now, we want to create the success url, using the origin that was editted.
         """
-        print('inside success url')
-        print(self.__dict__)
         return reverse_lazy('origins:origin_detail', kwargs={
                 'pk': self.kwargs.get('pk')
             })

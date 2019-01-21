@@ -6,12 +6,14 @@
 
 var gulp = require('gulp'),
     sass = require('gulp-sass'),
-    path = require('path'),    browserify = require('browserify'),
+    path = require('path'),    
+    browserify = require('browserify'),
     source = require('vinyl-source-stream'),
     paths = {
         // this is the starting point for the scripts.  
         // add in other scripts in this file by using the "require"
         // provided by browserfy.
+        js_source: 'static_global/js_source/**/*.js',
         js: 'static_global/js_source/scripts.js',
         scss: 'static_global/sass/**/*.scss',
         css: 'static_global/css'
@@ -41,7 +43,7 @@ gulp.task('build', ['sass','browserify'], function(){
 
 gulp.task('watch', function () {
     gulp.watch(paths.scss, ['sass']);
-    gulp.watch(paths.js, ['browserify']);
+    gulp.watch(paths.js_source, ['browserify']);
 });
 
 gulp.task('default', ['build', 'watch'], function () {
