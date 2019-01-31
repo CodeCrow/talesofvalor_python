@@ -26,7 +26,7 @@ LOCAL_PROJECT_DIR = os.path.abspath(
 class Environment(object):
     verbose_name = 'default'
 
-env = Environment();
+env = Environment()
 
 env.project_name = 'talesofvalor'
 env.mysql_defaults_file = '~/.my.cnf'
