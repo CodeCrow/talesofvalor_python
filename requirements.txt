@@ -41,11 +41,11 @@ djangocms-video==2.0.3
 djangorestframework==3.9.1
 easy-thumbnails==2.4.1
 enum34==1.1.6
-fabric==2.3.1
+fabric==2.4.0
 html5lib==0.9999999
 idna==2.7
 image==1.5.27
-invoke==1.1.1
+invoke==1.2.0
 olefile==0.44
 paramiko==2.4.1
 py2-ipaddress==3.4.1
