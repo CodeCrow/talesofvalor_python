@@ -15,11 +15,22 @@
               <a href="{% url 'players:player_list' %}?group=Admin">Admin</a> | 
               <a href="{% url 'players:player_list' %}?selected=True">Selected</a>
             </p>
-            <form>
-            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /><button class="btn btn-primary" type="submit" name="search">Search</button></p>
+            <form method="GET">
+            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
+            <p>Registered For:&nbsp;<select name="registered_for" id="registered_for">
+              <option value="{{ event.id }}"{% if not request.GET.registered_for %} selected{% endif %}>---</option>
+              {% for event in event_list %}
+                <option value="{{ event.id }}"{% if request.GET.registered_for == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
+              {% endfor %}
+            </select></p>
+            <p>Attended:&nbsp;<select name="attended" id="attended">
+              <option value="{{ event.id }}"{% if not request.GET.attended %} selected{% endif %}>---</option>
+              {% for event in event_list %}
+                <option value="{{ event.id }}"{% if request.GET.attended == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
+              {% endfor %}
+            </select></p>
+            <button id="player_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
             </form>
-            <p>Regsitered For:</p>
-            <p>Attended:</p>
         </div>
     </div>
     <div id="player_list_actions" class="col-sm-5">

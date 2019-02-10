@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load cms_tags %}
 
-{% block bar_title %}{{ object.name }} : Origins{% endblock bar_title %}
-{% block title %}{{ object.name }}{% endblock title %}
+{% block bar_title %}{% if object.id %}{{ object.name }} : {% endif %}Origins{% endblock bar_title %}
+{% block title %}{% if object.id %}{{ object.name }} : {% endif %}{{ object.name }}{% endblock title %}
 
 {% block content %}
 <form action="" method="post">{% csrf_token %}

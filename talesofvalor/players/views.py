@@ -21,16 +21,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from talesofvalor import get_query
+from talesofvalor.events.models import Event
+from talesofvalor.attendance.models import Attendance
 
 from .forms import UserForm, PlayerForm, RegistrationForm
-from .models import Player
+from .models import Player, Registration
 
 
 class PlayerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     '''
     Player is created.
 
-    when the player is created, we have to make sure that they are added to the group "Player"
+    when the player is created, we have to make sure that they are added
+    to the group "Player"
     '''
 
     model = Player
@@ -54,7 +57,7 @@ class PlayerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTe
         return False
 
     def get_object(self):
-        return Player.objects.get(user__username=self.kwargs['username']) # or request.POST
+        return Player.objects.get(user__username=self.kwargs['username'])
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
     """
@@ -73,7 +76,7 @@ class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
         """
         Do the actual deletion work.
 
-        This actually just correctly sets the status of the player and 
+        This actually just correctly sets the status of the player and
         the characters associated with the player.
         """
         print("Nah man, we ain't actually going to do that.  It's too dangerous.")
@@ -126,7 +129,8 @@ class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return False
 
     def get_object(self):
-        return Player.objects.get(user__username=self.kwargs['username']) # or request.POST
+        # or request.POST
+        return Player.objects.get(user__username=self.kwargs['username'])
 
 
 class RegistrationView(FormView):
@@ -213,17 +217,38 @@ class PlayerListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(entry_query)
         selected = self.request.GET.get('selected', False)
         if selected:
-            queryset = queryset.filter(id__in=self.request.session.get('player_select',[]))
+            queryset = queryset.filter(id__in=self.request.session.get('player_select', []))
+        registered_for = self.request.GET.get('registered_for', None)
+        if registered_for:
+            # get a list of players who are registered for the selected event.
+            registered_players = Registration.objects.filter(event=registered_for).values_list('id', flat=True)
+            queryset = queryset.filter(id__in=registered_players)
+        attended = self.request.GET.get('attended', None)
+        if attended:
+            attended_players = Attendance.objects.filter(event=attended).values_list('id', flat=True)
+            queryset = queryset.filter(id__in=attended_players)
         return queryset
 
     def get_context_data(self, **kwargs):
+        '''
+        Put data into the view.
+
+        We want to create list of events to pick selections from.
+        '''
+        # get the context data to add to.
         context_data = super(PlayerListView, self).get_context_data(**kwargs)
         context_data.update(**self.request.GET)
+        # get the list of events so we can pick from them to filter the lists.
+        context_data['event_list'] = Event.objects.all()
+        # return the resulting context
         return context_data
+
 
 '''
 Put the AJAX work for Players here
 '''
+
+
 class PlayerViewSet(APIView):
     '''
     Set of AJAX views for a Player

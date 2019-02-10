@@ -5,9 +5,9 @@ These models describe the game events.
 """
 from datetime import date
 
-from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -26,6 +26,11 @@ class Event(models.Model):
     notes = HTMLField(blank=True, default='')
     summary = HTMLField(blank=True, default='')
 
+    def __unicode__(self):
+        return "{} - {}".format(
+                self.name,
+                self.event_date.strftime("%m-%d-%Y")
+            )
 
     def get_absolute_url(self):
         """

@@ -47,9 +47,9 @@ class OriginDeleteView(PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('origins:origin_list')
 
 
-class OriginDetailView(LoginRequiredMixin, DetailView):
+class OriginDetailView(DetailView):
     """
-    Show the details for a character.
+    Show the details for an origin.
 
     From here you can edit the details of a character or choose skills.
     """

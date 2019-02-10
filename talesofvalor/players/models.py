@@ -87,9 +87,6 @@ class Registration(models.Model):
     Registration for events.
 
     Holds the registration for players for a specific event.
-
-    If this is a player's first event, their record is updated for the
-    field "game_started"
     """
 
     player = models.ForeignKey(Player)

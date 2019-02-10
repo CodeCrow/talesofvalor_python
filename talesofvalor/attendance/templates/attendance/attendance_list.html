@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Attendance{% endblock bar_title %}
+{% block title %}Attendance{% endblock title %}
+
+{% block content %}
+
+
+<table class="list">
+<tr>
+    <td class="table-navigation content-align-right" colspan="4">
+        <a class="btn btn-primary" href="{% url 'attendance:attendance_create' %}">add attendance</a>
+    </td>
+</tr>
+<tr>
+    <th>Event</th>
+    <th>Player</th>
+    <th>Character</th>
+    <th></th>
+</tr>
+{% for attendance in object_list %}
+<tr>
+    <td><p><a href="{% url 'attendance:attendance_detail' pk=bgs.id %}">{{ attendance.event }}</a></p></td>
+    <td>{{ attendance.player }}</td>
+    <td>{{ attendance.character }}</td>
+    <td>
+        <nav class="item-navigation">
+            <a href="{% url 'attendance:attendance_update' pk=attendance.id %}">Edit</a>&nbsp;|&nbsp; 
+            <a href="{% url 'attendance:attendance_delete' pk=attendance.id %}">Destroy</a>
+        </nav>
+    </td> 
+</tr>
+{% endfor %}
+</table>
+
+{% include "includes/pagination.html" %}
+{% endblock content %}

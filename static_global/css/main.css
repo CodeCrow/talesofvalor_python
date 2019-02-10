@@ -26,7 +26,8 @@ li.heading {
   margin: 0.25em;
   padding: 1em;
   border: 1px solid #000;
-  border-radius: 1em; }
+  border-radius: 1em;
+  position: relative; }
 
 .item-navigation {
   margin-right: 0.25em; }
@@ -40,6 +41,11 @@ li.heading {
 .data tr th:first-child {
   text-align: right;
   vertical-align: top; }
+
+#player_list_filter_submit {
+  position: absolute;
+  bottom: 1em;
+  right: 1em; }
 
 html {
   box-sizing: border-box; }

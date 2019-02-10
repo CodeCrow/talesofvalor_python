@@ -55,6 +55,7 @@ class PlayerForm(forms.ModelForm):
         print self.errors
         print "ERRORS"
 
+
 class RegistrationForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()

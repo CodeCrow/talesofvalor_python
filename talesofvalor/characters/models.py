@@ -88,7 +88,10 @@ class Character(models.Model):
         return reverse('characters:character_detail', kwargs={'pk': self.pk})
 
     def __unicode__(self):
-        return self.name
+        return "{}::{}".format(
+            self.name, self.player
+        )
+
 
 class CharacterSkills(models.Model):
     """

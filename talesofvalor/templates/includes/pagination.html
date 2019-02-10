@@ -1,33 +1,3 @@
-{% extends "base.html" %}
-{% load cms_tags %}
-
-
-{% block bar_title %}Origins{% endblock bar_title %}
-{% block title %}Origins{% endblock title %}
-
-{% block content %}
-
-
-<table class="list">
-<tr>
-    <th>Name</th>
-    <th>Question</th>
-    <th>&nbsp;</th>
-</tr>
-{% for bgs in object_list %}
-<tr>
-    <td><p><a href="{% url 'betweengameskills:betweengameskill_detail' pk=bgs.id %}">{{ bgs }}</a></p></td>
-    <td>{{ bgs.question|truncatewords_html:10 }}</td>
-    <td>
-        <nav class="item-navigation">
-            <a href="{% url 'betweengameskills:betweengameskill_update' pk=bgs.id %}">Edit</a>&nbsp;|&nbsp; 
-            <a href="{% url 'betweengameskills:betweengameskill_delete' pk=bgs.id %}">Destroy</a>
-        </nav>
-    </td> 
-</tr>
-{% endfor %}
-</table>
-
 
 {% if is_paginated %}
   <ul class="pagination">
@@ -50,5 +20,3 @@
     {% endif %}
   </ul>
 {% endif %}
-
-{% endblock content %}

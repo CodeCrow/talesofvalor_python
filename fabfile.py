@@ -23,6 +23,7 @@ LOCAL_PROJECT_DIR = os.path.abspath(
     os.path.dirname(__file__)
 )
 
+
 class Environment(object):
     verbose_name = 'default'
 
@@ -32,8 +33,9 @@ env.project_name = 'talesofvalor'
 env.mysql_defaults_file = '~/.my.cnf'
 
 
-FORMAT="%(name)s %(funcName)s:%(lineno)d %(message)s"
+FORMAT = "%(name)s %(funcName)s:%(lineno)d %(message)s"
 logging.basicConfig(format=FORMAT, level=logging.INFO)
+
 
 def _prep_bool_arg(arg):
     """
@@ -45,11 +47,13 @@ def _prep_bool_arg(arg):
     """
     return bool(strtobool(str(arg)))
 
+
 def _get_settings_file():
     try:
         return os.environ['DJANGO_SETTINGS_MODULE']
     except KeyError:
         return 'talesofvalor.settings.local'
+
 
 @task
 def deploy(c, environment, branch=None, migrate=False, update_requirements=False):
@@ -82,6 +86,8 @@ def deploy(c, environment, branch=None, migrate=False, update_requirements=False
                 )
             )
             c.run('git checkout {}'.format(branch))
+
+            c.run('echo update_requirements:{update_requirements}'.format(update_requirements=update_requirements))
 
             if update_requirements is True:
                 c.run('echo Updating requirements...')

@@ -46,6 +46,14 @@ urlpatterns += i18n_patterns(
             app_name="talesofvalor"
         )
     ),
+    url(  # router for the between game skills application.
+        r'^attendance/',
+        include(
+            'talesofvalor.attendance.urls',
+            namespace="attendance",
+            app_name="talesofvalor"
+        )
+    ),
     url(  # router for the character application.
         r'^characters/',
         include(
