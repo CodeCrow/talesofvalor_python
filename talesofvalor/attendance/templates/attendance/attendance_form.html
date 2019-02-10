@@ -9,6 +9,11 @@ We have to update this with the information here:
 https://simpleisbetterthancomplex.com/tutorial/2018/01/29/how-to-implement-dependent-or-chained-dropdown-list-with-django.html
 
 So we only have the characters for the available player.
+
+This might also work, and cover regular autocompletes as well: 
+https://github.com/yourlabs/django-autocomplete-light
+
+But I feel like it doesn't quite have the UX that I want here.
 <form action="" method="post">{% csrf_token %}
     <table class="data">
         {{ form.as_table }}
