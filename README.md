@@ -158,15 +158,16 @@ You should now see a login screen!
 
 # Deployment:
 
-fab deploy:{{environment}},{{tag}}
+Deployment uses Fabric 2.0.  If you are used to Fabric < 2, sending CLI variables look a little different.
 
-Where “environment” is “stage”, “dev”, “prod”, and “tag” is the git tag that should be deployed.
+`fab deploy --environment {{ environment_name}} [--migrate][--update_requirements][--branch {{ branch_name }} ]`
+
+Where “environment” is “stage”, “production”, “development”, and “branch_name” is the branch that should be deployed that should be deployed.
 
 Example:
-fab deploy:dev,dev-0.59-ILR-41a
+`fab deploy --environment stage --migrate`
 
-# Plugins
-See code/djangoCMS/plugins/README.md
+This would would deploy the latest default staging branch to the 'stage' environment and run existing migrations.
 
 
 # Database Info
