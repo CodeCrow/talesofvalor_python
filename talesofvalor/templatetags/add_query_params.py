@@ -20,8 +20,6 @@ def add_query_params(request, **kwargs):
     updated = request.GET.copy()
     print(kwargs)
     for k, v in kwargs.items():
-        print(k)
-        print(v)
         updated[k] = v
 
     return request.build_absolute_uri('?'+updated.urlencode())

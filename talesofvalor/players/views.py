@@ -13,10 +13,10 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView,\
+    FormView
 from django.urls import reverse, reverse_lazy
 
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -52,12 +52,13 @@ class PlayerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTe
         try:
             player = Player.objects.get(user__username=self.kwargs['username'])
             return (player.user == self.request.user)
-        except DoesNotExist:
+        except Player.DoesNotExist:
             return False
         return False
 
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username'])
+
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
     """
@@ -106,6 +107,7 @@ class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
         player = self.request.user
         kwargs['username'] = player.username
         return super(PlayerRedirectDetailView, self).get_redirect_url(*args, **kwargs)
+
 
 class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     """
@@ -185,21 +187,30 @@ class RegistrationView(FormView):
             pass
         else:
             user.groups.add(player_group)
-        # The player is automatically created using post_save signals on the "Player" model
+        # The player is automatically created using post_save signals
+        # on the "Player" model
         self.instance = user.player
-        user = authenticate(username=user.username, password=form.cleaned_data['password'])
+        user = authenticate(
+            username=user.username,
+            password=form.cleaned_data['password']
+        )
         login(self.request, user)
         # return result
         return super(RegistrationView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('players:player_detail', kwargs={'username': self.instance.user.username})
+        return reverse(
+            'players:player_detail',
+            kwargs={'username': self.instance.user.username}
+        )
+
 
 class PlayerListView(LoginRequiredMixin, ListView):
     """
     Lists the players.
 
-    A list of the players.  In the view, admin/staff will be able to edit/view any of the players.
+    A list of the players.  In the view, admin/staff will be able to edit/view
+    any of the players.
     There will also be ways of filtering players and taking bulk actions.
     """
 
@@ -213,7 +224,10 @@ class PlayerListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(user__groups__name__in=[groups])
         name = self.request.GET.get('name', '')
         if (name.strip()):
-            entry_query = get_query(name, ['user__username', 'user__first_name', 'user__last_name', 'user__email'])
+            entry_query = get_query(
+                name,
+                ['user__username', 'user__first_name', 'user__last_name', 'user__email']
+            )
             queryset = queryset.filter(entry_query)
         selected = self.request.GET.get('selected', False)
         if selected:
@@ -227,6 +241,15 @@ class PlayerListView(LoginRequiredMixin, ListView):
         if attended:
             attended_players = Attendance.objects.filter(event=attended).values_list('id', flat=True)
             queryset = queryset.filter(id__in=attended_players)
+        select = self.request.GET.get('select', None)
+        if select:
+            if select == 'none':
+                # remove all selected in the session.
+                self.request.session['player_select'] = []
+            elif select == 'filtered':
+                # take the queryset and make all of them part of the 
+                # session selection.
+                PlayerViewSet.add_to_session_selection(self.request, queryset.values_list('id', flat=True))
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -255,20 +278,27 @@ class PlayerViewSet(APIView):
 
     This handles different API calls for player actions.
     '''
-
-    def post(self, request, format=None):
-        new_id = int(request.POST.get('id', None))
+    @staticmethod
+    def add_to_session_selection(request, ids):
         # get the existing player selection:
         player_selection = request.session.get('player_select', [])
-        if new_id:
+        for new_id in ids:
             if new_id > 0:
                 if new_id not in player_selection:
                     player_selection.append(new_id)
             else:
                 player_selection = [x for x in player_selection if x != abs(new_id)]
             request.session['player_select'] = player_selection
+        return player_selection
+
+    def post(self, request, format=None):
+        ids = []
+        new_id = int(request.POST.get('id', None))
+        if new_id:
+            ids.append(new_id)
         content = {
-            'player_select': player_selection,  # the new player selection.
+            'player_select': self.add_to_session_selection(new_id),  # the new player selection.
         }
+
         return Response(content)
 
