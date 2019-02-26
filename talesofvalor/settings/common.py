@@ -29,15 +29,22 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+WSGI_APPLICATION = 'talesofvalor.wsgi.application'
 
 ROOT_URLCONF = 'talesofvalor.urls'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Who to send problems to
 ADMINS = [
     ('Rob Archer', 'rob@crowbringsdaylight.com'),
 ]
+# default error emails
+SERVER_EMAIL = 'webmaster@talesofvalor.com'
+# default email sender for production.  This email address must exist.
+DEFAULT_FROM_EMAIL = 'characterupdate@talesofvalor.com'
 
-WSGI_APPLICATION = 'talesofvalor.wsgi.application'
+
 
 
 # Database

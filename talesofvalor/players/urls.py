@@ -3,9 +3,14 @@ from django.conf.urls import url
 
 from .views import PlayerCreateView, PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
-    PlayerListView, PlayerDeleteView, PlayerViewSet
+    PlayerListView, PlayerDeleteView, PlayerViewSet, MassEmailView
 
 urlpatterns = [
+    url(
+        r'^mail/$',
+        MassEmailView.as_view(),
+        name='player_mail'
+    ),
     url(
         r'^select/$',
         PlayerViewSet.as_view(),

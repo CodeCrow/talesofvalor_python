@@ -6,6 +6,7 @@ https://simpleisbetterthancomplex.com/tutorial/2017/02/18/how-to-create-user-sig
 https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#abstractbaseuser
 """
 
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
@@ -24,7 +25,7 @@ from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
-from .forms import UserForm, PlayerForm, RegistrationForm
+from .forms import UserForm, PlayerForm, RegistrationForm, MassEmailForm
 from .models import Player, Registration
 
 
@@ -270,8 +271,6 @@ class PlayerListView(LoginRequiredMixin, ListView):
 '''
 Put the AJAX work for Players here
 '''
-
-
 class PlayerViewSet(APIView):
     '''
     Set of AJAX views for a Player
@@ -297,8 +296,32 @@ class PlayerViewSet(APIView):
         if new_id:
             ids.append(new_id)
         content = {
-            'player_select': self.add_to_session_selection(new_id),  # the new player selection.
+            'player_select': self.add_to_session_selection(request, ids)
         }
 
         return Response(content)
 
+class MassEmailView(FormView):
+    '''
+    Form for mass emails.
+
+    Allow a mass email to be sent from  the player list based on the
+    list of selection of players.
+    '''
+    template_name = 'players/mass_email.html'
+    form_class = MassEmailForm
+    success_url = reverse_lazy('players:player_list')
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        # get the selcted players
+        selected_players = self.request.session.get('player_select', None)
+        if selected_players:
+            form.send_email(Player.objects.filter(id__in=selected_players))
+            messages.info(self.request, 'Emails sent!')
+
+        else:
+            # we should raise an error here so users know there is a problem.
+            messages.warning(self.request, 'No players selected for email.')
+        return super(MassEmailView, self).form_valid(form)

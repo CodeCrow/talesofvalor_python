@@ -36,7 +36,7 @@
     <div id="player_list_actions" class="col-sm-5">
         <div class="box">
             <p><a href="{% add_query_params request select='filtered' %}">Select Filtered</a> | <a href="{% add_query_params request select='none' %}">Unselect All</a></p>
-            <p>Bulk Email</p>
+            <p><a href="{% url 'players:player_mail' %}">Bulk Email</a></p>
             <p>Bulk Grant CP</p>
             <p><button>Register Selected</button></p>
             <p><button>Mark Selected as Attended</button></p>

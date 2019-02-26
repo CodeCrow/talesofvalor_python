@@ -18,7 +18,6 @@ def add_query_params(request, **kwargs):
         => '/ask/?page=5'
     """
     updated = request.GET.copy()
-    print(kwargs)
     for k, v in kwargs.items():
         updated[k] = v
 

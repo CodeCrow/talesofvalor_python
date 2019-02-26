@@ -1,5 +1,8 @@
 from django import forms
+from django.conf import settings
+from django.core import mail
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
 from .models import Player
 
@@ -73,10 +76,6 @@ class RegistrationForm(forms.Form):
         """
 
         cleaned_data = super(RegistrationForm, self).clean()
-        print "ERRORS"
-        print self.errors
-        print "ERRORS"
-
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
         if password and password_confirm:
@@ -84,3 +83,38 @@ class RegistrationForm(forms.Form):
                 msg = "The two password fields must match."
                 self.add_error('password_confirm', msg)
         return cleaned_data
+
+
+class MassEmailForm(forms.Form):
+    """
+    The form that is used to send out a mass email based
+    on selected Players
+    """
+    subject = forms.CharField()
+    message = forms.CharField(widget=forms.Textarea)
+
+    def send_email(self, players):
+        """
+        send an email message to 'players'
+
+        'players' can be a single user.
+        """
+        # is it s single player, or multiple:
+        if not(isinstance(players, QuerySet)):
+            players = [players, ]
+        # send email using the self.cleaned_data dictionary
+        email_connection = mail.get_connection()
+        # create the list of messages
+        email_messages = []
+        for player in players:
+            email_message = mail.EmailMessage(
+                self.cleaned_data['subject'],
+                self.cleaned_data['message'],
+                settings.DEFAULT_FROM_EMAIL,
+                [player.user.email]
+            )
+            email_messages.append(email_message)
+        # send an email to each of them.
+        email_connection.send_messages(email_messages)
+        # close the connection to the email server
+        email_connection.close()
