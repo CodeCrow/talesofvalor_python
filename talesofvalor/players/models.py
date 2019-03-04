@@ -58,7 +58,6 @@ class Player(models.Model):
         )
 
 
-
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     """
@@ -102,6 +101,31 @@ class Registration(models.Model):
         help_text=_("Has the player signed up for a meal plan?")
     )
     notes = models.TextField(blank=True, default='')
+
+    def save(self, *args, **kwargs):
+        """
+        Save the registration.
+
+        When we do this, we should copy items from the previous registrations
+        as a starting point if those fields are not filled in.
+        """
+        print(self.player)
+        previous_registration = type(self).objects\
+            .filter(event__event_date__lt=self.event.event_date, player=self.player)\
+            .order_by('-event__event_date')\
+            .first()
+        print("PREVIOUS REGISTRATION")
+        print(previous_registration)
+        if self.pk is None:
+            print("WE ARE DOING AN INSERT")
+            # if this is new registration and not an update, take information
+            # from the previous one if it isn't updated.
+            if not self.cabin:
+                self.cabin = previous_registration.cabin
+            if not self.mealplan_flag:
+                self.mealplan_flag = previous_registration.mealplan_flag
+
+        super(Registration, self).save(*args, **kwargs)
 
 
 class PEL(models.Model):

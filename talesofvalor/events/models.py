@@ -7,7 +7,6 @@ from datetime import date
 
 from django.db import models
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -31,6 +30,38 @@ class Event(models.Model):
                 self.name,
                 self.event_date.strftime("%m-%d-%Y")
             )
+
+    @classmethod
+    def previous_event(cls):
+        try:
+            return cls.objects.filter(event_date__lt=date.today())\
+                .order_by('-event_date').first()
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def next_event(cls):
+        try:
+            return cls.objects.filter(event_date__gt=date.today())\
+                .order_by('event_date').first()
+        except cls.DoesNotExist:
+            return None
+
+    @property
+    def previous(self):
+        try:
+            return type(self).objects.filter(event_date__lt=self.event_date)\
+                .order_by('-event_date').first()
+        except self.DoesNotExist:
+            return None
+
+    @property
+    def next(self):
+        try:
+            return type(self).objects.filter(event_date__gt=self.event_date)\
+                .order_by('-event_date').first()
+        except self.DoesNotExist:
+            return None
 
     def get_absolute_url(self):
         """

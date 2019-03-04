@@ -38,7 +38,8 @@
             <p><a href="{% add_query_params request select='filtered' %}">Select Filtered</a> | <a href="{% add_query_params request select='none' %}">Unselect All</a></p>
             <p><a href="{% url 'players:player_mail' %}">Bulk Email</a></p>
             <p>Bulk Grant CP</p>
-            <p><button>Register Selected</button></p>
+            <form method="POST" action="{% url 'players:player_mass_registration' %}">{% csrf_token %}{{ registration_form }}
+            <button id="player_list_register_selected" class="btn btn-primary btn-submit" type="submit" name="register_selected">Register Selected</button></form>
             <p><button>Mark Selected as Attended</button></p>
         </div>
     </div>

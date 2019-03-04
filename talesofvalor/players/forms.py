@@ -4,6 +4,8 @@ from django.core import mail
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 
+from talesofvalor.events.models import Event
+
 from .models import Player
 
 
@@ -83,6 +85,20 @@ class RegistrationForm(forms.Form):
                 msg = "The two password fields must match."
                 self.add_error('password_confirm', msg)
         return cleaned_data
+
+
+class MassRegistrationForm(forms.Form):
+    """
+    Allow an event to be selected and mark users as registered for it.
+
+    Assumes that we are using the players that are selected in the session.
+    """
+    event_registered = forms.ModelChoiceField(
+            label='',
+            queryset=Event.objects.all(),
+            initial=Event.next_event,
+            empty_label=None
+        )
 
 
 class MassEmailForm(forms.Form):
