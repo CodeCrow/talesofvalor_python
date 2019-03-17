@@ -40,7 +40,8 @@
             <p>Bulk Grant CP</p>
             <form method="POST" action="{% url 'players:player_mass_registration' %}">{% csrf_token %}{{ registration_form }}
             <button id="player_list_register_selected" class="btn btn-primary btn-submit" type="submit" name="register_selected">Register Selected</button></form>
-            <p><button>Mark Selected as Attended</button></p>
+            <form method="POST" action="{% url 'players:player_mass_attendance' %}">{% csrf_token %}{{ attendance_form }}
+            <button id="player_list_attend_selected" class="btn btn-primary btn-submit" type="submit" name="attend_selected">Mark Selected as attended</button></form>
         </div>
     </div>
 </div>

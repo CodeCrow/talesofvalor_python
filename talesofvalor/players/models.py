@@ -4,7 +4,9 @@ Describes the player models.
 These models describe the player and its relationship to the
 django authentication user models.
 """
+from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -26,6 +28,7 @@ class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     game_started = models.ForeignKey(Event, blank=True, null=True)
     cp_available = models.PositiveIntegerField(default=0)
+    staff_attention_flag = models.BooleanField(default=False)
 
     def __unicode__(self):
         """General display of model."""
@@ -39,15 +42,25 @@ class Player(models.Model):
         """
         The active character of the Player.
 
-        Gets the active character from the list of characters associated with 
+        Gets the active character from the list of characters associated with
         this player.
 
         TODO:
-        if there is more than one character returned here, it should error out (try/except)
-        The error should set the player to "needs attention flag"
-        There should be a message added to the message queue explaining what happened.
+        if there is more than one character returned here, it should error
+        out (try/except) The error should set the player to
+        "needs attention flag".
+        There should be a message added to the message queue explaining what
+        happened. Or an email, since we don't have the request object
+        to use with the messages framework.
         """
-        return self.character_set.get(active_flag=True)
+        try:
+            return self.character_set.get(active_flag=True)
+        except ObjectDoesNotExist:
+            self.staff_attention_flag = True
+            return None
+        except MultipleObjectsReturned:
+            self.staff_attention_flag = True
+            return self.character_set.first()
 
     class Meta:
         """Add permissions."""
@@ -111,13 +124,14 @@ class Registration(models.Model):
         """
         print(self.player)
         previous_registration = type(self).objects\
-            .filter(event__event_date__lt=self.event.event_date, player=self.player)\
+            .filter(
+                event__event_date__lt=self.event.event_date,
+                player=self.player
+            )\
             .order_by('-event__event_date')\
             .first()
-        print("PREVIOUS REGISTRATION")
         print(previous_registration)
         if self.pk is None:
-            print("WE ARE DOING AN INSERT")
             # if this is new registration and not an update, take information
             # from the previous one if it isn't updated.
             if not self.cabin:

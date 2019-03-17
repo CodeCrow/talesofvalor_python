@@ -4,7 +4,7 @@ from django.conf.urls import url
 from .views import PlayerCreateView, PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
     PlayerListView, PlayerDeleteView, PlayerViewSet, MassEmailView,\
-    PlayerListRegistrationView
+    PlayerListRegistrationView, PlayerListAttendanceView
 
 urlpatterns = [
     url(
@@ -21,6 +21,11 @@ urlpatterns = [
         r'^register/mass/?$',
         PlayerListRegistrationView.as_view(),
         name='player_mass_registration'
+    ),
+    url(
+        r'^attendance/mass/?$',
+        PlayerListAttendanceView.as_view(),
+        name='player_mass_attendance'
     ),
     url(
         r'^register/?$',

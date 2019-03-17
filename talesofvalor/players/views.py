@@ -26,7 +26,7 @@ from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
 from .forms import RegistrationForm,\
-    MassRegistrationForm, MassEmailForm
+    MassRegistrationForm, MassAttendanceForm, MassEmailForm
 from .models import Player, Registration
 
 
@@ -242,7 +242,45 @@ class PlayerListRegistrationView(LoginRequiredMixin, FormView):
 
     def form_invalid(self, form):
         messages.warning(self.request, 'Invalid registrations.')
-        return super(PlayerListRegistrationView, self).form_valid(form)
+        return super(PlayerListRegistrationView, self).form_invalid(form)
+
+
+class PlayerListAttendanceView(LoginRequiredMixin, FormView):
+    """
+    Deals with registering players.
+
+    It only displays something if there is an error.
+
+    Otherwise, it just goes back to the playerlist view and shows a message.
+    """
+    form_class = MassAttendanceForm
+    success_url = reverse_lazy('players:player_list')
+    template_name = 'players/attendance_mass_form.html'
+
+    def form_valid(self, form):
+        """
+        When the mass registration form is good, register the players.
+
+        We could use bulk_create, except we want to call the 'save'
+        for the model so the cabin and meal plan is updated.
+        """
+        players_selected = Player.objects.filter(
+            id__in=self.request.session.get('player_select', [])
+        )
+        print("PLAYERS:")
+        print(players_selected)
+        for player in players_selected:
+            attendance = Attendance.objects.create(
+                player=player,
+                event=form.cleaned_data['event_attended']
+            )
+        messages.info(self.request, 'Players Marked Attended.')
+        # return result
+        return super(PlayerListAttendanceView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.warning(self.request, 'Invalid registrations.')
+        return super(PlayerListAttendanceView, self).form_invalid(form)
 
 
 class PlayerListView(LoginRequiredMixin, ListView):
@@ -305,6 +343,7 @@ class PlayerListView(LoginRequiredMixin, ListView):
         context_data['event_list'] = Event.objects.all()
         # set up the forms that appear in the list
         context_data['registration_form'] = MassRegistrationForm()
+        context_data['attendance_form'] = MassAttendanceForm()
         # return the resulting context
         return context_data
 

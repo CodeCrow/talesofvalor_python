@@ -57,6 +57,7 @@ class AttendanceDetailView(PermissionRequiredMixin, DetailView):
     fields = '__all__'
 
 
+
 class AttendanceListView(PermissionRequiredMixin, ListView):
     """
     Show the details for a character.

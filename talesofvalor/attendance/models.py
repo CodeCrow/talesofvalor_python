@@ -27,4 +27,20 @@ class Attendance(models.Model):
 
     player = models.ForeignKey(Player)
     event = models.ForeignKey(Event)
-    character = models.ForeignKey(Character)
+    character = models.ForeignKey(Character, null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Save the attendance.
+
+        When we do this, we should copy the character from the previous
+        attendance if it is not already set.
+        """
+        if self.pk is None:
+            # if this is new attendance and not an update, take information
+            # from the previous one if it isn't updated.
+            if not hasattr(self, 'character'):
+                # Now, check the current active character
+                self.character = self.player.active_character
+
+        super(Attendance, self).save(*args, **kwargs)

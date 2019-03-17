@@ -101,6 +101,20 @@ class MassRegistrationForm(forms.Form):
         )
 
 
+class MassAttendanceForm(forms.Form):
+    """
+    Allow an event to be selected and mark users as attended at it.
+
+    Assumes that we are using the players that are selected in the session.
+    """
+    event_attended = forms.ModelChoiceField(
+            label='',
+            queryset=Event.objects.all(),
+            initial=Event.next_event,
+            empty_label=None
+        )
+
+
 class MassEmailForm(forms.Form):
     """
     The form that is used to send out a mass email based
