@@ -58,7 +58,7 @@ The prompt should now change:
 Install requirements
 
 ```
-pip install -r code/djangoCMS/conf/py/requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Set up the database:
@@ -97,8 +97,8 @@ Copy the "local.py" file and update it with your requirements for accessing the 
 
 ```
 cd talesofvalor/settings
-cp local.py yourname.py
-vi yourname.py
+cp stage.py local.py
+vi local.py
 ```
 You can replace ```vi``` with an editor of your choice.
 
@@ -114,7 +114,6 @@ DATABASES = {
         'HOST': '',                     
         'PORT': '',                      # Set to empty string for default.
         'OPTIONS': {
-                "init_command": "SET default_storage_engine=MYISAM",
         }
 
     }
@@ -126,8 +125,7 @@ DATABASES = {
 Now run `syncdb` to ensure the database and local settings are set up correctly:
 
 ```
-cd ../.. 
-$ rider.py yourname syncdb
+$ ./manage.py syncdb --settings=talesofvalor.settings.local
 ```
 
 Pull down the database and media files from the development server **not needed yet**:
@@ -139,26 +137,47 @@ $ fab sync_all:dev,yourname -u wgbh
 Run the initial migrations in case there are differences between the development server database and the code currently in the development repository.
 
 ```
-$ rider.py yourname migrate
+$ ./manage.py migrate --settings=talesofvalor.settings.local
 ```
 
 
 # Run the development server
+So you can now develop locally.
+
 ```
-$ rider.py yourname runserver
+$ ./manage.py runserver --settings=talesofvalor.settings.local
 ```
 
-Open a browser and go to ```http://127.0.0.1:8000/en-us/account/editor```
+Open a browser and go to [http://127.0.0.1:8000/admin/]()
 
 You should now see a login screen!
 
 # CSS
+The CSS files are created using [SASS](https://sass-lang.com/) using the [gulp workflow](https://gulpjs.com/).
 
+To use gulp, you have to install [node and the node package manager](https://docs.npmjs.com/try-the-latest-stable-version-of-node) if it is not there already:
 
+```
+$ brew install node
+```
+
+Now, install all the needed packages:
+
+```
+$ npm install
+```
+
+This will read ```package.json``` file and install the required packages.  
+
+Now you can run ```gulp``` and any changes that you make to the ```SASS``` files will be detected and built into the master css file.  This command will continue running until it is stopped.
+
+```
+$ gulp
+```
 
 # Deployment:
 
-Deployment uses Fabric 2.0.  If you are used to Fabric < 2, sending CLI variables look a little different.
+Deployment uses Fabric 2.0.  If you are used to Fabric < 2, sending CLI variables looks a little different.
 
 `fab deploy --environment {{ environment_name}} [--migrate][--update_requirements][--branch {{ branch_name }} ]`
 
