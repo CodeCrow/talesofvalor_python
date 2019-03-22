@@ -1,0 +1,17 @@
+{% load cms_tags %}
+<table id="{{ id }}" class="list list-characters">
+	<caption>{{ caption }}</caption>
+	{% for character in objects %}
+	<tr>
+	    <td><a href="{% url 'characters:character_detail' pk=character.pk %}">{{ character.name }}{% if character == character.player.active_character %}&nbsp;&#x2714;{% endif %}</a></td>
+	    <td>{{ character.cp_spent }}/{{ character.cp_spent|add:character.cp_available }}&nbsp;CPs</td>
+	    <td>Brief</td>
+	    <td>Print</td>
+	    <td>Update</td>
+	    <td>{% if character != character.player.active_character %}Set Active{% endif %}</td>
+	    <td>Reset</td>
+	    <td><a href="{% url 'characters:character_delete' pk=character.pk %}">Destroy</a></td>
+	    <td>Steal</td>
+	</tr>
+	{% endfor %}
+</table>

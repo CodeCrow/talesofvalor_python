@@ -15,6 +15,7 @@ from .forms import OriginAddSkillForm
 
 INCLUDE_FOR_EDIT = ["name", "type", "description"]
 
+
 class OriginCreateView(PermissionRequiredMixin, CreateView):
     """
     Allows the Creation of an origin
@@ -34,6 +35,7 @@ class OriginUpdateView(PermissionRequiredMixin, UpdateView):
     fields = INCLUDE_FOR_EDIT
     permission_required = ('origins.can_edit', )
     success_url = reverse_lazy('origins:origin_list')
+
 
 class OriginDeleteView(PermissionRequiredMixin, DeleteView):
     """
@@ -57,6 +59,7 @@ class OriginDetailView(DetailView):
     model = Origin
     fields = '__all__'
 
+
 class OriginAddSkillView(LoginRequiredMixin, FormView):
     """
     Add skills to the Origin/Background.
@@ -71,7 +74,8 @@ class OriginAddSkillView(LoginRequiredMixin, FormView):
         """
         The form has been successful.
 
-        Now, we want to create the success url, using the origin that was editted.
+        Now, we want to create the success url, using the origin that was
+        editted.
         """
         return reverse_lazy('origins:origin_detail', kwargs={
                 'pk': self.kwargs.get('pk')
@@ -83,25 +87,23 @@ class OriginAddSkillView(LoginRequiredMixin, FormView):
 
         Now that the form is valid, create the link between the Origin
         and the Skill.
-        """ 
+        """
         origin = Origin.objects.get(id=self.kwargs.get('pk'))
         origin_skill = OriginSkill(
-                origin = origin,
-                count = form.cleaned_data['count'],
-                skill = form.cleaned_data['skill']
+                origin=origin,
+                count=form.cleaned_data['count'],
+                skill=form.cleaned_data['skill']
             )
         origin_skill.save()
         return super(OriginAddSkillView, self).form_valid(form)
 
 
-
-
-
 class OriginListView(LoginRequiredMixin, ListView):
     """
-    Show the details for a character.
+    Show the list of origins.
 
-    From here you can edit the details of a character or choose skills.
+    From here you will be able to click to add a new origin,
+    view, or edit an existing origin.
     """
 
     model = Origin

@@ -4,16 +4,22 @@ from django.conf.urls import url
 from .views import PlayerCreateView, PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
     PlayerListView, PlayerDeleteView, PlayerViewSet, MassEmailView,\
-    PlayerListRegistrationView, PlayerListAttendanceView
+    PlayerListRegistrationView, PlayerListAttendanceView,\
+    MassGrantCPView
 
 urlpatterns = [
     url(
-        r'^mail/$',
+        r'^mail/?$',
         MassEmailView.as_view(),
         name='player_mail'
     ),
     url(
-        r'^select/$',
+        r'^massgrantcps/?$',
+        MassGrantCPView.as_view(),
+        name='player_mass_grantcp'
+    ),
+    url(
+        r'^select/?$',
         PlayerViewSet.as_view(),
         name='player_select'
     ),

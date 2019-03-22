@@ -37,7 +37,7 @@
         <div class="box">
             <p><a href="{% add_query_params request select='filtered' %}">Select Filtered</a> | <a href="{% add_query_params request select='none' %}">Unselect All</a></p>
             <p><a href="{% url 'players:player_mail' %}">Bulk Email</a></p>
-            <p>Bulk Grant CP</p>
+            <p><a href="{% url 'players:player_mass_grantcp' %}">Bulk Grant CP</a></p>
             <form method="POST" action="{% url 'players:player_mass_registration' %}">{% csrf_token %}{{ registration_form }}
             <button id="player_list_register_selected" class="btn btn-primary btn-submit" type="submit" name="register_selected">Register Selected</button></form>
             <form method="POST" action="{% url 'players:player_mass_attendance' %}">{% csrf_token %}{{ attendance_form }}
@@ -80,29 +80,7 @@
 	</div>
 </div>
 
-
-
-{% if is_paginated %}
-  <ul class="pagination">
-    {% if page_obj.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-    {% else %}
-      <li class="page-item disabled"><span>&laquo;</span></li>
-    {% endif %}
-    {% for i in paginator.page_range %}
-      {% if page_obj.number == i %}
-        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-      {% else %}
-        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %}
-    {% endfor %}
-    {% if page_obj.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-    {% else %}
-      <li class="page-item disabled"><span>&raquo;</span></li>
-    {% endif %}
-  </ul>
-{% endif %}
+{% include "includes/pagination.html" %}
 {% addtoblock "js" %}
 <script type="text/javascript">
   // set up the selection handler

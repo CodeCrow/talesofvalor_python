@@ -92,6 +92,9 @@ class Character(models.Model):
             self.name, self.player
         )
 
+    class Meta:
+            ordering = ["name"]
+
 
 class CharacterSkills(models.Model):
     """

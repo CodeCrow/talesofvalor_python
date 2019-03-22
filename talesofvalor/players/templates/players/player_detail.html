@@ -8,8 +8,8 @@
         <div id="player_detail_character_update" class="col-sm-7">
             <div class="box">
                 <p>CP Available: {{ object.cp_available }}</p>
-                <p>Transfer CP to character list</p>
-                <p><a href="{% url "characters:character_create" %}?player={{ object.pk }}">New Character</a></p>
+                <p>Transfer CP to character list{{ cp_transfer_form.as_p }}</p>
+                <p><a href="{% url 'characters:character_create' %}?player={{ object.pk }}">New Character</a></p>
             </div>
         </div>
         <div id="player_detail_player_info" class="col-sm-5">
@@ -23,16 +23,8 @@
     <div class="row">
         <div class="col-sm-12">
         <hr />
-        <table id="player_detail_character_list" class="list list-characters">
-            <caption>Existing Characters</caption>
-            {% for character in object.character_set.all %}
-            <tr>
-                <td>{{ character.name }}</td>
-                <td>Blah table</td>
-            </tr>
-            {% endfor %}
-        </table>
+        {% include "characters/includes/character_list.html" with objects=object.character_set.all id="player_detail_character_list" caption="Existing Characters" %}
+        
         </div>
     </div>
-This is where the player stuff will go.
 {% endblock content %}

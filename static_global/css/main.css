@@ -47,6 +47,9 @@ li.heading {
   bottom: 1em;
   right: 1em; }
 
+.list-characters td:first-child {
+  width: 30%; }
+
 html {
   box-sizing: border-box; }
 

@@ -4,6 +4,7 @@ from django.core import mail
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 
+from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
 
 from .models import Player
@@ -49,16 +50,11 @@ class UserForm(forms.ModelForm):
                 self.add_error('password_confirm', msg)
         return cleaned_data
 
+
 class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = []
-
-    def clean(self):
-        cleaned_data = super(PlayerForm, self).clean()
-        print "ERRORS"
-        print self.errors
-        print "ERRORS"
 
 
 class RegistrationForm(forms.Form):
@@ -148,3 +144,35 @@ class MassEmailForm(forms.Form):
         email_connection.send_messages(email_messages)
         # close the connection to the email server
         email_connection.close()
+
+
+class MassGrantCPForm(forms.Form):
+    """
+    Grant CP to a selected list of players.
+
+    Use this form to grant 'Amount' of CP for 'Reason' to the
+    players who have been selected form the list
+    """
+    amount = forms.IntegerField()
+    reason = forms.CharField(widget=forms.Textarea)
+
+
+class TransferCPForm(forms.Form):
+    """
+    Transfer CP from a player to a specific character.
+
+    Players have the pool of CP that the chracters draw from.
+    Those CP say with that character and is available to them
+    to buy various attributes, skills, etc.
+    """
+    amount = forms.IntegerField()
+    character = forms.ModelChoiceField(
+            label='',
+            queryset=Character.objects.none(),
+            empty_label=None
+        )
+
+    def __init__(self, *args, **kwargs):
+        #https://stackoverflow.com/questions/4880842/how-to-dynamically-set-the-queryset-of-a-models-modelchoicefield-on-a-forms-form
+        super(TransferCPForm, self).__init__(args, kwargs)
+        self.fields['character'].queryset = kwargs['player'].character_set.all()

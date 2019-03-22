@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
+from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
@@ -26,7 +27,8 @@ from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
 from .forms import RegistrationForm,\
-    MassRegistrationForm, MassAttendanceForm, MassEmailForm
+    MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
+    MassGrantCPForm, TransferCPForm
 from .models import Player, Registration
 
 
@@ -136,6 +138,17 @@ class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         # or request.POST
         return Player.objects.get(user__username=self.kwargs['username'])
 
+    def get_context_data(self, **kwargs):
+        """
+        Show the information about the player.
+
+        Also shows the list of characters for the player, and allows
+        the transfer of CP, and manipulations of the lists of characters.
+        """
+        context_data = super(PlayerDetailView, self).get_context_data(**kwargs)
+        context_data['cp_transfer_form'] = TransferCPForm(**{'player': self.object})
+        return context_data
+
 
 class RegistrationView(FormView):
     """
@@ -229,8 +242,6 @@ class PlayerListRegistrationView(LoginRequiredMixin, FormView):
         players_selected = Player.objects.filter(
             id__in=self.request.session.get('player_select', [])
         )
-        print("PLAYERS:")
-        print(players_selected)
         for player in players_selected:
             registration = Registration.objects.create(
                 player=player,
@@ -267,8 +278,6 @@ class PlayerListAttendanceView(LoginRequiredMixin, FormView):
         players_selected = Player.objects.filter(
             id__in=self.request.session.get('player_select', [])
         )
-        print("PLAYERS:")
-        print(players_selected)
         for player in players_selected:
             attendance = Attendance.objects.create(
                 player=player,
@@ -381,6 +390,7 @@ class PlayerViewSet(APIView):
 
         return Response(content)
 
+
 class MassEmailView(FormView):
     '''
     Form for mass emails.
@@ -405,3 +415,38 @@ class MassEmailView(FormView):
             # we should raise an error here so users know there is a problem.
             messages.warning(self.request, 'No players selected for email.')
         return super(MassEmailView, self).form_valid(form)
+
+
+class MassGrantCPView(FormView):
+    '''
+    View for mass granting of CP.
+
+    So that a bunch of the selcted players (held in the session
+    variable) get a set amount of CP.
+    '''
+    template_name = 'players/mass_grantcp.html'
+    form_class = MassGrantCPForm
+    success_url = reverse_lazy('players:player_list')
+
+    def get_context_data(self, **kwargs):
+        context = super(MassGrantCPView, self).get_context_data(**kwargs)
+        context['player_select'] = Player.objects.filter(
+            id__in=self.request.session.get('player_select', [])
+        )
+        return context
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        # get the selcted players
+        selected_players = self.request.session.get('player_select', [])
+        if selected_players:
+            Player.objects\
+                .filter(id__in=selected_players)\
+                .update(cp_available=F('cp_available') + form.cleaned_data['amount'])
+            messages.info(self.request, 'Bulk CP updated!')
+
+        else:
+            # we should raise an error here so users know there is a problem.
+            messages.warning(self.request, 'No players selected for grant.')
+        return super(MassGrantCPView, self).form_valid(form)

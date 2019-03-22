@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}{{ object.name }} : Characters{% endblock bar_title %}
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+    <p>Are you sure you want to delete "{{ object.name }}"?</p>
+    <input class="btn btn-danger" type="submit" value="Confirm" />
+</form>
+{% endblock content %}

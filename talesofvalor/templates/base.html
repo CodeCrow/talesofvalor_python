@@ -18,8 +18,7 @@
 
             <header class="row">
                 <div class="col-sm-8">
-                    HEADER
-                    {% block title %}This is my new project home page{% endblock title %}
+                    <h1>{% block title %}This is my new project home page{% endblock title %}</h1>
                     {% if request.current_page %}
                         {% include_page_tags request.current_page %}
                     {% endif %}
