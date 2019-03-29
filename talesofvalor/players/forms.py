@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core import mail
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.utils.translation import ugettext as _
 
 from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
@@ -172,7 +173,21 @@ class TransferCPForm(forms.Form):
             empty_label=None
         )
 
-    def __init__(self, *args, **kwargs):
-        #https://stackoverflow.com/questions/4880842/how-to-dynamically-set-the-queryset-of-a-models-modelchoicefield-on-a-forms-form
-        super(TransferCPForm, self).__init__(args, kwargs)
-        self.fields['character'].queryset = kwargs['player'].character_set.all()
+    def __init__(self, player, *args, **kwargs):
+        self.player = player
+        super(TransferCPForm, self).__init__(*args, **kwargs)
+        self.fields['character'].queryset = player.character_set.all()
+
+    def clean_amount(self):
+        """
+        Make sure there are enough points available.
+
+        Players must have enough 'cp_available' to transfer to characters.
+        """
+        transfer_cps = self.cleaned_data['amount']
+        if transfer_cps > self.player.cp_available:
+            raise forms.ValidationError(
+                _('Not enough CP available: %(value)s'),
+                code='invalid',
+                params={'value': transfer_cps},
+                )

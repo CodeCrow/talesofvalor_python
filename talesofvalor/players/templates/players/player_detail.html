@@ -8,7 +8,7 @@
         <div id="player_detail_character_update" class="col-sm-7">
             <div class="box">
                 <p>CP Available: {{ object.cp_available }}</p>
-                <p>Transfer CP to character list{{ cp_transfer_form.as_p }}</p>
+                <form id="player_transfer_cp" method="POST">{% csrf_token %}Transfer {{ cp_transfer_form.amount }} CP to {{ cp_transfer_form.character }}<button id="player_detail_transfer_cp" class="btn btn-primary btn-submit" type="submit" name="transfer_cp">Transfer</button></form>
                 <p><a href="{% url 'characters:character_create' %}?player={{ object.pk }}">New Character</a></p>
             </div>
         </div>

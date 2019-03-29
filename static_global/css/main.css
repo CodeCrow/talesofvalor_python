@@ -42,6 +42,9 @@ li.heading {
   text-align: right;
   vertical-align: top; }
 
+#player_transfer_cp #id_amount {
+  width: 4em; }
+
 #player_list_filter_submit {
   position: absolute;
   bottom: 1em;

@@ -146,8 +146,27 @@ class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         the transfer of CP, and manipulations of the lists of characters.
         """
         context_data = super(PlayerDetailView, self).get_context_data(**kwargs)
-        context_data['cp_transfer_form'] = TransferCPForm(**{'player': self.object})
+        if self.request.method == 'POST':
+            print("POST:")
+            print(self.request.POST)
+            print(self.object)
+            form = TransferCPForm(self.request.POST, self.request.FILES, player=self.object)
+            if form.is_valid():
+                context_data['cp_transfer_form'] = TransferCPForm(player=self.object)
+            else:
+                context_data['cp_transfer_form'] = form
+        else:
+            context_data['cp_transfer_form'] = TransferCPForm(player=self.object)
         return context_data
+
+    def post(self, request, *args, **kwargs):
+        """
+        implementation of post so we can submit forms to the player detail,
+        like the cp transfer form.
+        """
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 
 class RegistrationView(FormView):
