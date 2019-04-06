@@ -159,7 +159,7 @@ class PlayerDetailView(
                 'player': self.object
             })
         return kwargs
-    
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form()
@@ -167,13 +167,17 @@ class PlayerDetailView(
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-    
+
     def form_invalid(self, form):
+        messages.warning(self.request, 'Error transferring points.')
         return super(PlayerDetailView, self).form_valid(form)
 
     def form_valid(self, form):
-        print("THIS FORM IS FUCKING VALID")
-        print(form.cleaned_data)
+        self.object.cp_available = self.object.cp_available - form.cleaned_data['amount']
+        form.cleaned_data['character'].cp_transferred = form.cleaned_data['character'].cp_transferred + form.cleaned_data['amount']
+        form.cleaned_data['character'].cp_available = form.cleaned_data['character'].cp_available + form.cleaned_data['amount']
+        form.cleaned_data['character'].save()
+        self.object.save()
         return super(PlayerDetailView, self).form_valid(form)
 
     def get_success_url(self):
