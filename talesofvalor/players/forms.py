@@ -173,10 +173,10 @@ class TransferCPForm(forms.Form):
             empty_label=None
         )
 
-    def __init__(self, player, *args, **kwargs):
-        self.player = player
+    def __init__(self, *args, **kwargs):
+        self.player = kwargs.pop('player', None)
         super(TransferCPForm, self).__init__(*args, **kwargs)
-        self.fields['character'].queryset = player.character_set.all()
+        self.fields['character'].queryset = self.player.character_set.all()
 
     def clean_amount(self):
         """
@@ -191,3 +191,4 @@ class TransferCPForm(forms.Form):
                 code='invalid',
                 params={'value': transfer_cps},
                 )
+        return transfer_cps

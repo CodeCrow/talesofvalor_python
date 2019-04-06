@@ -16,7 +16,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView,\
-    FormView
+    FormView, FormMixin, ProcessFormView
 from django.urls import reverse, reverse_lazy
 
 from rest_framework.response import Response
@@ -32,7 +32,11 @@ from .forms import RegistrationForm,\
 from .models import Player, Registration
 
 
-class PlayerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class PlayerCreateView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        CreateView
+        ):
     '''
     Player is created.
 
@@ -45,7 +49,12 @@ class PlayerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = ('players.create_player', )
 
 
-class PlayerUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, UpdateView):
+class PlayerUpdateView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        UpdateView
+        ):
     model = Player
     fields = '__all__'
     permission_required = ('players.change_player', )
@@ -84,7 +93,7 @@ class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
         This actually just correctly sets the status of the player and
         the characters associated with the player.
         """
-        print("Nah man, we ain't actually going to do that.  It's too dangerous.")
+        print("Nah man, we ain't actually going to do that.  Too dangerous.")
         print(args)
         print(kwargs)
         return HttpResponseRedirect(reverse('players:player_list'))
@@ -113,7 +122,12 @@ class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
         return super(PlayerRedirectDetailView, self).get_redirect_url(*args, **kwargs)
 
 
-class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class PlayerDetailView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        FormMixin,
+        DetailView
+        ):
     """
     Show the details for a player.
 
@@ -123,6 +137,7 @@ class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     model = Player
     fields = '__all__'
+    form_class = TransferCPForm
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -138,35 +153,34 @@ class PlayerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         # or request.POST
         return Player.objects.get(user__username=self.kwargs['username'])
 
-    def get_context_data(self, **kwargs):
-        """
-        Show the information about the player.
-
-        Also shows the list of characters for the player, and allows
-        the transfer of CP, and manipulations of the lists of characters.
-        """
-        context_data = super(PlayerDetailView, self).get_context_data(**kwargs)
-        if self.request.method == 'POST':
-            print("POST:")
-            print(self.request.POST)
-            print(self.object)
-            form = TransferCPForm(self.request.POST, self.request.FILES, player=self.object)
-            if form.is_valid():
-                context_data['cp_transfer_form'] = TransferCPForm(player=self.object)
-            else:
-                context_data['cp_transfer_form'] = form
-        else:
-            context_data['cp_transfer_form'] = TransferCPForm(player=self.object)
-        return context_data
-
+    def get_form_kwargs(self):
+        kwargs = super(PlayerDetailView, self).get_form_kwargs()
+        kwargs.update({
+                'player': self.object
+            })
+        return kwargs
+    
     def post(self, request, *args, **kwargs):
-        """
-        implementation of post so we can submit forms to the player detail,
-        like the cp transfer form.
-        """
         self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+    def form_invalid(self, form):
+        return super(PlayerDetailView, self).form_valid(form)
+
+    def form_valid(self, form):
+        print("THIS FORM IS FUCKING VALID")
+        print(form.cleaned_data)
+        return super(PlayerDetailView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            'players:player_detail',
+            kwargs={'username': self.object.user.username}
+        )
 
 
 class RegistrationView(FormView):
