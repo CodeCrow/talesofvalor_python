@@ -53,6 +53,9 @@ li.heading {
 .list-characters td:first-child {
   width: 30%; }
 
+.portrait {
+  float: right; }
+
 html {
   box-sizing: border-box; }
 

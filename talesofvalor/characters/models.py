@@ -92,6 +92,14 @@ class Character(models.Model):
             self.name, self.player
         )
 
+    @property
+    def background(self):
+        return self.origins.get(type=Origin.BACKGROUND)
+
+    @property
+    def race(self):
+        return self.origins.get(type=Origin.RACE)
+
     class Meta:
             ordering = ["name"]
 
@@ -129,6 +137,7 @@ class CharacterLog(models.Model):
         related_name='%(app_label)s_%(class)s_author',
         null=True
     )
+
 
 class CharacterGrant(models.Model):
     """

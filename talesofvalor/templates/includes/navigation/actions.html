@@ -23,8 +23,8 @@
     <li><a href="#">Tags</a></li>
 
     <li class="heading">Characters</li>
-    <li><a href="#">New</a></li>
-    <li><a href="#">List</a></li>
+    <li><a href="{% url 'characters:character_create' %}">New</a></li>
+    <li><a href="{% url 'characters:character_list' %}">List</a></li>
         
     <li class="heading">Players</li>
     <li><a href="{% url 'players:player_create' %}">New</a></li>
