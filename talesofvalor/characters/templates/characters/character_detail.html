@@ -8,6 +8,18 @@
 Player: {{ object.player }}
 <h1>{{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
 <img class="portrait" src="{{ object.picture.url }}" alt="{{ object.name }}" />
+
+<nav>
+    <a href="{% url 'characters:character_update' pk=object.pk %}">Update</a>
+    <a href="{% url 'characters:character_skill_update' pk=object.pk %}">Skills</a>
+    {% if object != object.player.active_character %}
+        <a href="{% url 'characters:character_set_active' pk=object.pk %}">Set Active</a>
+    {% endif %}
+    Reset
+    <a href="{% url 'characters:character_delete' pk=object.pk %}">Destroy</a> | 
+    Print | 
+    <a href="{% url 'events:event_list' character=object.id %}">Events</a>
+</nav>
 <div class="attributes character_attributes">
     <table id="status" class="character-detail">
         <tr>
@@ -26,7 +38,6 @@ Player: {{ object.player }}
             <td>{{ object.background }}</td>
         </tr>
     </table>
-	<nav>Print Update Reset Destroy | Print with skills | List</nav>
 </div>
 
 {% include "characters/includes/character_stats.html" with object=object %}

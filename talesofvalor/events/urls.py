@@ -21,6 +21,11 @@ urlpatterns = [
         name='event_detail'
     ),
     url(
+        r'^char/(?P<character>\d+)/?$',
+        EventListView.as_view(),
+        name='event_list'
+    ),
+    url(
         r'$',
         EventListView.as_view(),
         name='event_list'

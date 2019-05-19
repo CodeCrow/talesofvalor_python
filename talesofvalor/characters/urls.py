@@ -2,7 +2,8 @@
 from django.conf.urls import url
 
 from .views import CharacterCreateView, CharacterUpdateView,\
-    CharacterDetailView, CharacterDeleteView, CharacterListView
+    CharacterDetailView, CharacterDeleteView, CharacterListView,\
+    CharacterSetActiveView, CharacterSkillUpdateView
 
 urlpatterns = [
     url(
@@ -21,9 +22,19 @@ urlpatterns = [
         name='character_delete'
     ),
     url(
-        r'^(?P<pk>[0-9]+)/edit/?$',
+        r'^(?P<pk>[0-9]+)/update/?$',
         CharacterUpdateView.as_view(),
         name='character_update'
+    ),
+    url(
+        r'^(?P<pk>[0-9]+)/skill/?$',
+        CharacterSkillUpdateView.as_view(),
+        name='character_skill_update'
+    ),
+    url(
+        r'^(?P<pk>[0-9]+)/setactive/?$',
+        CharacterSetActiveView.as_view(),
+        name='character_set_active'
     ),
     url(
         r'$',

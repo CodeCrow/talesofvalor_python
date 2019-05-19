@@ -27,10 +27,25 @@ class Skill(models.Model):
     name = models.CharField(max_length=100)
     tag = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
-    attention_flag = models.BooleanField(default=False)
+    single_flag = models.BooleanField(
+        _("Single Purchase?"),
+        help_text=_("""
+            Indicates that you only have to buy it once
+            (like for weapon skills)
+            """),
+        default=False
+    )
     bgs_flag = models.BooleanField(default=False)
-    created = models.DateTimeField('date published', auto_now_add=True, editable=False)
-    modified = models.DateTimeField('last updated', auto_now=True, editable=False)
+    created = models.DateTimeField(
+        'date published',
+        auto_now_add=True,
+        editable=False
+    )
+    modified = models.DateTimeField(
+        'last updated',
+        auto_now=True,
+        editable=False
+    )
     created_by = models.ForeignKey(
         User,
         editable=False,
@@ -44,12 +59,19 @@ class Skill(models.Model):
         null=True
     )
 
+    class Meta:
+        ordering = ['tag', 'name']
+
     def __unicode__(self):
         return self.name
 
     @property
     def headers(self):
-        return ', '.join([i for i in self.headerskill_set.values_list("header__name", flat=True)])
+        return ', '.join([i for i in self.headerskill_set.values_list(
+            "header__name",
+            flat=True
+        )])
+
 
 class Header(models.Model):
     """

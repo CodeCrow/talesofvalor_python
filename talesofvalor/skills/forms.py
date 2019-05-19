@@ -3,7 +3,7 @@ from django import forms
 from .models import Skill, HeaderSkill
 
 
-INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "attention_flag", "bgs_flag"]
+INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "single_flag", "bgs_flag"]
 
 
 class SkillForm(forms.ModelForm):

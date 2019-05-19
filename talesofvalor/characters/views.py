@@ -1,14 +1,19 @@
 """These are views that are used for viewing and editing characters."""
+
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView
+from django.views import View
+from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic import DetailView, ListView, DeleteView
 
 from talesofvalor.players.models import Player
+from talesofvalor.skills.models import Header
 
 from .models import Character
-from .forms import CharacterForm
+from .forms import CharacterForm, CharacterSkillForm
 
 
 class CharacterCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -92,6 +97,93 @@ class CharacterDeleteView(
         except Character.DoesNotExist:
             return False
         return False
+
+
+class CharacterSetActiveView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        View
+        ):
+    """
+    Set the active character for the characters player to the sent id.
+    """
+
+    model = Character
+    fields = '__all__'
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Character.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Character.DoesNotExist:
+            return False
+        return False
+
+    def get(self, request, *args, **kwargs):
+        """
+        Send the user back to the the originating page or back to the
+        character they are setting active
+        """
+
+        character = self.model.objects.get(pk=self.kwargs['pk'])
+        character.player.character_set.update(active_flag=False)
+        character.active_flag = True
+        character.save()
+        messages.info(self.request, 'Active Character changed to {}.'.format(
+            character.name
+        ))
+        return HttpResponseRedirect(
+            self.request.META.get(
+                'HTTP_REFERER',
+                reverse(
+                    'characters:character_detail',
+                    kwargs={'pk': self.kwargs['pk']}
+                )
+            )
+        )
+
+
+class CharacterSkillUpdateView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        FormView):
+    """
+    Allow a user to update their chosen skills
+    """
+
+    template_name = 'characters/character_skill_form.html'
+    form_class = CharacterSkillForm
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Character.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Character.DoesNotExist:
+            return False
+        return False
+
+    def get_success_url(self):
+        return reverse(
+            'characters:character_detail',
+            kwargs={'pk': self.object.pk}
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super(CharacterSkillUpdateView, self).get_form_kwargs()
+        self.skills = Header.objects.all()
+        kwargs.update({'skills': self.skills})
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(CharacterSkillUpdateView, self)\
+            .get_context_data(**self.kwargs)
+        context['skills'] = self.skills
+        context['object'] = Character.objects.get(pk=self.kwargs['pk'])
+        return context
 
 
 class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):

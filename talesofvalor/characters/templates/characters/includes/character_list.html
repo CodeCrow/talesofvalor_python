@@ -5,9 +5,8 @@
 	<tr>
 	    <td><a href="{% url 'characters:character_detail' pk=character.pk %}">{{ character.name }}{% if character == character.player.active_character %}&nbsp;&#x2714;{% endif %}</a></td>
 	    <td>{{ character.cp_spent }}/{{ character.cp_spent|add:character.cp_available }}&nbsp;CPs</td>
-	    <td>Print</td>
 	    <td><a href="{% url 'characters:character_update' pk=character.pk %}">Update</a></td>
-	    <td>{% if character != character.player.active_character %}Set Active{% endif %}</td>
+	    <td>{% if character != character.player.active_character %}<a href="{% url 'characters:character_set_active' pk=object.pk %}">Set Active</a>{% endif %}</td>
 	    <td>Reset</td>
 	    <td><a href="{% url 'characters:character_delete' pk=character.pk %}">Destroy</a></td>
 	    <td>Steal</td>

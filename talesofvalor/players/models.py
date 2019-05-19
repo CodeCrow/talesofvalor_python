@@ -4,7 +4,6 @@ Describes the player models.
 These models describe the player and its relationship to the
 django authentication user models.
 """
-from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models

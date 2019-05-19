@@ -170,7 +170,7 @@ class PlayerDetailView(
 
     def form_invalid(self, form):
         messages.warning(self.request, 'Error transferring points.')
-        return super(PlayerDetailView, self).form_valid(form)
+        return super(PlayerDetailView, self).form_invalid(form)
 
     def form_valid(self, form):
         self.object.cp_available = self.object.cp_available - form.cleaned_data['amount']
