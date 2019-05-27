@@ -105,6 +105,9 @@ class Header(models.Model):
         null=True
     )
 
+    class Meta:
+        ordering = ['name']
+
     def __unicode__(self):
         return self.name
 

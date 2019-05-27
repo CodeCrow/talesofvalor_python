@@ -7,32 +7,38 @@
 Player: {{ object.player }}
 <h1>Pick skills for {{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
 <form action="" method="post">{% csrf_token %}
-	{% include "characters/includes/character_stats.html" with object=object %}
-	<div class="fieldWrapper">
-		{{ form.skills.errors }}
-		{{ form.headers.errors }}
-		<ul class="class_list">
-		{% for header in skills %}
-			{% spaceless %}
-			<li>
-			<input type="checkbox" id="id_{{ header.id }}" name="{{ form.headers.html_name}}" value="{{ header.id }}" />&nbsp;
-			<label for="id_{{ header.id }}"><strong>{{ header.name }}</strong></label>
-			{% if header.skills.count %}
-				<ul>
-					{% for s in header.skills.all %}
-						<li>
-						<input type="checkbox" id="id_{{ s.id }}" name="{{ form.skills.html_name}}" value="{{ s.id }}" />&nbsp;
-						<label for="id_{{ s.id }}"><strong>{{ s.name }}</strong></label>
-						</li>
-					{% endfor %}
-				</ul>
-			{% endif %}
-			</li>
-			{% endspaceless %}
-		{% endfor %}
-		</ul>
-	</div>
- 	<button type="submit">Export Data</button>
+    {% include "characters/includes/character_stats.html" with object=object %}
+
+    <table class="data">
+        <tr>
+            <td colspan="2">
+                <div class="fieldWrapper">
+
+                    {{ form.skills.errors }}
+                    {{ form.headers.errors }}
+                    <ul class="class_list">
+                    {% for header in skills %}
+                        {% spaceless %}
+                        <li>
+                        <input type="checkbox" id="id_{{ header.id }}" name="{{ form.headers.html_name}}" value="{{ header.id }}" />&nbsp;
+                        <label for="id_{{ header.id }}"><strong>{{ header.name }}</strong></label>
+                        {% if header.headerskill_set.count %}
+                            <ul>
+                                {% for s in header.headerskill_set.all %}
+                                    <li>
+                                    <input type="checkbox" id="id_{{ s.id }}" name="{{ form.skills.html_name}}" value="{{ s.id }}" />&nbsp;
+                                    <label for="id_{{ s.id }}"><strong>{{ s.skill.name }}</strong></label>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        </li>
+                        {% endspaceless %}
+                    {% endfor %}
+                    </ul>
+                </div>
+            </td>
+        </tr>
         <tr>
             <td colspan="2" class="text-right">
                 <input type="submit" value="Update" />

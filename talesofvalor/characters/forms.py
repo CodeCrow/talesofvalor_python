@@ -35,16 +35,30 @@ class CharacterSkillForm(forms.Form):
         """
         Initializing the form.
 
-        We have to break down the student list that was sent so that we can
+        We have to break down the skills list that was sent so that we can
         indicate what the valid choices are.
         """
         # do pop first, so the parent doesn't get unexpected arguments.
         skills = kwargs.pop('skills')
         super(CharacterSkillForm, self).__init__(*args, **kwargs)
         self.fields['skills'].choices = \
-            [(s.id, s.name)
+            [(s.id, s.skill.name)
                 for header in skills
-                for s in header.skills.all()]
+                for s in header.headerskill_set.all()]
         self.fields['headers'].choices = \
             [(h.id, h.name) for h in skills]
 
+    def clean(self):
+        """
+        Check and make sure the skills that have been chosen are valid.
+
+        This should make sure that the character has enough points for the
+        purchases AND that different skills don't interact badly.
+
+        It has to take into account Grants, dabbling and different costs
+        for things like jack of all trades etc.
+
+        We should probably make a hash/dict based on headers that stores
+        the expected costs per skill.  This was how it was done previously.
+        """
+        return super(CharacterSkillForm, self).clean()

@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DetailView, ListView, DeleteView
 
 from talesofvalor.players.models import Player
@@ -148,13 +148,15 @@ class CharacterSetActiveView(
 class CharacterSkillUpdateView(
         LoginRequiredMixin,
         UserPassesTestMixin,
-        FormView):
+        FormMixin,
+        DetailView):
     """
     Allow a user to update their chosen skills
     """
 
     template_name = 'characters/character_skill_form.html'
     form_class = CharacterSkillForm
+    model = Character
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -174,7 +176,9 @@ class CharacterSkillUpdateView(
 
     def get_form_kwargs(self):
         kwargs = super(CharacterSkillUpdateView, self).get_form_kwargs()
-        self.skills = Header.objects.all()
+        self.skills = Header.objects\
+            .order_by('hidden', 'category', 'name')\
+            .all()
         kwargs.update({'skills': self.skills})
         return kwargs
 
@@ -182,8 +186,24 @@ class CharacterSkillUpdateView(
         context = super(CharacterSkillUpdateView, self)\
             .get_context_data(**self.kwargs)
         context['skills'] = self.skills
-        context['object'] = Character.objects.get(pk=self.kwargs['pk'])
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        """
+        Form is valid.   Save the skills to that character and remove the
+        appropriate number of characters points.
+        """
+        print("CLEANED DATA:")
+        print(form.cleaned_data)
+        return super(CharacterSkillUpdateView, self).form_valid(form)
 
 
 class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
