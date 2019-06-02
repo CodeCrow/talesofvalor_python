@@ -27,4 +27,22 @@
         
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Future Events</h2>
+            <ul>
+            {% for event in future_event_list %}
+                <li>{{ event }}</li>
+            {% endfor %}
+            </ul>
+            <hr />
+            <h2>Past Events</h2>
+            <ul>
+            {% for event in past_event_list %}
+                <li>{{ event }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock content %}

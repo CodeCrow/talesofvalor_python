@@ -5,6 +5,7 @@ REFERENCE:
 https://simpleisbetterthancomplex.com/tutorial/2017/02/18/how-to-create-user-sign-up-view.html
 https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#abstractbaseuser
 """
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
@@ -16,7 +17,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView,\
-    FormView, FormMixin, ProcessFormView
+    FormView, FormMixin
 from django.urls import reverse, reverse_lazy
 
 from rest_framework.response import Response
@@ -159,6 +160,18 @@ class PlayerDetailView(
                 'player': self.object
             })
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        """
+        Add context: The event lists
+        """
+
+        context = super(PlayerDetailView, self).get_context_data(**kwargs)
+        context['future_event_list'] = Event.objects\
+            .filter(event_date__gte=datetime.today())
+        context['past_event_list'] = Event.objects\
+            .filter(event_date__lt=datetime.today())
+        return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()

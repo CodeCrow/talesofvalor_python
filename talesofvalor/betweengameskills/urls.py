@@ -3,7 +3,7 @@ from django.conf.urls import url
 
 from .views import BetweenGameSkillCreateView, BetweenGameSkillUpdateView,\
     BetweenGameSkillDetailView, BetweenGameSkillListView,\
-    BetweenGameSkillDeleteView
+    BetweenGameSkillDeleteView, BetweenGameSkillCharacterEventView
 
 urlpatterns = [
     url(
@@ -30,5 +30,10 @@ urlpatterns = [
         r'^(?P<pk>[0-9]+)/delete/?$',
         BetweenGameSkillDeleteView.as_view(),
         name='betweengameskill_delete'
+    ),
+    url(
+        r'^event/(?P<event_id>[0-9]+)/character/(?P<character_id>[0-9]+)/?$',
+        BetweenGameSkillCharacterEventView.as_view(),
+        name='betweengameskillcharacterevent_detail'
     )
 ]

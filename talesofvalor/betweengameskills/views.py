@@ -7,10 +7,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView,\
-    DeleteView, FormView
+    DeleteView
 from django.views.generic import DetailView, ListView
 
+from talesofvalor.events.models import Event
+
 from .models import BetweenGameSkill
+
 
 
 class BetweenGameSkillCreateView(LoginRequiredMixin, CreateView):
@@ -22,7 +25,26 @@ class BetweenGameSkillCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('betweengameskills:betweengameskill_list')
 
 
-class BetweenGameSkillUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, UpdateView):
+class BetweenGameSkillCharacterEventView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        DetailView
+        ):
+    """
+    Show the BGS detail page for a character event.
+    """
+    model = Event
+    template_name = "betweengameskill/characterevent_detail.html"
+
+
+
+class BetweenGameSkillUpdateView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        UpdateView
+        ):
     """
     Edits a Between Game skill that has already been created
     """
@@ -41,7 +63,13 @@ class BetweenGameSkillUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Us
             return False
         return False
 
-class BetweenGameSkillDeleteView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, DeleteView):
+
+class BetweenGameSkillDeleteView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        DeleteView
+        ):
     """
     Removes a between game skill permanantly.
     """
