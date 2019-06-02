@@ -179,7 +179,7 @@ $ gulp
 
 Deployment uses Fabric 2.0.  If you are used to Fabric < 2, sending CLI variables looks a little different.
 
-`fab deploy --environment {{ environment_name}} [--migrate][--update_requirements][--branch {{ branch_name }} ]`
+`fab deploy --environment {{ environment_name}} [--migrate][--updaterequirements][--branch {{ branch_name }} ]`
 
 Where “environment” is “stage”, “production”, “development”, and “branch_name” is the branch that should be deployed that should be deployed.
 

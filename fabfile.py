@@ -56,13 +56,13 @@ def _get_settings_file():
 
 
 @task
-def deploy(c, environment, branch=None, migrate=False, update_requirements=False):
+def deploy(c, environment, branch=None, migrate=False, updaterequirements=False):
     """
     Deploys the mp_bookpod application to an environment as dictated
     by an environment setup function (like `staging`)
     """
     migrate = _prep_bool_arg(migrate)
-    update_requirements = _prep_bool_arg(update_requirements)
+    update_requirements = _prep_bool_arg(updaterequirements)
     env = c.config[environment]
     with Connection(env.hosts, user=env.user, config=c.config) as c:
         c.run('ls')
@@ -87,9 +87,9 @@ def deploy(c, environment, branch=None, migrate=False, update_requirements=False
             )
             c.run('git checkout {}'.format(branch))
 
-            c.run('echo update_requirements:{update_requirements}'.format(update_requirements=update_requirements))
+            c.run('echo updaterequirements:{updaterequirements}'.format(updaterequirements=updaterequirements))
 
-            if update_requirements is True:
+            if updaterequirements is True:
                 c.run('echo Updating requirements...')
                 c.run('pip install -r requirements.txt')
 
