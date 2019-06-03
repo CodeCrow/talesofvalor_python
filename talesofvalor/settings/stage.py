@@ -1,7 +1,7 @@
 from common import *
 
 ALLOWED_HOSTS = [
-    'tov.talesofvalor.com',
+    'tov.crowbringsdaylight.com',
 ]
 
 DATABASES = {
