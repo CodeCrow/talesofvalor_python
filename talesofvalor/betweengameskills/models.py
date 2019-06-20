@@ -28,16 +28,17 @@ class BetweenGameSkill(models.Model):
     Holds the question and the links to the other parts of the game.
     """
 
-    character = models.ForeignKey(Character)
-    event = models.ForeignKey(Event)
-    skill = models.ForeignKey(Skill)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     count = models.PositiveIntegerField()
     question = HTMLField(blank=False)
     answer = HTMLField(blank=True)
     assigned_to = models.ForeignKey(
         Player,
         null=True,
-        limit_choices_to={'is_staff': True}
+        limit_choices_to={'is_staff': True},
+        on_delete=models.SET_NULL
     )
     submit_date = models.DateTimeField(
         _('submitted'),

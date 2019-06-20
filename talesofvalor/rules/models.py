@@ -57,7 +57,7 @@ class Rule(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     # the skill that this will effect
-    skill = models.ForeignKey(Skill)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     # the new cost of the skill
     new_cost = models.PositiveIntegerField(default=0)
     # The character just gets this skill for free, without having to buy it at all.

@@ -25,7 +25,7 @@ class Player(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    game_started = models.ForeignKey(Event, blank=True, null=True)
+    game_started = models.ForeignKey(Event, blank=True, null=True, on_delete=models.CASCADE)
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
 
@@ -100,8 +100,8 @@ class Registration(models.Model):
     Holds the registration for players for a specific event.
     """
 
-    player = models.ForeignKey(Player)
-    event = models.ForeignKey(Event)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     cabin = models.CharField(
         max_length=100,
         blank=True,
@@ -129,7 +129,6 @@ class Registration(models.Model):
             )\
             .order_by('-event__event_date')\
             .first()
-        print(previous_registration)
         if self.pk is None:
             # if this is new registration and not an update, take information
             # from the previous one if it isn't updated.
@@ -156,8 +155,8 @@ class PEL(models.Model):
         (1, 'Poor'),
     )
 
-    player = models.ForeignKey(Player)
-    event = models.ForeignKey(Event)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     created = models.DateTimeField(
         _('date created'),
         null=True,

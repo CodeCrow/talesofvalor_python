@@ -50,13 +50,15 @@ class Skill(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_author',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
     modified_by = models.ForeignKey(
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_updater',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     class Meta:
@@ -96,13 +98,15 @@ class Header(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_author',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
     modified_by = models.ForeignKey(
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_updater',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     class Meta:

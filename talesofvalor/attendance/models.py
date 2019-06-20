@@ -25,9 +25,9 @@ class Attendance(models.Model):
     field "game_started"
     """
 
-    player = models.ForeignKey(Player)
-    event = models.ForeignKey(Event)
-    character = models.ForeignKey(Character, null=True)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    character = models.ForeignKey(Character, null=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         """

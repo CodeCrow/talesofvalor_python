@@ -34,7 +34,7 @@ class Character(models.Model):
         (RETIRED, 'Retired'),
     )
 
-    player = models.ForeignKey(Player)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=50,
         choices=STATUS_CHOICES,
@@ -75,13 +75,15 @@ class Character(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_author',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
     modified_by = models.ForeignKey(
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_updater',
-        null=True
+        null=True ,
+        on_delete=models.SET_NULL
     )
 
     def get_absolute_url(self):
@@ -135,7 +137,8 @@ class CharacterLog(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_author',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
 
 
@@ -164,7 +167,7 @@ class CharacterGrant(models.Model):
         choices=TYPE_CHOICES,
         default='SkillGrant'
     )
-    character = models.ForeignKey(Character)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
     correlated_id = models.PositiveIntegerField()
     reason = models.TextField()
     free = models.BooleanField(default=False)
