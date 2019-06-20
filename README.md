@@ -12,47 +12,36 @@ $ cd talesofvalor_python
 
 ## Set up virtual environment
 
+[Reference](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+
 [Install pip](http://https://pip.pypa.io/en/stable/installing/) (if it isn't installed already)
 
-[Install virtualenv](https://virtualenv.pypa.io/en/stable/installation/)
+And make sure it is upgraded:
 
 ```
-$ pip install virtualenv
+python3 -m pip install --user --upgrade pip
 ```
 
-[Install virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) if you don't have it. (it makes things easier)
-
-```
-$ pip install virtualenvwrapper
-```
-
-Set up the home directory that stores the environment.
-Change "~/Envs" to whatever directory you would prefer.
+Tales of Valor will be using the virtual environment managment that comes with Python 3:
 
 
 ```
-$ export WORKON_HOME=~/Envs
-$ mkdir -p $WORKON_HOME
+python3 -m venv .virtualenv
 
 ```
+This will create a new director inside the codebase that holds the workings for the virtual environment.
 
-Start up ```virtualenvwrapper``` (should happen be default on next login)
-
-
-```
-$ source /usr/local/bin/virtualenvwrapper.sh
-```
-
-Create the environment to work in:
+Activate the environment (which will have to be done each time you work on the codebase.
 
 ```
-$ mkvirtualenv talesofvalor
+source .virtualenv/bin/activate
+
 ```
 
 The prompt should now change:
 
 ```
-(talesofvalor)$
+(.virtualenv)$
 ```
 
 Install requirements

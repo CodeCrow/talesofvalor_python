@@ -1,6 +1,7 @@
 *.scssc
 *.pyc
 .DS_Store
+.virtualenv
 .scss*
 ENV
 .sass-cache
