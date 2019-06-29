@@ -1,64 +1,66 @@
 """Router for views for characters."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import HeaderCreateView, HeaderUpdateView,\
     HeaderDetailView, HeaderListView, HeaderDeleteView,\
     SkillCreateView, SkillUpdateView, SkillTreeView,\
     SkillDetailView, SkillListView, SkillDeleteView
 
+app_name = "skills"
+
 urlpatterns = [
-    url(
-        r'^headers/?$',
+    path(
+        'headers/',
         HeaderListView.as_view(),
         name='header_list'
     ),
-    url(
-        r'^headers/add/?$',
+    path(
+        'headers/add/',
         HeaderCreateView.as_view(),
         name='header_create'
     ),
-    url(
-        r'^headers/(?P<pk>[0-9]+)/?$',
+    path(
+        'headers/<int:pk>/',
         HeaderDetailView.as_view(),
         name='header_detail'
     ),
-    url(
-        r'^headers/(?P<pk>[0-9]+)/edit/?$',
+    path(
+        'headers/<int:pk>/edit/',
         HeaderUpdateView.as_view(),
         name='header_update'
     ),
-    url(
-        r'^headers/(?P<pk>[0-9]+)/delete/?$',
+    path(
+        'headers/<int:pk>/delete/',
         HeaderDeleteView.as_view(),
         name='header_delete'
     ),
-    url(
-        r'^$',
+    path(
+        '',
         SkillListView.as_view(),
         name='skill_list'
     ),
-    url(
-        r'^tree/$',
+    path(
+        'tree/',
         SkillTreeView.as_view(),
         name='skill_tree'
     ),
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         SkillCreateView.as_view(),
         name='skill_create'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/?$',
+    path(
+        '<int:pk>/',
         SkillDetailView.as_view(),
         name='skill_detail'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/edit/?$',
+    path(
+        '<int:pk>/edit/',
         SkillUpdateView.as_view(),
         name='skill_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/delete/?$',
+    path(
+        '<int:pk>/delete/',
         SkillDeleteView.as_view(),
         name='skill_delete'
     ),

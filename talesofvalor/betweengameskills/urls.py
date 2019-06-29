@@ -1,38 +1,40 @@
 """Router for views for characters."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import BetweenGameSkillCreateView, BetweenGameSkillUpdateView,\
     BetweenGameSkillDetailView, BetweenGameSkillListView,\
     BetweenGameSkillDeleteView, BetweenGameSkillCharacterEventView
 
+app_name = 'betweengameskills'
+
 urlpatterns = [
-    url(
-        r'^$',
+    path(
+        '',
         BetweenGameSkillListView.as_view(),
         name='betweengameskill_list'
     ),
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         BetweenGameSkillCreateView.as_view(),
         name='betweengameskill_create'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/?$',
+    path(
+        '<int:pk>/',
         BetweenGameSkillDetailView.as_view(),
         name='betweengameskill_detail'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/edit/?$',
+    path(
+        '<int:pk>/edit/',
         BetweenGameSkillUpdateView.as_view(),
         name='betweengameskill_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/delete/?$',
+    path(
+        '<int:pk>/delete/',
         BetweenGameSkillDeleteView.as_view(),
         name='betweengameskill_delete'
     ),
-    url(
-        r'^event/(?P<event_id>[0-9]+)/character/(?P<character_id>[0-9]+)/?$',
+    path(
+        'event/<int:event_id>/character/<int:character_id>/',
         BetweenGameSkillCharacterEventView.as_view(),
         name='betweengameskillcharacterevent_detail'
     )

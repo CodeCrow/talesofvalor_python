@@ -39,9 +39,9 @@ class UserForm(forms.ModelForm):
         """
 
         cleaned_data = super(UserForm, self).clean()
-        print "ERRORS"
-        print self.errors
-        print "ERRORS"
+        print("ERRORS")
+        print(self.errors)
+        print("ERRORS")
 
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')

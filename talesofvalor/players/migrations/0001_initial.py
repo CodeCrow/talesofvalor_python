@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('cp_available', models.PositiveIntegerField(default=0)),
-                ('game_started', models.ForeignKey(to='events.Event', null=True)),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('game_started', models.ForeignKey(to='events.Event', null=True, on_delete=models.SET_NULL)),
+                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
 

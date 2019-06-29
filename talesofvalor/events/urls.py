@@ -1,32 +1,34 @@
 """Router for views for events."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import EventCreateView, EventUpdateView, EventListView,\
     EventDetailView
 
+app_name = 'events'
+
 urlpatterns = [
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         EventCreateView.as_view(),
         name='event_create'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/update/?$',
+    path(
+        '<int:pk>/update/',
         EventUpdateView.as_view(),
         name='event_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/?$',
+    path(
+        '<int:pk>/',
         EventDetailView.as_view(),
         name='event_detail'
     ),
-    url(
-        r'^char/(?P<character>\d+)/?$',
+    path(
+        'char/<int:character>/',
         EventListView.as_view(),
         name='event_list'
     ),
-    url(
-        r'$',
+    path(
+        '',
         EventListView.as_view(),
         name='event_list'
     ),

@@ -1,43 +1,45 @@
 """Router for views for characters."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterDetailView, CharacterDeleteView, CharacterListView,\
     CharacterSetActiveView, CharacterSkillUpdateView
 
+app_name = 'characters'
+
 urlpatterns = [
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         CharacterCreateView.as_view(),
         name='character_create'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/?$',
+    path(
+        '<int:pk>',
         CharacterDetailView.as_view(),
         name='character_detail'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/delete/?$',
+    path(
+        '<int:pk>/delete/',
         CharacterDeleteView.as_view(),
         name='character_delete'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/update/?$',
+    path(
+        '<int:pk>/update/',
         CharacterUpdateView.as_view(),
         name='character_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/skill/?$',
+    path(
+        '<int:pk>/skill/',
         CharacterSkillUpdateView.as_view(),
         name='character_skill_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/setactive/?$',
+    path(
+        '<int:pk>/setactive/',
         CharacterSetActiveView.as_view(),
         name='character_set_active'
     ),
-    url(
-        r'$',
+    path(
+        '',
         CharacterListView.as_view(),
         name='character_list'
     ),

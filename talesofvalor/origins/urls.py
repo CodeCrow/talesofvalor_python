@@ -1,38 +1,40 @@
 """Router for views for characters."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import OriginCreateView, OriginUpdateView,\
     OriginDetailView, OriginListView, OriginDeleteView,\
     OriginAddSkillView
 
+app_name = 'origins'
+
 urlpatterns = [
-    url(
-        r'^$',
+    path(
+        '',
         OriginListView.as_view(),
         name='origin_list'
     ),
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         OriginCreateView.as_view(),
         name='origin_create'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/?$',
+    path(
+        '<int:pk>/',
         OriginDetailView.as_view(),
         name='origin_detail'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/edit/?$',
+    path(
+        '<int:pk>/edit/',
         OriginUpdateView.as_view(),
         name='origin_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/delete/?$',
+    path(
+        '<int:pk>/delete/',
         OriginDeleteView.as_view(),
         name='origin_delete'
     ),
-    url(
-        r'^(?P<pk>[0-9])/addskill/?$',
+    path(
+        '<int:pk>/addskill/',
         OriginAddSkillView.as_view(),
         name='origin_addskill'
     )

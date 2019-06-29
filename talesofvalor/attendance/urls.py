@@ -1,32 +1,32 @@
 """Router for views for attendance."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import AttendanceCreateView, AttendanceUpdateView,\
     AttendanceListView, AttendanceDetailView, AttendanceDeleteView
 
 urlpatterns = [
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         AttendanceCreateView.as_view(),
         name='attendance_create'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/update/?$',
+    path(
+        '<int:pk>/update/',
         AttendanceUpdateView.as_view(),
         name='attendance_update'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/?$',
+    path(
+        '<int:pk>',
         AttendanceDetailView.as_view(),
         name='attendance_detail'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/delete/?$',
+    path(
+        '<int:pk>/delete/',
         AttendanceDeleteView.as_view(),
         name='attendance_delete'
     ),
-    url(
-        r'$',
+    path(
+        '',
         AttendanceListView.as_view(),
         name='attendance_list'
     ),

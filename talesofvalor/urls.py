@@ -9,97 +9,84 @@ be included as a separate file.
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.views.static import serve
+from django.urls import path
 
 from cms.sitemaps import CMSSitemap
 
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^sitemap\.xml$', sitemap,
-        {'sitemaps': {'cmspages': CMSSitemap}}),
+    path('sitemap.xml', sitemap,
+         {'sitemaps': {'cmspages': CMSSitemap}},
+         name='django.contrib.sitemaps.views.sitemap'),
 ]
 
+
 urlpatterns += i18n_patterns(
-    url(r'^admin/', include(admin.site.urls)),  # NOQA
-    url(r'^', include('django.contrib.auth.urls')),
-    url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')), # For tags
+    path('admin/', admin.site.urls),  # NOQA
+    path('', include('django.contrib.auth.urls')),
+    # For tags
+    path('taggit_autosuggest/', include('taggit_autosuggest.urls')),
     # main application
-    url(  # router for the player application.
-        r'^players/',
+    path(  # router for the player application.
+        'players/',
         include(
-            'talesofvalor.players.urls',
-            namespace="players",
-            app_name="talesofvalor"
+            'talesofvalor.players.urls'
         )
     ),
-    url(  # router for the event application.
-        r'^events/',
+    path(  # router for the event application.
+        'events/',
         include(
-            'talesofvalor.events.urls',
-            namespace="events",
-            app_name="talesofvalor"
+            'talesofvalor.events.urls'
         )
     ),
-    url(  # router for the between game skills application.
-        r'^attendance/',
+    path(  # router for the between game skills application.
+        'attendance/',
         include(
-            'talesofvalor.attendance.urls',
-            namespace="attendance",
-            app_name="talesofvalor"
+            'talesofvalor.attendance.urls'
         )
     ),
-    url(  # router for the character application.
-        r'^characters/',
+    path(  # router for the character application.
+        'characters/',
         include(
-            'talesofvalor.characters.urls',
-            namespace="characters",
-            app_name="talesofvalor"
+            'talesofvalor.characters.urls'
         )
     ),
-    url(  # router for the origins application.
-        r'^origins/',
+    path(  # router for the origins application.
+        'origins/',
         include(
-            'talesofvalor.origins.urls',
-            namespace="origins",
-            app_name="talesofvalor"
+            'talesofvalor.origins.urls'
         )
     ),
-    url(  # router for the skills application.
-        r'^skills/',
+    path(  # router for the skills application.
+        'skills/',
         include(
-            'talesofvalor.skills.urls',
-            namespace="skills",
-            app_name="talesofvalor"
+            'talesofvalor.skills.urls'
         )
     ),
-    url(  # router for the between game skills application.
-        r'^betweengameskills/',
+    path(  # router for the between game skills application.
+        'betweengameskills/',
         include(
-            'talesofvalor.betweengameskills.urls',
-            namespace="betweengameskills",
-            app_name="talesofvalor"
+            'talesofvalor.betweengameskills.urls'
         )
     ),
-    url(  # router for the rules application.
-        r'^rules/',
+    path(  # router for the rules application.
+        'rules/',
         include(
-            'talesofvalor.rules.urls',
-            namespace="rules",
-            app_name="talesofvalor"
+            'talesofvalor.rules.urls'
         )
     ),
-    url(r'^', include('cms.urls')),
+    path('', include('cms.urls')),
 )
 
 # This is only needed when using runserver.
 if settings.DEBUG:
-    urlpatterns = [
-        url(r'^media/(?P<path>.*)$', serve,
-            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
-    ] + staticfiles_urlpatterns() + urlpatterns
+    urlpatterns += \
+        static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
+        + staticfiles_urlpatterns()

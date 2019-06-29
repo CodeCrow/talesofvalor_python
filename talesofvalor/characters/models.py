@@ -43,7 +43,7 @@ class Character(models.Model):
     name = models.CharField(_("Character Name"), max_length=255)
     description = models.TextField(blank=True)
     history = models.TextField(blank=True)
-    picture = FilerImageField(blank=True, null=True)
+    picture = FilerImageField(blank=True, null=True, on_delete=models.CASCADE)
     player_notes = models.TextField(blank=True)
     staff_notes_visible = models.TextField(blank=True)
     staff_notes_hidden = models.TextField(blank=True)
@@ -126,7 +126,7 @@ class CharacterLog(models.Model):
     this log should be added so any problems or bad actions can be traced.
     """
 
-    character = models.ForeignKey(Character)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
     message = models.TextField(_("Log Message"))
     created = models.DateTimeField(
         _('date created'),

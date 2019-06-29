@@ -1,5 +1,5 @@
 """Router for views for players."""
-from django.conf.urls import url
+from django.urls import path
 
 from .views import PlayerCreateView, PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
@@ -7,64 +7,66 @@ from .views import PlayerCreateView, PlayerUpdateView,\
     PlayerListRegistrationView, PlayerListAttendanceView,\
     MassGrantCPView
 
+app_name = 'players'
+
 urlpatterns = [
-    url(
-        r'^mail/?$',
+    path(
+        'mail/',
         MassEmailView.as_view(),
         name='player_mail'
     ),
-    url(
-        r'^massgrantcps/?$',
+    path(
+        'massgrantcps/',
         MassGrantCPView.as_view(),
         name='player_mass_grantcp'
     ),
-    url(
-        r'^select/?$',
+    path(
+        'select/',
         PlayerViewSet.as_view(),
         name='player_select'
     ),
-    url(
-        r'^register/mass/?$',
+    path(
+        'register/mass/',
         PlayerListRegistrationView.as_view(),
         name='player_mass_registration'
     ),
-    url(
-        r'^attendance/mass/?$',
+    path(
+        'attendance/mass/',
         PlayerListAttendanceView.as_view(),
         name='player_mass_attendance'
     ),
-    url(
-        r'^register/?$',
+    path(
+        'register/',
         RegistrationView.as_view(),
         name='registration'
     ),
-    url(
-        r'^add/?$',
+    path(
+        'add/',
         PlayerCreateView.as_view(),
         name='player_create'
     ),
-    url(
-        r'^home/?$',
+    path(
+        'home/',
         PlayerRedirectDetailView.as_view(),
         name='player_redirect_detail'
     ),
-    url(
-        r'^(?P<username>[-\w]+)/?$',
+    path(
+        '<slug:username>/',
         PlayerDetailView.as_view(),
         name='player_detail'
     ),
-    url(
-        r'^(?P<username>[-\w]+)/update/?$',
+    path(
+        '<slug:username>/update/',
         PlayerUpdateView.as_view(),
         name='player_update'
     ),
-    url(
-        r'^(?P<username>[-\w]+)/delete/?$',
+    path(
+        '<slug:username>/delete/',
         PlayerDeleteView.as_view(),
         name='player_delete'
     ),
-    url(
-        r'^$',
+    path(
+        '',
         PlayerListView.as_view(),
         name='player_list'
     ),
