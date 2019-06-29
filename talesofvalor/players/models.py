@@ -29,7 +29,7 @@ class Player(models.Model):
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         """General display of model."""
         return "{} {}".format(
             self.user.first_name,

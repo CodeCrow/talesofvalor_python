@@ -33,8 +33,8 @@ class RuleForm(forms.ModelForm):
             obj_id = obj.id
             form_value = "type:%s-id:%s" % (obj_type.id, obj_id) #e.g."type:12-id:3"
             display_text = "{} - {}".format(
-                obj_type.__unicode__(),
-                obj.__unicode__()
+                obj_type.__str__(),
+                obj.__str__()
             )
             object_choices.append([form_value, display_text])
         self.fields['generic_obj'].choices = object_choices

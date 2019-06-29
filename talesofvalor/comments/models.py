@@ -40,11 +40,10 @@ class Comment(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
-
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
     created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
-    def __str__(self):              # __unicode__ on Python 2
+    def __str__(self):
         return self.subject

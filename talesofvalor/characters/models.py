@@ -89,7 +89,7 @@ class Character(models.Model):
     def get_absolute_url(self):
         return reverse('characters:character_detail', kwargs={'pk': self.pk})
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}::{}".format(
             self.name, self.player
         )

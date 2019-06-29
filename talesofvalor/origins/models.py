@@ -70,7 +70,7 @@ class Origin(models.Model):
         on_delete=models.SET_NULL
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

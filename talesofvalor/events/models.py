@@ -25,7 +25,7 @@ class Event(models.Model):
     notes = HTMLField(blank=True, default='')
     summary = HTMLField(blank=True, default='')
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} - {}".format(
                 self.name,
                 self.event_date.strftime("%m-%d-%Y")

@@ -66,7 +66,7 @@ class Rule(models.Model):
     # The requirement.  Defaults to infinite.
     picks_remaining = models.PositiveIntegerField(null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """General display of model."""
         return "{}".format(
             self.name

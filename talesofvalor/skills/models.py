@@ -64,7 +64,7 @@ class Skill(models.Model):
     class Meta:
         ordering = ['tag', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -112,7 +112,7 @@ class Header(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -129,7 +129,7 @@ class HeaderSkill(models.Model):
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{header}:{skill}".format(
             header=self.header,
             skill=self.skill

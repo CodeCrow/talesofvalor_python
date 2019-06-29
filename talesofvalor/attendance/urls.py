@@ -4,6 +4,8 @@ from django.urls import path
 from .views import AttendanceCreateView, AttendanceUpdateView,\
     AttendanceListView, AttendanceDetailView, AttendanceDeleteView
 
+app_name = 'attendance'
+
 urlpatterns = [
     path(
         'add/',
