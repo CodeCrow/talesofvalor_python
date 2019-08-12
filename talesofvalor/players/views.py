@@ -268,7 +268,11 @@ class RegistrationView(FormView):
             'players:player_detail',
             kwargs={'username': self.instance.user.username}
         )
-
+class PlayerRegistrationView(LoginRequiredMixin, FormView):
+    """
+    Deals with a player signing up for an event 
+    """
+    
 
 class PlayerListRegistrationView(LoginRequiredMixin, FormView):
     """
