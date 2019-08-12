@@ -2,7 +2,7 @@
 from django.urls import path
 
 from .views import EventCreateView, EventUpdateView, EventListView,\
-    EventDetailView
+    EventDetailView, PlayerRegistrationView
 
 app_name = 'events'
 
@@ -31,5 +31,10 @@ urlpatterns = [
         '',
         EventListView.as_view(),
         name='event_list'
+    ),
+    path(
+        '<int:pk>/register/',
+        PlayerRegistrationView.as_view(),
+        name='register'
     ),
 ]

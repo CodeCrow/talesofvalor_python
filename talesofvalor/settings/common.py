@@ -150,6 +150,8 @@ INSTALLED_APPS = (
     'taggit',
     'taggit_autosuggest',
     'djangocms_page_tags',
+    # paypal for registration
+    'paypal.standard.ipn',
     # Main ToV code
     'talesofvalor',
     'talesofvalor.players',
@@ -213,8 +215,13 @@ DATABASES = {
 }
 
 MIGRATION_MODULES = {
-    
+
 }
+
+'''
+Paypal integration with  django-paypal
+'''
+PAYPAL_TEST = DEBUG
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',

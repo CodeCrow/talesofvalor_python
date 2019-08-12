@@ -82,6 +82,9 @@ urlpatterns += i18n_patterns(
             'talesofvalor.rules.urls'
         )
     ),
+    # for paypal
+    path('paypal/', include('paypal.standard.ipn.urls')),
+    # for the main cms
     path('', include('cms.urls')),
 )
 

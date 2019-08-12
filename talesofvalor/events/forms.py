@@ -2,6 +2,7 @@ from django.forms import ModelForm, DateInput
 
 from .models import Event
 
+
 class EventForm(ModelForm):
     """
     Show the form for entering events.
@@ -19,7 +20,8 @@ class EventForm(ModelForm):
             'pel_due_date': DateInput(attrs={'class': 'datepicker'}),
             'bgs_due_date': DateInput(attrs={'class': 'datepicker'})
         }
-    class Media: 
+
+    class Media:
         """Add the media so that the datepicker will work."""
         css = {
             'all': ('css/lib/jquery-ui.css',)
