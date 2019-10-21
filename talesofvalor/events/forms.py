@@ -1,9 +1,9 @@
-from django.forms import ModelForm, DateInput
+from django import forms
 
 from .models import Event
 
 
-class EventForm(ModelForm):
+class EventForm(forms.ModelForm):
     """
     Show the form for entering events.
 
@@ -16,9 +16,9 @@ class EventForm(ModelForm):
         model = Event
         fields = '__all__'
         widgets = {
-            'event_date': DateInput(attrs={'class': 'datepicker'}),
-            'pel_due_date': DateInput(attrs={'class': 'datepicker'}),
-            'bgs_due_date': DateInput(attrs={'class': 'datepicker'})
+            'event_date': forms.DateInput(attrs={'class': 'datepicker'}),
+            'pel_due_date': forms.DateInput(attrs={'class': 'datepicker'}),
+            'bgs_due_date': forms.DateInput(attrs={'class': 'datepicker'})
         }
 
     class Media:
@@ -27,3 +27,11 @@ class EventForm(ModelForm):
             'all': ('css/lib/jquery-ui.css',)
         }
         js = ('js/lib/jquery-ui.min.js', )
+
+class EventRegistrationForm(forms.Form):
+    """
+    Register for some event or events.
+    """
+    event_registration_item = forms.IntegerField()
+    add_meal_plan = forms.BooleanField(required=False)
+    car_registration = forms.CharField(required=False)

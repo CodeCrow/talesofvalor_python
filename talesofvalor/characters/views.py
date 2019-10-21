@@ -201,8 +201,6 @@ class CharacterSkillUpdateView(
         Form is valid.   Save the skills to that character and remove the
         appropriate number of characters points.
         """
-        print("CLEANED DATA:")
-        print(form.cleaned_data)
         return super(CharacterSkillUpdateView, self).form_valid(form)
 
 

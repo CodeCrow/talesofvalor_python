@@ -42,6 +42,13 @@ li.heading {
   text-align: right;
   vertical-align: top; }
 
+.event-registration h2 {
+  margin-top: 0; }
+
+.event-registration td:first-child {
+  vertical-align: top;
+  padding: 0.25em 1.0em 0 0; }
+
 #player_transfer_cp #id_amount {
   width: 4em; }
 

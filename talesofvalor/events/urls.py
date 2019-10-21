@@ -28,13 +28,13 @@ urlpatterns = [
         name='event_list'
     ),
     path(
-        '',
-        EventListView.as_view(),
-        name='event_list'
-    ),
-    path(
         '<int:pk>/register/',
         PlayerRegistrationView.as_view(),
         name='register'
+    ),
+    path(
+        '',
+        EventListView.as_view(),
+        name='event_list'
     ),
 ]

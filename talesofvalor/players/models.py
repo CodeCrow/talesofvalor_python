@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
-from talesofvalor.events.models import Event
+from talesofvalor.events.models import Event, EventRegistrationItem
 
 
 class Player(models.Model):
@@ -98,6 +98,9 @@ class Registration(models.Model):
     Registration for events.
 
     Holds the registration for players for a specific event.
+
+    This doesn't just link to the Registration request information because
+    it is assumed that it might change on a per registration basis.
     """
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
@@ -112,6 +115,7 @@ class Registration(models.Model):
         default=False,
         help_text=_("Has the player signed up for a meal plan?")
     )
+    car_registration = models.CharField(max_length=10, blank=True, default='')
     notes = models.TextField(blank=True, default='')
 
     def save(self, *args, **kwargs):
@@ -138,6 +142,25 @@ class Registration(models.Model):
                 self.mealplan_flag = previous_registration.mealplan_flag
 
         super(Registration, self).save(*args, **kwargs)
+
+
+class RegistrationRequest(models.Model):
+    """
+    This is the request that a user has to register and is used to link the
+    player to an eventRegistrationItem, which binds up different order
+    possibiilities.
+
+    Once the paypal transaction comes back, it will be used to produce
+    the actual registrations.
+    """
+    event_registration_item = models.ForeignKey(
+        EventRegistrationItem,
+        on_delete=models.CASCADE
+    )
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    mealplan_flag = models.BooleanField(default=False)
+    car_registration = models.CharField(max_length=10, blank=True, default='')
+    notes = models.TextField(blank=True, default='')
 
 
 class PEL(models.Model):

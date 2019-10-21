@@ -71,3 +71,36 @@ class Event(models.Model):
         for an Event.
         """
         return reverse('events:event_detail', kwargs={'pk': self.pk})
+
+
+class EventRegistrationItem(models.Model):
+    """
+    A structure that binds up the different ways that an event could be
+    registered for.
+
+    For example, and Item might have a season's worth of events.  Or a Years.
+    """
+    name = models.CharField(
+        help_text=_("For reference, such as \"Season Pass\""),
+        max_length=255
+    )
+    order = models.IntegerField(
+        help_text=_("What order should this appear on the page?"),
+        default=0
+    )
+    events = models.ManyToManyField(Event, related_name="events")
+    available = models.BooleanField(
+        help_text=_("Is this still available?"),
+        default=True
+    )
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return "{}".format(
+                self.name
+            )
+
+    class Meta:
+        ordering = ['order']
+
+

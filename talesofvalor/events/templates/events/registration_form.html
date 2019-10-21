@@ -1,10 +1,37 @@
 {% extends "base.html" %}
 {% load cms_tags sekizai_tags %}
 
-{% block title %}Register for event{% endblock title %}
+{% block title %}Register for events{% endblock title %}
 
 {% block content %}
 
 <!-- writes out the form tag automatically -->
-{{ form.render }}
+<form action="" method="post">{% csrf_token %}
+
+<table id="event_registration" class="data event-registration">
+{% for item in event_items %}
+<tr>
+<td><input type="radio" name="event_registration_item" value="{{ item.id }}"></td>
+<td>
+	<h2>{{ item.name }}</h2>
+	<p>Price: ${{ item.price | stringformat:'0.2f'}}
+</td>
+</tr>
+{% endfor %}
+<tr>
+	<td><input type="checkbox" name="add_meal_plan" value="1"></td>
+	<td>
+		<h2>Add a Mealplan to your registration.</h2>
+		<p>$20 per event.</p>
+	</td>
+</tr>
+<tr>
+    <td colspan="2">
+    	<label for="id_car_registration">Car Registration</label>
+        {{ form.car_registration.errors}}<br/>
+	{{ form.car_registration }}</td>
+</tr>
+</table>    
+<input type="submit" value="Register" />
+</form>
 {% endblock content %}

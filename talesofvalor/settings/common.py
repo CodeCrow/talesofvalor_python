@@ -222,6 +222,7 @@ MIGRATION_MODULES = {
 Paypal integration with  django-paypal
 '''
 PAYPAL_TEST = DEBUG
+PAYPAL_RECEIVER_EMAIL = "replaceme@gmail.com"
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
