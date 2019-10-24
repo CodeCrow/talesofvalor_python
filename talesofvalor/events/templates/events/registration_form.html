@@ -25,11 +25,68 @@
 		<p>$20 per event.</p>
 	</td>
 </tr>
+</table>
+<table id="event_registration_second_half" class="data event-registration">
 <tr>
-    <td colspan="2">
-    	<label for="id_car_registration">Car Registration</label>
-        {{ form.car_registration.errors}}<br/>
-	{{ form.car_registration }}</td>
+	<td colspan="2"><h2>Vehicle Information</h2></td>
+</tr>
+{% if form.vehicle_make.errors %}
+<tr><td colspan="2">{{ form.vehicle_make.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_make.label_tag }}</td>
+    <td>
+		{{ form.vehicle_make }}{% if form.vehicle_make.help_text %}<br />{{ form.vehicle_make.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.vehicle_model.errors %}
+<tr><td colspan="2">{{ form.vehicle_model.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_model.label_tag }}</td>
+    <td>
+		{{ form.vehicle_model }}{% if form.vehicle_model.help_text %}<br />{{ form.vehicle_model.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.vehicle_color.errors %}
+<tr><td colspan="2">{{ form.vehicle_color.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_color.label_tag }}</td>
+    <td>
+		{{ form.vehicle_color }}{% if form.vehicle_color.help_text %}<br />{{ form.vehicle_color.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.vehicle_registration.errors %}
+<tr><td colspan="2">{{ form.vehicle_registration.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_registration.label_tag }}</td>
+    <td>
+		{{ form.vehicle_registration }}{% if form.vehicle_registration.help_text %}<br />{{ form.vehicle_registration.help_text }}{% endif %}
+	</td>
+</tr>
+<tr>
+	<td colspan="2"><h2>Additional Information:</h2></td>
+</tr>
+{% if form.local_contact.errors %}
+<tr><td colspan="2">{{ form.local_contact.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.local_contact.label_tag }}</td>
+    <td>
+		{{ form.local_contact }}{% if form.local_contact.help_text %}<br />{{ form.local_contact.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.notes.errors %}
+<tr><td colspan="2">{{ form.notes.errors }}</td></tr>
+{% endif %}
+<tr>
+	<td>{{ form.notes.label_tag }}
+	</td>
+    <td>
+		{{ form.notes }}{% if form.notes.help_text %}<br />{{ form.notes.help_text }}{% endif %}
+	</td>
 </tr>
 </table>    
 <input type="submit" value="Register" />

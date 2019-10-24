@@ -16,3 +16,9 @@ DATABASES = {
 
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp_upload")
 STATIC_ROOT = BASE_DIR + '/public/static/'
+
+'''
+Paypal integration with  django-paypal
+'''
+PAYPAL_TEST = DEBUG
+PAYPAL_RECEIVER_EMAIL = "replaceme@gmail.com"

@@ -159,7 +159,16 @@ class RegistrationRequest(models.Model):
     )
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     mealplan_flag = models.BooleanField(default=False)
-    car_registration = models.CharField(max_length=10, blank=True, default='')
+    vehicle_make = models.CharField(max_length=10, blank=True, default='')
+    vehicle_model = models.CharField(max_length=15, blank=True, default='')
+    vehicle_color = models.CharField(max_length=10, blank=True, default='')
+    vehicle_registration = models.CharField(max_length=10, blank=True, default='')
+    local_contact = models.CharField(
+        max_length=16,
+        blank=True,
+        default='',
+        help_text=_("On site contact, such as a cell phone.")
+    )
     notes = models.TextField(blank=True, default='')
 
 

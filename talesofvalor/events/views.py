@@ -88,13 +88,19 @@ class PlayerRegistrationView(
         and resend the user to the paypal screen
         """
         cleaned_data = form.cleaned_data
-        print(cleaned_data)
         # Get the registartion item to create the request.
         registration_item = EventRegistrationItem.objects.get(pk=cleaned_data['event_registration_item'])
-        print("REGISTRATION_ITEM:{}".format(registration_item))
         registration_request = RegistrationRequest.objects.create(
             event_registration_item=registration_item,
             mealplan_flag=cleaned_data['add_meal_plan'],
-            car_registration=cleaned_data['car_registration']
+            vehicle_make=cleaned_data['vehicle_make'],
+            vehicle_model=cleaned_data['vehicle_model'],
+            vehicle_color=cleaned_data['vehicle_color'],
+            vehicle_registration=cleaned_data['vehicle_registration'],
+            local_contact=cleaned_data['local_contact'],
+            notes=cleaned_data['notes'],
+            player=self.request.user.player
         )
+        registration_request.save()
+        
         return super().form_valid(form)
