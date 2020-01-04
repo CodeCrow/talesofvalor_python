@@ -13,7 +13,8 @@ from django.utils.translation import ugettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
-from talesofvalor.events.models import Event, EventRegistrationItem
+from talesofvalor.events.models import Event, EventRegistrationItem,\
+    EVENT_MEALPLAN_PRICE
 
 
 class Player(models.Model):
@@ -162,7 +163,11 @@ class RegistrationRequest(models.Model):
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
-    vehicle_registration = models.CharField(max_length=10, blank=True, default='')
+    vehicle_registration = models.CharField(
+        max_length=10,
+        blank=True,
+        default=''
+    )
     local_contact = models.CharField(
         max_length=16,
         blank=True,
@@ -170,6 +175,15 @@ class RegistrationRequest(models.Model):
         help_text=_("On site contact, such as a cell phone.")
     )
     notes = models.TextField(blank=True, default='')
+
+    def cost(self):
+        """
+        Figure out the cost of this request based on field values.
+        """
+        mealplan_price = 0
+        if self.mealplan_flag:
+            mealplan_price = self.event_registration_item.events.count() * EVENT_MEALPLAN_PRICE
+        return self.event_registration_item.price + mealplan_price
 
 
 class PEL(models.Model):

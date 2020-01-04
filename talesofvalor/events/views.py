@@ -89,7 +89,9 @@ class PlayerRegistrationView(
         """
         cleaned_data = form.cleaned_data
         # Get the registartion item to create the request.
-        registration_item = EventRegistrationItem.objects.get(pk=cleaned_data['event_registration_item'])
+        registration_item = EventRegistrationItem.objects.get(
+            pk=cleaned_data['event_registration_item']
+        )
         registration_request = RegistrationRequest.objects.create(
             event_registration_item=registration_item,
             mealplan_flag=cleaned_data['add_meal_plan'],
@@ -102,5 +104,5 @@ class PlayerRegistrationView(
             player=self.request.user.player
         )
         registration_request.save()
-        
+
         return super().form_valid(form)

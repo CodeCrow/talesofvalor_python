@@ -12,6 +12,9 @@ from django.utils.translation import ugettext_lazy as _
 from djangocms_text_ckeditor.fields import HTMLField
 
 
+EVENT_MEALPLAN_PRICE = 20
+
+
 class Event(models.Model):
     name = models.CharField(
         help_text=_("For reference, such as \"Spring 2, 2010\""),
