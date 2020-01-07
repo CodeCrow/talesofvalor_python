@@ -1,13 +1,21 @@
+"""
+https://www.merixstudio.com/blog/django-fabric/
+https://www.obeythetestinggoat.com/book/chapter_automate_deployment_with_fabric.html
+https://medium.com/gopyjs/automate-deployment-with-fabric-python-fad992e68b5
+"""
+
+
 import datetime
 import importlib
 import logging
 import os
 from distutils.util import strtobool
 
-from django.conf import settings
 
-from fabric import Config, Connection, task
-from invoke import Exit
+from fabric import Connection, task
+
+# from django.conf import settings
+
 
 try:
     local_db = importlib.import_module(os.environ['DJANGO_SETTINGS_MODULE']).DATABASES
@@ -52,7 +60,7 @@ def _get_settings_file():
     try:
         return os.environ['DJANGO_SETTINGS_MODULE']
     except KeyError:
-        return 'talesofvalor.settings.local'
+        return env.settings_module_for_management_commands
 
 
 @task
@@ -61,6 +69,7 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
     Deploys the mp_bookpod application to an environment as dictated
     by an environment setup function (like `staging`)
     """
+
     migrate = _prep_bool_arg(migrate)
     update_requirements = _prep_bool_arg(updaterequirements)
     env = c.config[environment]
