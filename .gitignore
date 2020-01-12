@@ -1,13 +1,13 @@
 *.scssc
 *.pyc
 .DS_Store
-.virtualenv
 .scss*
-ENV
 .sass-cache
 .sass-cache/*
+.virtualenv
+ENV
 npm-debug.log
-
+passenger_wsgi.py
 /talesofvalor/settings/local.py
 /media/
 /config/
