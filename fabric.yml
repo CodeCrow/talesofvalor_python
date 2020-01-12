@@ -22,7 +22,7 @@ production:
   user: talesof
   db_dump_dir: /home/talesof/rhiven.talesofvalor.com/dumpdata
   db_name: talesofvalor_python
-  virtualenv_path: /home/talesof/rhiven.talesofvalor.com/ENV
+  virtualenv_path: /home/talesof/rhiven.talesofvalor.com/.virtualenv
   project_dir: /home/talesof/rhiven.talesofvalor.com
   media_path: /home/talesof/rhiven.talesofvalor.com/public/media
   default_project_branch: master 
