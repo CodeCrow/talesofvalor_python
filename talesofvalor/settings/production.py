@@ -14,7 +14,10 @@ DATABASES = {
         'NAME': 'talesof_rhiven',
         'USER': 'fodder',
         'PASSWORD': 'wereunicorn',
-        'HOST': 'mysql.talesofvalor.com'
+        'HOST': 'mysql.talesofvalor.com',
+        'OPTIONS': {
+            'init_command': 'SET innodb_strict_mode=1',
+        },
     }
 }
 
