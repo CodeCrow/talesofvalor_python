@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from djangocms_text_ckeditor.fields import HTMLField
 
 
-EVENT_MEALPLAN_PRICE = 20
+EVENT_MEALPLAN_PRICE = 25
 
 
 class Event(models.Model):

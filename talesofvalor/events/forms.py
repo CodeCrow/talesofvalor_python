@@ -28,6 +28,7 @@ class EventForm(forms.ModelForm):
         }
         js = ('js/lib/jquery-ui.min.js', )
 
+
 class EventRegistrationForm(forms.Form):
     """
     Register for some event or events.
