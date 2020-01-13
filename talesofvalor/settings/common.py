@@ -225,11 +225,6 @@ Paypal integration with  django-paypal
 PAYPAL_TEST = DEBUG
 PAYPAL_RECEIVER_EMAIL = "replaceme@gmail.com"
 
-'''
-Paypal secrets
-'''
-PAYPAL_CLIENT_ID = os.environ['PAYPAL_CLIENT_ID']
-PAYPAL_CLIENT_SECRET = os.environ['PAYPAL_CLIENT_SECRET']
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
