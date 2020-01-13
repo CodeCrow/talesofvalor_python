@@ -12,7 +12,7 @@ from talesofvalor.attendance.models import Attendance
 from talesofvalor.players.models import RegistrationRequest
 
 from .forms import EventForm, EventRegistrationForm
-from .models import Event, EventRegistrationItem
+from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
 
 
 class EventCreateView(PermissionRequiredMixin, CreateView):
@@ -72,6 +72,9 @@ class PlayerRegistrationView(
         context['event_items'] = EventRegistrationItem.objects.filter(
             events__event_date__year=self.object.event_date.year
         ).distinct()
+        # The price for the mealplan.
+        # TODO: make this part of an event, with a default.
+        context['mealplan_price'] = EVENT_MEALPLAN_PRICE
         return context
 
     def post(self, request, *args, **kwargs):
