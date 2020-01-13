@@ -106,3 +106,21 @@ class PlayerRegistrationView(
         registration_request.save()
 
         return super().form_valid(form)
+
+
+class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
+    model = EventRegistrationItem
+    permission_required = ('events.change_eventregistrationitem', )
+
+
+class EventRegistrationItemCreateView(PermissionRequiredMixin, CreateView):
+    model = EventRegistrationItem
+    fields = '__all__'
+    permission_required = ('events.add_eventregistrationitem', )
+
+
+class EventRegistrationItemUpdateView(PermissionRequiredMixin, UpdateView):
+    model = EventRegistrationItem
+    fields = '__all__'
+    permission_required = ('events.change_eventregistrationitem', )
+

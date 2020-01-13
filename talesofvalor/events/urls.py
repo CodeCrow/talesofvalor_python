@@ -2,7 +2,8 @@
 from django.urls import path
 
 from .views import EventCreateView, EventUpdateView, EventListView,\
-    EventDetailView, PlayerRegistrationView
+    EventDetailView, PlayerRegistrationView, EventRegistrationItemListView,\
+    EventRegistrationItemCreateView, EventRegistrationItemUpdateView
 
 app_name = 'events'
 
@@ -36,5 +37,20 @@ urlpatterns = [
         '',
         EventListView.as_view(),
         name='event_list'
+    ),
+    path(
+        'registrationitems/',
+        EventRegistrationItemListView.as_view(),
+        name='eventregistrationitem_list'
+    ),
+    path(
+        'registrationitems/add/',
+        EventRegistrationItemCreateView.as_view(),
+        name='eventregistrationitem_create'
+    ),
+    path(
+        'registrationitems/<int:pk>/update/',
+        EventRegistrationItemUpdateView.as_view(),
+        name='eventregistrationitem_update'
     ),
 ]
