@@ -54,7 +54,7 @@ class CharacterCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
 class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Character
-    fields = '__all__'
+    form_class = CharacterForm
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
