@@ -177,7 +177,7 @@ class CharacterSkillUpdateView(
     def get_form_kwargs(self):
         kwargs = super(CharacterSkillUpdateView, self).get_form_kwargs()
         self.skills = Header.objects\
-            .order_by('hidden', 'category', 'name')\
+            .order_by('hidden_flag', 'category', 'name')\
             .all()
         kwargs.update({'skills': self.skills})
         return kwargs
