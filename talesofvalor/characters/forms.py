@@ -19,7 +19,7 @@ class CharacterForm(forms.ModelForm):
         """
         super().__init__(*args, **kwargs)
         for origin in Origin.ORIGIN_TYPES:
-            self.fields[origin[0]].initial = self.instance.origins.filter(type=origin[0])
+            self.fields[origin[0]].initial = self.instance.origins.get(type=origin[0])
 
     def save(self, commit=True):
         character = super().save(commit=commit)
