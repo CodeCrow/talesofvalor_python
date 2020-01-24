@@ -1,15 +1,39 @@
 from django import forms
 from django.forms import widgets
 
+from talesofvalor.origins.models import Origin
 from .models import Character
 
 
 class CharacterForm(forms.ModelForm):
+    background = forms.ModelChoiceField(
+        queryset=Origin.objects.filter(type=Origin.BACKGROUND),
+    )
+    race = forms.ModelChoiceField(
+        queryset=Origin.objects.filter(type=Origin.RACE),
+    )
+
+    def __init__(self, *args, **kwargs):
+        """
+        use this to set up the different origins
+        """
+        super().__init__(*args, **kwargs)
+        for origin in Origin.ORIGIN_TYPES:
+            self.fields[origin[0]].initial = self.instance.origins.filter(type=origin[0])
+
+    def save(self, commit=True):
+        character = super().save(commit=commit)
+        character.origins.clear()
+        for origin in Origin.ORIGIN_TYPES:
+            character.origins.add(self.cleaned_data[origin[0]])
+        return character
+
     class Meta:
         model = Character
         exclude = [
             'headers',
             'skills',
+            'origins'
          ]
 
 
