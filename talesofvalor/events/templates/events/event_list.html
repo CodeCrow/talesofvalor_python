@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Events{% endblock title %}
+
+{% block content %}
+{% if perms.events.add_event and object_list %}<a href="{% url "events:event_create" %}">Add one&hellip;</a>{% endif %}
+<table class="list">
+	<tr>
+		<th>Name</th>
+		<th>Date</th>
+		<th>Deadlines</th>
+		<th>OOG</th>
+		<th>BGS</th>
+		<th colspan="3"></th>
+	</tr>
+{% for event in object_list %}
+    <tr>
+        <td><a href="{% url "events:event_detail" pk=event.pk %}">{{ event.name }}</a></td>
+        <td>{{ event.event_date|date:'m-d-Y'}}</td>
+        <td>BGS by {{ event.bgs_due_date|date:"m-d-Y"}}<br />PEL by {{ event.pel_due_date|date:'m-d-Y'}}</td>
+        <td>{% if event.oog_p %}&#x2714;{% endif %}</td>
+        <td>{% if event.bgs_p %}&#x2714;{% endif %}</td>
+        <td><a href="{% url "events:register" pk=event.pk %}">Register</a></td>
+        <td>{% if perms.events.change_event %}<a href="{% url "events:event_update" pk=event.pk %}">edit</a>{% else %}&nbsp;{% endif %}</td>
+    </tr>
+{% empty %}
+
+    <tr><td colspan="2">No Events Yet.{% if perms.events.add_event %}  <a href="{% url "events:event_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
+{% endfor %}
+</table>
+
+{% endblock content %}

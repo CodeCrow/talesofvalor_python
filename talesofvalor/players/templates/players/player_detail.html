@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block title %}{{ object.user.username }}{% endblock title %}
+
+{% block content %}
+    <div class="row">
+        <div id="player_detail_character_update" class="col-sm-7">
+            <div class="box">
+                <p>CP Available: {{ object.cp_available }}</p>
+                <form id="player_transfer_cp" method="POST">{% csrf_token %}Transfer {{ form.amount }} CP to {{ form.character }}<button id="player_detail_transfer_cp" class="btn btn-primary btn-submit" type="submit" name="transfer_cp">Transfer</button></form>
+                <p><a href="{% url 'characters:character_create' %}?player={{ object.pk }}">New Character</a></p>
+            </div>
+        </div>
+        <div id="player_detail_player_info" class="col-sm-5">
+            <div class="box">
+                <p>Username: {{ object.user.username }}</p>
+                <p>Email: {{ object.user.email }}</p>
+                <p>Game Started: {{ object.game_started }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+        <hr />
+        {% include "characters/includes/character_list.html" with objects=object.character_set.all id="player_detail_character_list" caption="Existing Characters" %}
+        
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Future Events</h2>
+            <ul>
+            {% for event in future_event_list %}
+                <li>{{ event }}</li>
+            {% endfor %}
+            </ul>
+            <hr />
+            <h2>Past Events</h2>
+            <ul>
+            {% for event in past_event_list %}
+                <li>{{ event }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock content %}

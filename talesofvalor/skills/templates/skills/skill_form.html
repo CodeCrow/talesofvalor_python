@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block bar_title %}{{ object.name }} : Skills{% endblock bar_title %}
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    {{ headerskill_formset.management_form }}
+    <table class="data">
+        {{ form.as_table }}
+    </table>
+    <table class="list">
+        <tr>
+            <th>Header</th>
+            <th>Cost</th>
+            <th>Can Dabble</th>
+            {% if headerskill_formset.can_delete %}
+                <th>Remove</th>
+            {% endif %}
+        </tr>
+        {% for form in headerskill_formset %}
+            {{ form.id }}
+            <tr>
+                <td>{{ form.header }}</td>
+                <td>{{ form.cost }}</td>
+                <td>{{ form.dabble_flag }}</td>
+                {% if headerskill_formset.can_delete %}
+                    <td>{{ form.DELETE }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4" class="text-right">
+                <input class="btn btn-primary" type="submit" value="Update" />
+                {% if object.id %}
+                	<a href="{% url "skills:header_delete" pk=object.id %}" class="btn btn-danger">Delete</a></td>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+</form>
+{% endblock content %}

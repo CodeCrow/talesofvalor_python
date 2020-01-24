@@ -30,8 +30,8 @@ class Migration(migrations.Migration):
                 ('cp_spent', models.PositiveIntegerField(default=0)),
                 ('cp_available', models.PositiveIntegerField(default=0)),
                 ('cp_transferred', models.PositiveIntegerField(default=0)),
-                ('picture', filer.fields.image.FilerImageField(blank=True, to='filer.Image', null=True)),
-                ('player', models.ForeignKey(to='players.Player')),
+                ('picture', filer.fields.image.FilerImageField(blank=True, to='filer.Image', null=True, on_delete=models.SET_NULL)),
+                ('player', models.ForeignKey(to='players.Player', on_delete=models.CASCADE)),
             ],
         ),
     ]

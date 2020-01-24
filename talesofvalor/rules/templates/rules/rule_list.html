@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block title %}Rules{% endblock title %}
+
+{% block content %}
+<table id="rules_list" class="list list-rules">
+<tr>
+    <td class="table-navigation content-align-right" colspan="4">
+        <a class="btn btn-primary" href="{% url 'rules:rule_create' %}">add skill rule</a>
+    </td>
+</tr>
+<tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>&nbsp;</th>
+</tr>
+    {% for rule in object_list %}
+    <tr>
+        <td>{{ rule }}</td>
+        <td>{{ rule.description }}</td>
+        <td>{{ rule.type }}</td>
+        <td>
+        <nav class="item-navigation">
+            <a href="{% url 'rules:rule_update' pk=rule.id %}">Edit</a>
+            <a href="{% url 'rules:rule_delete' pk=rule.id %}">Destroy</a>
+        </nav>
+    </td> 
+    </tr>
+    {% endfor %}
+</table>
+
+{% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+{% endblock content %}

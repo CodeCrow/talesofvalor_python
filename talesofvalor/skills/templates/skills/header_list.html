@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Headers{% endblock bar_title %}
+{% block title %}Headers{% endblock title %}
+
+{% block content %}
+
+ <div class="row">
+      <div class="col-sm-4">
+          <div class="box">
+            <h3>Filters</h3>
+            <form method="GET" action="">
+              <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary{% if 'hidden_flag' not in request.GET or request.GET.hidden_flag == '' %} active{% endif %}">
+                  <input type="radio" name="hidden_flag" id="hidden-flag_all" autocomplete="off" value="">All
+                </label>
+                <label class="btn btn-secondary{% if request.GET.hidden_flag == '0' %} active{% endif %}">
+                  <input type="radio" name="hidden_flag" id="hidden-flag_false" autocomplete="off" value="0"{% if request.GET.hidden_flag == '0' %} checked{% endif %}>Visible
+                </label>
+                <label class="btn btn-secondary{% if request.GET.hidden_flag == '1' %} active{% endif %}"">
+                  <input type="radio" name="hidden_flag" id="hidden-flag_true" autocomplete="off" value="1"{% if request.GET.hidden_flag == '1' %} checked{% endif %}> Hidden
+                </label>
+              </div>
+              <table class="data">
+                <tr>
+                  <th><label for="name">Name:</label></th><td><input type="text" value="{{request.GET.name}}" name="name"/></td>
+                </tr>
+                <tr>
+                  <th><label for="category">Category:</label></th><td><input type="text" value="{{request.GET.category}}" name="category"/></td>
+                </tr>
+                <tr>
+                  <th><label for="description">Description:</label></th><td><input type="text" value="{{request.GET.description}}" name="description"/></td>
+                </tr>
+                <tr>
+                  <th>&nbsp;</th><td class="text-right"><input class="btn btn-primary" type="submit" name="submit" value="submit" /></td>
+                </tr>
+              </table>
+          </form>
+ 
+          </div>
+      </div>
+      <div class="col-sm-8">
+          <div class="box text-right">
+            <a class="btn btn-primary" href="{% url 'skills:header_create' %}">add header</a>
+          </div>
+      </div>
+  </div>
+
+<div class="row col-sm-12">
+<table class="list">
+<tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>&nbsp;</th>
+</tr>
+{% for header in object_list %}
+<tr>
+    <td><p><a href="{% url 'skills:header_update' pk=header.id %}">{{ header.name }}</a></p></td>
+    <td>{{ header.description|truncatewords_html:10 }}</td>
+    <td>
+        <nav class="item-navigation">
+            <a href="{% url 'skills:header_update' pk=header.id %}">Edit</a>
+            <a href="{% url 'skills:header_delete' pk=header.id %}">Destroy</a>
+        </nav>
+    </td> 
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% if is_paginated %}
+
+<div class="row col-sm-12 text-center">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Skill Tree{% endblock bar_title %}
+{% block title %}Skill Tree{% endblock title %}
+
+{% block content %}
+
+
+<div class="row col-sm-12">
+<table class="list">
+
+{% for header in object_list %}
+
+    {% ifchanged header.category %}<h2> {{ header.category }}</h2>{% endifchanged %}
+    <h3><a href="{% url 'skills:header_detail' pk=header.id %}">{{ header.name }}</a></h3>
+    {% for skill in header.skills.all %}
+      <p><a href="{% url 'skills:skill_detail' pk=skill.id %}">{{ skill.name }}</a></p>
+    {% endfor %}
+{% endfor %}
+</table>
+</div>
+
+{% endblock content %}

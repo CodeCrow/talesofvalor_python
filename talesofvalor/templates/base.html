@@ -1,43 +1,58 @@
-{% load cms_tags menu_tags sekizai_tags %}
+{% load cms_tags menu_tags sekizai_tags staticfiles page_tags %}
 <!doctype html>
 <html>
     <head>
-        <title>{% block title %}This is my new project home page{% endblock title %}</title>
+        <title>{% block bar_title %}This is my new project home page{% endblock bar_title %}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
-
         <!-- Latest compiled and minified CSS for bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <style type="text/css">
-            .nav {
-                padding-left: 0;
-            }
-            .nav li {
-                display: inline;
-                list-style-type: none;
-                padding-right: 20px;
-            }
-            .container {
-                width: 940px;
-                margin: 0 auto
-            }
-            .content {
-                float: left;
-                width: 80%;
-            }
-            .sidebar {
-                float: left;
-                width: 20%;
-            }
-        </style>
+        {% comment %}
+        This is our main css file.
+        {% endcomment %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
         {% render_block "css" %}
     </head>
     <body>
         {% cms_toolbar %}
         <div class="container">
-            <ul class="nav">
+
+            <header class="row">
+                <div class="col-sm-8">
+                    <h1>{% block title %}This is my new project home page{% endblock title %}</h1>
+                    {% if request.current_page %}
+                        {% include_page_tags request.current_page %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-4">
+                    <div class="box">
+                        {% include "includes/navigation/user.html" %}
+                    </div>
+                </div>
+            </header>
+            <nav class="nav row">page menu
+                {% comment %}
+                    This is the menu for the current django cms page.
+                {% endcomment %}
                 {% show_menu 0 100 100 100 %}
-            </ul>
-            {% block content %}{% endblock content %}
+            </nav>
+            <div class="row">
+                <div id="action_menu" class="col-sm-2 sidebar">
+                    {% include "includes/navigation/actions.html" %}
+                </div>
+                <div id="main_content" class="col-sm-10 main-content">
+                    {% if messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <strong>{{ message.tags }}</strong> {{ message }}
+                        </div>
+                    {% endif %}
+                    {% block content %}{% endblock content %}
+                </div>
+            </div>
+            <footer class="row">
+                <div class="col-sm-12">
+                    FOOTER
+                </div>
+            </footer>
         </div>
 
         <!-- jQuery library -->
@@ -45,6 +60,9 @@
 
         <!-- Latest compiled JavaScript for bootstrap -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- Import our scripts -->
+        <script src="{% static 'js/main.js' %}"></script>
+        {{ form.media }}
         {% render_block "js" %}
     </body>
 </html>

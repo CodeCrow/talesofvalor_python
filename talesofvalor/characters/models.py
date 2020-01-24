@@ -6,12 +6,14 @@ to players.
 """
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
 from talesofvalor.skills.models import Header, Skill
+from talesofvalor.origins.models import Origin
 
 
 class Character(models.Model):
@@ -25,12 +27,14 @@ class Character(models.Model):
 
     ALIVE = 'alive'
     DEAD = 'dead'
+    RETIRED = 'retired'
     STATUS_CHOICES = (
         (ALIVE, 'Alive'),
-        (DEAD, 'Dead')
+        (DEAD, 'Dead'),
+        (RETIRED, 'Retired'),
     )
 
-    player = models.ForeignKey(Player)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=50,
         choices=STATUS_CHOICES,
@@ -39,7 +43,7 @@ class Character(models.Model):
     name = models.CharField(_("Character Name"), max_length=255)
     description = models.TextField(blank=True)
     history = models.TextField(blank=True)
-    picture = FilerImageField(blank=True, null=True)
+    picture = FilerImageField(blank=True, null=True, on_delete=models.CASCADE)
     player_notes = models.TextField(blank=True)
     staff_notes_visible = models.TextField(blank=True)
     staff_notes_hidden = models.TextField(blank=True)
@@ -52,6 +56,8 @@ class Character(models.Model):
     # The headers and skills that a character has.
     headers = models.ManyToManyField(Header)
     skills = models.ManyToManyField(Skill, through='CharacterSkills')
+    # origins.  Should only be as many as there are types.
+    origins = models.ManyToManyField(Origin)
 
     created = models.DateTimeField(
         _('date created'),
@@ -69,14 +75,35 @@ class Character(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_author',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
     modified_by = models.ForeignKey(
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_updater',
-        null=True
+        null=True ,
+        on_delete=models.SET_NULL
     )
+
+    def get_absolute_url(self):
+        return reverse('characters:character_detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return "{}::{}".format(
+            self.name, self.player
+        )
+
+    @property
+    def background(self):
+        return self.origins.get(type=Origin.BACKGROUND)
+
+    @property
+    def race(self):
+        return self.origins.get(type=Origin.RACE)
+
+    class Meta:
+            ordering = ["name"]
 
 
 class CharacterSkills(models.Model):
@@ -99,7 +126,7 @@ class CharacterLog(models.Model):
     this log should be added so any problems or bad actions can be traced.
     """
 
-    character = models.ForeignKey(Character)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
     message = models.TextField(_("Log Message"))
     created = models.DateTimeField(
         _('date created'),
@@ -110,8 +137,10 @@ class CharacterLog(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_author',
-        null=True
+        null=True,
+        on_delete=models.SET_NULL
     )
+
 
 class CharacterGrant(models.Model):
     """
@@ -138,7 +167,7 @@ class CharacterGrant(models.Model):
         choices=TYPE_CHOICES,
         default='SkillGrant'
     )
-    character = models.ForeignKey(Character)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
     correlated_id = models.PositiveIntegerField()
     reason = models.TextField()
     free = models.BooleanField(default=False)

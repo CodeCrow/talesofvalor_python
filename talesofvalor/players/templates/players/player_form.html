@@ -5,7 +5,16 @@
 
 {% block content %}
 <form action="" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Update" />
+	<table class="data">
+    	{{ form.as_table }}
+    	<tr>
+            <td colspan="2" class="text-right">
+                <input class="btn btn-primary" type="submit" value="Update" />
+                {% if object.id %}
+                	<a href="{% url "players:player_delete" pk=object.id %}" class="btn btn-danger">Delete</a></td>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
 </form>
 {% endblock content %}

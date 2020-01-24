@@ -14,10 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -32,16 +29,22 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
-
-
-
+WSGI_APPLICATION = 'talesofvalor.wsgi.application'
 
 ROOT_URLCONF = 'talesofvalor.urls'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Who to send problems to
+ADMINS = [
+    ('Rob Archer', 'rob@crowbringsdaylight.com'),
+]
+# default error emails
+SERVER_EMAIL = 'webmaster@talesofvalor.com'
+# default email sender for production.  This email address must exist.
+DEFAULT_FROM_EMAIL = 'characterupdate@talesofvalor.com'
 
 
-WSGI_APPLICATION = 'talesofvalor.wsgi.application'
 
 
 # Database
@@ -69,19 +72,23 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(DATA_DIR, 'media')
-STATIC_ROOT = os.path.join(DATA_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'talesofvalor', 'static'),
+    os.path.join(BASE_DIR, 'static_global'),
 )
 SITE_ID = 1
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'players:player_redirect_detail'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'talesofvalor', 'templates'), ],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'talesofvalor', 'templates'),
+        ],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -93,15 +100,14 @@ TEMPLATES = [
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.eggs.Loader'
+                'django.template.loaders.app_directories.Loader'
             ],
         },
     },
 ]
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'cms.middleware.utils.ApphookReloadMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -121,7 +127,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.admin',
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
@@ -133,16 +138,21 @@ INSTALLED_APPS = (
     'djangocms_text_ckeditor',
     'filer',
     'easy_thumbnails',
-    'djangocms_column',
+    'djangocms_file',
+    'djangocms_picture',
     'djangocms_link',
-    'cmsplugin_filer_file',
-    'cmsplugin_filer_folder',
-    'cmsplugin_filer_image',
-    'cmsplugin_filer_utils',
     'djangocms_style',
     'djangocms_snippet',
-    'djangocms_googlemap',
     'djangocms_video',
+    # for api/ajax calls
+    'rest_framework',
+    # For tagging
+    'taggit',
+    'taggit_autosuggest',
+    'djangocms_page_tags',
+    # paypal for registration
+    'paypal.standard.ipn',
+    # Main ToV code
     'talesofvalor',
     'talesofvalor.players',
     'talesofvalor.skills',
@@ -153,6 +163,10 @@ INSTALLED_APPS = (
     'talesofvalor.attendance',
     'talesofvalor.charactermessages',
     'talesofvalor.comments',
+    'talesofvalor.rules',
+    'talesofvalor.registration',
+    # Django admin
+    'django.contrib.admin',
 )
 
 LANGUAGES = (
@@ -202,8 +216,23 @@ DATABASES = {
 }
 
 MIGRATION_MODULES = {
-    
+
 }
+
+'''
+Paypal integration with  django-paypal
+'''
+PAYPAL_TEST = DEBUG
+PAYPAL_RECEIVER_EMAIL = "replaceme@gmail.com"
+
+'''
+Paypal secrets
+'''
+# PAYPAL_CLIENT_ID = os.environ['PAYPAL_CLIENT_ID']
+# PAYPAL_CLIENT_SECRET = os.environ['PAYPAL_CLIENT_SECRET']
+
+PAYPAL_CLIENT_ID = "AW3-LJicgmGWy41rMdkfml6yQwcTykbU_3qtoX6AvY1evR2GqC-C5ev3XU1g3WPloR4PZMNWs60cO_iE"
+PAYPAL_CLIENT_SECRET = "EDAydmM_lo4JKlAkI9rEoHUv1p3mcJDlCtxvVUTUuHkDnrYSYSn8fU8ZzcWJaqrUFsOrG4t9rJsE5lUI"
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
@@ -211,3 +240,13 @@ THUMBNAIL_PROCESSORS = (
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters'
 )
+
+'''
+RESTFRAMEWORK
+'''
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}

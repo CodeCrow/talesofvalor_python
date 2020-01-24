@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block bar_title %}Add Skill : Origins{% endblock bar_title %}
+{% block title %}Add Skill{% endblock title %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    {{ object }}
+    <ul>
+        {% for skill in object.skills %}
+            <li>{{ skill }}</li>
+        {% endfor %}
+    </ul>
+    <table class="data">
+        {{ form.as_table }}
+        <tr>
+            <td colspan="2" class="text-right">
+                <input class="btn btn-primary" type="submit" value="Add Skill" />
+            </td>
+        </tr>
+    </table>
+</form>
+{% endblock content %}

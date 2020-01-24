@@ -1,20 +1,29 @@
+"""
+https://www.merixstudio.com/blog/django-fabric/
+https://www.obeythetestinggoat.com/book/chapter_automate_deployment_with_fabric.html
+https://medium.com/gopyjs/automate-deployment-with-fabric-python-fad992e68b5
+"""
+
+
 import datetime
 import importlib
+import logging
 import os
 from distutils.util import strtobool
 
-from django.conf import settings
 
-from fabric.api import env, hide, prefix, run
-from fabric.operations import get, local
+from fabric import Connection, task
+
+# from django.conf import settings
+
 
 try:
     local_db = importlib.import_module(os.environ['DJANGO_SETTINGS_MODULE']).DATABASES
 except:
-    from .settings.local import DATABASES as local_db
+    from talesofvalor.settings.local import DATABASES as local_db
 
-from .settings.stage import DATABASES as stage_db
-from .settings.production import DATABASES as prod_db
+from talesofvalor.settings.stage import DATABASES as stage_db
+from talesofvalor.settings.production import DATABASES as prod_db
 
 LOCAL_DUMPDATA_FOLDER = '../dumpdata'
 
@@ -22,12 +31,18 @@ LOCAL_PROJECT_DIR = os.path.abspath(
     os.path.dirname(__file__)
 )
 
+
+class Environment(object):
+    verbose_name = 'default'
+
+env = Environment()
+
 env.project_name = 'talesofvalor'
 env.mysql_defaults_file = '~/.my.cnf'
-try:
-    env.settings_module_for_management_commands = os.environ['DJANGO_SETTINGS_MODULE']
-except KeyError:
-    env.settings_module_for_management_commands = '.settings.local'
+
+
+FORMAT = "%(name)s %(funcName)s:%(lineno)d %(message)s"
+logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 
 def _prep_bool_arg(arg):
@@ -40,75 +55,27 @@ def _prep_bool_arg(arg):
     """
     return bool(strtobool(str(arg)))
 
-def stage():
-    """
-    Sets the environment variables needed for the Masterpiece Book Club
-    Podcast publishing box.
-    """
-    env.verbose_name = 'stage'
-    env.forward_agent = True
-    env.hosts = ['murderofone@bonanza.dreamhost.com']
-    env.db_settings = stage_db['default']
-    env.db_dump_dir = '/home/wgbh/Masterpiece/dumpdata'
-    env.virtualenv_path = (
-        '/home/murderofone/.virtualenvs/talesofvalor'
-    )
-    env.project_dir = (
-        '/home/murderofone/tov.crowbringsdaylight.com'
-    )
-    env.default_project_branch = 'stage'
-    env.restart_webserver_command = 'sudo service apache2 restart'
-    env.refresh_app_command = (
-        'pkill python'
-    ).format(
-        env.project_dir
-    )
-    env.settings_module_for_management_commands = '.settings.prod'
-    env.mysql_defaults_file = '/home/wgbh/Masterpiece/.mysql-mp_bookpod.cnf'
+
+def _get_settings_file():
+    try:
+        return os.environ['DJANGO_SETTINGS_MODULE']
+    except KeyError:
+        return env.settings_module_for_management_commands
 
 
-
-
-def production():
-    """
-    Sets the environment variables needed for the Masterpiece Book Club
-    Podcast publishing box.
-    """
-    env.verbose_name = 'production'
-    env.forward_agent = True
-    env.hosts = ['wgbh@184.72.241.218']
-    env.db_settings = prod_db['default']
-    env.db_dump_dir = '/home/wgbh/Masterpiece/dumpdata'
-    env.virtualenv_path = (
-        '/home/wgbh/__virtualenvs/Stacks-Masterpiece-BookClubPodcast'
-    )
-    env.project_dir = (
-        '/home/wgbh/Masterpiece/Stacks-Masterpiece-BookClubPodcast'
-    )
-    env.default_project_branch = 'master '
-    env.restart_webserver_command = 'sudo service apache2 restart'
-    env.refresh_app_command = (
-        'touch {0}/mp_bookpod/wsgi/prod.py'
-    ).format(
-        env.project_dir
-    )
-    env.settings_module_for_management_commands = 'mp_bookpod.settings.prod'
-    env.mysql_defaults_file = '/home/wgbh/Masterpiece/.mysql-mp_bookpod.cnf'
-    env.live_publish_rsync_root = (
-        '/home/wgbh/Masterpiece/Stacks-Masterpiece-BookClubPodcast/'
-        'STATIC_SITE_FILES/wgbh/masterpiece/podcast-book-club'
-    )
-
-
-def deploy(branch=None, migrate=False, update_requirements=False):
+@task
+def deploy(c, environment, branch=None, migrate=False, updaterequirements=False):
     """
     Deploys the mp_bookpod application to an environment as dictated
     by an environment setup function (like `staging`)
     """
+
     migrate = _prep_bool_arg(migrate)
-    update_requirements = _prep_bool_arg(update_requirements)
-    with hide('running'):
-        with prefix(
+    update_requirements = _prep_bool_arg(updaterequirements)
+    env = c.config[environment]
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+        c.run('ls')
+        with c.prefix(
             'source {}/bin/activate && cd {}'.format(
                 env.virtualenv_path,
                 env.project_dir
@@ -116,26 +83,28 @@ def deploy(branch=None, migrate=False, update_requirements=False):
         ):
             if branch is None:
                 branch = env.default_project_branch
-            run(
-                'echo Pulling mp_bookpod on {}...'.format(
+            c.run(
+                'echo Pulling talesofvalor on {}...'.format(
                     env.verbose_name
                 )
             )
-            run('git pull')
-            run(
+            c.run('git pull')
+            c.run(
                 'echo Checking out {} branch...'.format(
                     branch
                 )
             )
-            run('git checkout {}'.format(branch))
+            c.run('git checkout {}'.format(branch))
 
-            if update_requirements is True:
-                run('echo Updating requirements...')
-                run('pip install -r requirements.txt')
+            c.run('echo updaterequirements:{updaterequirements}'.format(updaterequirements=updaterequirements))
+
+            if updaterequirements is True:
+                c.run('echo Updating requirements...')
+                c.run('pip install -r requirements.txt')
 
             if migrate is True:
-                run('echo Migrating database schema...')
-                run(
+                c.run('echo Migrating database schema...')
+                c.run(
                     'python manage.py migrate --settings={settings_module}'
                     .format(
                         settings_module=env.
@@ -143,28 +112,28 @@ def deploy(branch=None, migrate=False, update_requirements=False):
                     )
                 )
 
-            run('echo Updating static files...')
-            run(
+            c.run('echo Updating static files...')
+            c.run(
                 'python manage.py collectstatic --ignore=node_modules '
                 '--ignore=sass --ignore=hacks --noinput '
                 '--settings={settings_module}'.format(
                     settings_module=env.settings_module_for_management_commands
                 )
             )
-            run('echo Refreshing application...')
-            run(env.refresh_app_command)
+            c.run('echo Refreshing application...')
+            c.run(env.refresh_app_command)
 
 
-def _dump_remote_db():
+def _dump_remote_db(c):
     """
     Dumps a remote MySQL database
     """
+    env = c.config
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
     dump_filename_base = "{project_name}-{file_key}-{timestamp}.sql"
     file_key = env.verbose_name
     dump_dir = env.db_dump_dir
-    command = run
-    database_name = env.db_settings.get('NAME')
+    database_name = env.db_name
     file_key = "{}-full".format(file_key)
 
     dump_filename = dump_filename_base.format(
@@ -177,11 +146,12 @@ def _dump_remote_db():
         dump_dir, dump_filename
     )
 
-    with hide('running'):
-        command(
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+
+        c.run(
             'echo Dumping {} database...'.format(env.verbose_name)
         )
-        command(
+        c.run(
             'mysqldump --defaults-file={defaults_file} '
             '{database_name} > {backup_location}'.format(
                 defaults_file=env.mysql_defaults_file,
@@ -192,7 +162,7 @@ def _dump_remote_db():
     return backup_location
 
 
-def _ingest_db(location):
+def _ingest_db(c, location):
     """
     Ingests a MySQL database from a dumpfile
     """
@@ -236,7 +206,7 @@ def _ingest_db(location):
         )
 
 
-def _retrieve_db_dumpfile(location):
+def _retrieve_db_dumpfile(c, location):
     """
     Retrieves a .sql file on a remote server (at `location`)
     into LOCAL_DUMPDATA_FOLDER.
@@ -247,22 +217,24 @@ def _retrieve_db_dumpfile(location):
     Requires that a env setup function (like `demo_server`) be run prior e.g.:
     $ fab demo_server retrieve_database_dump
     """
-    with hide('running'):
-        local(
+    env = c.config
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+        c.run(
             'echo Retrieving {} into {}...'.format(
                 location,
                 LOCAL_DUMPDATA_FOLDER
             )
         )
-        get(location, LOCAL_DUMPDATA_FOLDER)
         path, filename = os.path.split(location)
-        return os.path.join(
+        destination = os.path.join(
             LOCAL_DUMPDATA_FOLDER,
             filename
         )
+        c.get(location, destination)
+        return destination
 
-
-def sync_database(ingest=True):
+@task
+def sync_database(c, environment, ingest=True):
     """
     Dumps out a remote database (as specified by an environment setup
     function like `demo_server`) and ingests it into the local database.
@@ -271,38 +243,43 @@ def sync_database(ingest=True):
               immediately ingested
     """
     ingest = _prep_bool_arg(ingest)
-
-    remote_location = _dump_remote_db()
-    local_dumpfile_location = _retrieve_db_dumpfile(remote_location)
+    env = c.config[environment]
+    c.config.load_overrides(env)
+    settings.configure()
+    current_settings = _get_settings_file()
+    remote_location = _dump_remote_db(c)
+    local_dumpfile_location = _retrieve_db_dumpfile(c, remote_location)
 
     if ingest is True:
-        _ingest_db(local_dumpfile_location)
+       pass #  _ingest_db(env, local_dumpfile_location)
 
-
-def sync_media():
+@task
+def sync_media(c, environment):
     """
     Downloads user-uploaded media from a server to the
     local settings.MEDIA_ROOT
     """
-    local(
+    env = c.config[environment]
+    settings.configure()
+    current_settings = _get_settings_file()
+    c.run(
         'echo Getting media files from {}...'.format(env.verbose_name)
     )
-    with hide('running'):
-        local(
-            'rsync -avz --rsh="ssh" {remote_host}:'
-            '{remote_folder}/ {media_root}/'.format(
-                remote_host=env.host_string,
-                remote_folder=env.media_folder.rstrip('/'),
-                media_root=settings.MEDIA_ROOT.rstrip('/')
-            )
+    c.run(
+        'rsync -avz --rsh="ssh" {remote_user}@{remote_host}:'
+        '{remote_folder}/ {media_root}/'.format(
+            remote_user=env.user,
+            remote_host=env.hosts,
+            remote_folder=env.media_path.rstrip('/'),
+            media_root=settings.MEDIA_ROOT.rstrip('/')
         )
+    )
 
-
-def sync_all(ingest_db=True):
+@task
+def sync_all(c, environment, ingest_db=True):
     """
     Downloads all user-uploaded media and installs a database dump from
     a remote server
     """
-    sync_database(ingest=ingest_db)
-    sync_media()
-
+    sync_database(c, environment, ingest=ingest_db)
+    sync_media(c, environment)

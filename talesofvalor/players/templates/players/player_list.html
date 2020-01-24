@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags add_query_params %}
+
+{% block title %}Players{% endblock title %}
+
+{% block content %}
+
+<div class="row">
+    <div id="player_list_filter" class="col-sm-7">
+        <div class="box">
+            <p>Filter: 
+              <a href="{% url 'players:player_list' %}">All</a> | 
+              <a href="{% url 'players:player_list' %}?group=Player">Players</a> | 
+              <a href="{% url 'players:player_list' %}?group=Staff">Staff</a> | 
+              <a href="{% url 'players:player_list' %}?group=Admin">Admin</a> | 
+              <a href="{% url 'players:player_list' %}?selected=True">Selected</a>
+            </p>
+            <form method="GET">
+            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
+            <p>Registered For:&nbsp;<select name="registered_for" id="registered_for">
+              <option value="{{ event.id }}"{% if not request.GET.registered_for %} selected{% endif %}>---</option>
+              {% for event in event_list %}
+                <option value="{{ event.id }}"{% if request.GET.registered_for == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
+              {% endfor %}
+            </select></p>
+            <p>Attended:&nbsp;<select name="attended" id="attended">
+              <option value="{{ event.id }}"{% if not request.GET.attended %} selected{% endif %}>---</option>
+              {% for event in event_list %}
+                <option value="{{ event.id }}"{% if request.GET.attended == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
+              {% endfor %}
+            </select></p>
+            <button id="player_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
+            </form>
+        </div>
+    </div>
+    <div id="player_list_actions" class="col-sm-5">
+        <div class="box">
+            <p><a href="{% add_query_params request select='filtered' %}">Select Filtered</a> | <a href="{% add_query_params request select='none' %}">Unselect All</a></p>
+            <p><a href="{% url 'players:player_mail' %}">Bulk Email</a></p>
+            <p><a href="{% url 'players:player_mass_grantcp' %}">Bulk Grant CP</a></p>
+            <form method="POST" action="{% url 'players:player_mass_registration' %}">{% csrf_token %}{{ registration_form }}
+            <button id="player_list_register_selected" class="btn btn-primary btn-submit" type="submit" name="register_selected">Register Selected</button></form>
+            <form method="POST" action="{% url 'players:player_mass_attendance' %}">{% csrf_token %}{{ attendance_form }}
+            <button id="player_list_attend_selected" class="btn btn-primary btn-submit" type="submit" name="attend_selected">Mark Selected as attended</button></form>
+        </div>
+    </div>
+</div>
+<div class="row">
+	<div class="col-sm-12">
+		<table id="player_list" class="list list-players">
+        <tr>
+          <th>&check;</th>
+          <th>Player</th>
+          <th>Active Character</th>
+          <th>Player</th>
+          <th>Type</th>
+          <th>Edit</th>
+          <th>Destroy</th>
+          <th>Assign</th><!-- this should be moved to a character list -->
+        </tr>
+		    {% for player in object_list %}
+        <tr>
+            <td><input type="checkbox" class="save-select" name="player_select" data-id="{{ player.id }}" value="{{ player.id }}"{% if player.id in request.session.player_select %} checked{% endif %}></td>
+            <td><a href="{% url 'players:player_detail' username=player.user.username %}">{{ player }}</td>
+            <td>
+              {% if player.active_character %}
+                <a href="{% url 'characters:character_detail' pk=player.active_character.id %}">{{ player.active_character }}</a>
+              {% endif %}
+            </td>
+            <td>{{ player.user.username }}</td>
+            <td>{% for group in player.user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+            <td><a href="{% url 'players:player_update' username=player.user.username %}">Edit</a></td>
+            <td><a href="{% url 'players:player_delete' username=player.user.username %}">Destroy</a></td>
+            <td>Assign{% comment %} <a href="{% url players:player_reassign username=player.user.username %}">Assign</a> {% endcomment %}</td><!-- this should be moved to a character list -->
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No Players Yet.</td></tr>
+		    {% endfor %}
+		</table>
+	</div>
+</div>
+
+{% include "includes/pagination.html" %}
+{% addtoblock "js" %}
+<script type="text/javascript">
+  // set up the selection handler
+  $(document).ready(function(){
+    $('.save-select').selectionSave({
+      selectionEndPoint: "{% url 'players:player_select' %}",
+      valueSelector: "id"
+    });
+  });</script>
+{% endaddtoblock %}
+
+{% endblock content %}

@@ -24,16 +24,56 @@ class Skill(models.Model):
 
     Attached to headers that are attached to characters.
     """
-
     name = models.CharField(max_length=100)
     tag = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
-    attention_flag = models.BooleanField(default=False)
+    single_flag = models.BooleanField(
+        _("Single Purchase?"),
+        help_text=_("""
+            Indicates that you only have to buy it once
+            (like for weapon skills)
+            """),
+        default=False
+    )
     bgs_flag = models.BooleanField(default=False)
-    created = models.DateTimeField('date published', auto_now_add=True, editable=False)
-    modified = models.DateTimeField('last updated', auto_now=True, editable=False)
-    created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True)
-    modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True)
+    created = models.DateTimeField(
+        'date published',
+        auto_now_add=True,
+        editable=False
+    )
+    modified = models.DateTimeField(
+        'last updated',
+        auto_now=True,
+        editable=False
+    )
+    created_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_author',
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    modified_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_updater',
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        ordering = ['tag', 'name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def headers(self):
+        return ', '.join([i for i in self.headerskill_set.values_list(
+            "header__name",
+            flat=True
+        )])
+
 
 class Header(models.Model):
     """
@@ -50,15 +90,47 @@ class Header(models.Model):
     category = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
     cost = models.PositiveIntegerField(null=False, blank=False)
-    hidden_flag = models.BooleanField(default=False)
+    hidden_flag = models.BooleanField("hidden?", default=False)
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
-    created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True)
-    modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True)
+    created_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_author',
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    modified_by = models.ForeignKey(
+        User,
+        editable=False,
+        related_name='%(app_label)s_%(class)s_updater',
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 
 class HeaderSkill(models.Model):
+    """
+    Links up the Header and skills.
+
+    This also holds the cost for a skill under a specific header,
+    because skills cost different amounts under different headers.
+    """
+
     header = models.ForeignKey(Header, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{header}:{skill}".format(
+            header=self.header,
+            skill=self.skill
+        )

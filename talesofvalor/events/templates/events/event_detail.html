@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}{{ object.name }} | {{ object.event_date }}{% endblock title %}
+
+{% block content %}
+
+
+<a href="{% url "events:register" pk=event.pk %}">Register for this event &hellip;</a>
+
+{{ object.summary }}
+
+<h2>Important Information</h2>
+{{ object.notes }}
+
+{% endblock content %}

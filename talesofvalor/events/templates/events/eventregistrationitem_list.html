@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Event Registration Item{% endblock title %}
+
+{% block content %}
+{% if perms.events.add_eventregistrationitem and object_list %}<a href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a>{% endif %}
+<table class="list">
+	<tr>
+		<th>Name</th>
+		<th>Events</th>
+		<th></th>
+	</tr>
+{% for item in object_list %}
+    <tr>
+        <td><a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">{{ item.name }}</a></td>
+        <td>{{ item.events.all }}</td>
+        <td>{% if perms.events.change_eventregistrationitem %}<a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">edit</a>{% else %}&nbsp;{% endif %}</td>
+    </tr>
+{% empty %}
+
+    <tr><td colspan="2">No Events Yet.{% if perms.events.add_eventregistrationitem %}  <a href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
+{% endfor %}
+</table>
+
+{% endblock content %}

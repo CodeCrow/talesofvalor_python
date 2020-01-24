@@ -2,9 +2,14 @@
 *.pyc
 .DS_Store
 .scss*
-ENV
 .sass-cache
 .sass-cache/*
-
+.virtualenv
+ENV
+npm-debug.log
+passenger_wsgi.py
 /talesofvalor/settings/local.py
 /media/
+/config/
+/node_modules
+/node_modules/*

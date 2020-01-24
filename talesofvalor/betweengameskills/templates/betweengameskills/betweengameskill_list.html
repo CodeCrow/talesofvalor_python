@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Between Game Skills{% endblock bar_title %}
+{% block title %}Between Game Skills{% endblock title %}
+
+{% block content %}
+
+<div class="attributes bgs_attributes">
+    <table id="status" class="character-detail">
+        <tr>
+            <td>Event:</td>
+            <td>{{ object.status }}</td>
+        </tr>
+        <tr>
+            <td>Player:</td>
+            <td>{{ object.status }}</td>
+        </tr>
+        <tr>
+            <td>Character:</td>
+            <td>{{ object.status }}</td>
+        </tr>
+    </table>
+<table class="list">
+<tr>
+    <th>Name</th>
+    <th>Question</th>
+    <th>&nbsp;</th>
+</tr>
+{% for bgs in object_list %}
+<tr>
+    <td><p><a href="{% url 'betweengameskills:betweengameskill_detail' pk=bgs.id %}">{{ bgs }}</a></p></td>
+    <td>{{ bgs.question|truncatewords_html:10 }}</td>
+    <td>
+        <nav class="item-navigation">
+            <a href="{% url 'betweengameskills:betweengameskill_update' pk=bgs.id %}">Edit</a>&nbsp;|&nbsp; 
+            <a href="{% url 'betweengameskills:betweengameskill_delete' pk=bgs.id %}">Destroy</a>
+        </nav>
+    </td> 
+</tr>
+{% endfor %}
+</table>
+
+
+{% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+{% endblock content %}

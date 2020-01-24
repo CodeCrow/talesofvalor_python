@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Event Registration{% endblock title %}
+
+{% block content %}
+{{ registration_requests }}
+{% for request in registration_requests %}
+	{{ request }}
+	<div id="paypal-button-container_{{ request.id }}"></div>
+{% endfor %}
+{% addtoblock "js "%}
+<script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID}} "></script>
+{% endaddtoblock %}
+{% endcontent %}

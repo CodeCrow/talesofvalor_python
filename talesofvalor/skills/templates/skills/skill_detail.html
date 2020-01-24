@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}{{ object.name }} : Headers{% endblock bar_title %}
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+
+<h1>{{ object.name }}</h1>
+{% if perms.skills.change %}
+ <a class="btn btn-primary" href="{% url 'skills:skill_update' pk=object.id %}">edit</a>
+{% endif %}
+{% if not object.headerskill.dabble_flag %}
+<p>Cannot be dabbled</p>
+{% endif %}
+<h2>Description:</h2>
+{{ object.description }}
+<h2>Skills</h2>
+<ul>
+	{% for headerskill in object.headerskill_set.all %}
+	<li><a href="{% url 'skills:header_detail' pk=headerskill.header.id %}">{{ headerskill.header }}</a>&mdash;{{ headerskill.cost }} CPs</li>
+	{% endfor %}
+</ul>
+
+{% endblock content %}

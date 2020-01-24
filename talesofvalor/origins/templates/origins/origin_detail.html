@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block bar_title %}{{ object }} : Origins{% endblock bar_title %}
+{% block title %}{{ object }}{% endblock title %}
+
+{% block content %}
+   <h1>{{ object.name }}</h1>
+{% if perms.origins.change %}
+ <a class="btn btn-primary" href="{% url 'origins:origin_update' pk=object.id %}">edit</a>
+{% endif %}
+{% if not object.hidden %}
+<p>Hidden</p>
+{% endif %}
+<p><strong>Type:</strong> {{ object.type }}
+<h2>Description:</h2>
+{{ object.description }}
+<h2>Skills</h2>
+<ul>
+    {{ object.skills.all }}
+    {% for originskill in object.originskill_set.all %}
+    <li><a href="{% url 'skills:skill_detail' pk=originskill.skill.id %}">{{ originskill.skill }}</a>&mdash;{{ originskill.count }}</li>
+    {% endfor %}
+</ul>
+{% endblock content %}

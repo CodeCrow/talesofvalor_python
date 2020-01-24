@@ -1,0 +1,47 @@
+{% if user.is_authenticated %}
+<ul id="navigation_action">
+    <li class="heading">Events</li>
+    <li><a href="#">Registration</a></li>
+    <li><a href="{% url 'events:event_list' %}">List</a></li>
+    <li class="heading">Basic Info</li>
+    <li><a href="{% url 'origins:origin_list' %}">Backgrounds</a></li>
+    <li><a href="{% url 'skills:header_list' %}">Headers</a></li>
+    <li><a href="{% url 'skills:skill_list' %}">Skills</a></li>
+    <li><a href="{% url 'skills:skill_tree' %}">Skill Tree</a></li>
+    {% if perms.rule.can_edit %}
+    <li><a href="{% url 'rules:rule_list' %}">Skill Rules</a></li>
+    {% endif %}
+</ul>
+
+{% if perms.skills.view_any_player %}
+<ul id="navigation_action_staff">
+    <li class="heading">Staff Info</li>
+    <li><a href="#">PELS</a></li>
+    <li><a href="{% url 'betweengameskills:betweengameskill_list' %}">BGS</a></li>
+    <li><a href="#">Messages</a></li>
+    <li><a href="#">Plots</a></li>
+    <li><a href="#">Tags</a></li>
+
+    <li class="heading">Characters</li>
+    <li><a href="{% url 'characters:character_create' %}">New</a></li>
+    <li><a href="{% url 'characters:character_list' %}">List</a></li>
+        
+    <li class="heading">Players</li>
+    <li><a href="{% url 'players:player_create' %}">New</a></li>
+    <li><a href="{% url 'players:player_list' %}">List</a></li>
+
+    <li class="heading">Registration Items</li>
+    <li><a href="{% url 'events:eventregistrationitem_create' %}">New</a></li>
+    <li><a href="{% url 'events:eventregistrationitem_list' %}">List</a></li>
+
+</ul>
+{% endif %}
+{% else %}
+<ul id="navigation_action">
+    <li class="heading">Welcome!
+        <ul>
+            <li><a href="{% url 'players:registration' %}">Register</a></li>
+        </ul>
+    </li>
+</ul>
+{% endif %}
