@@ -5,6 +5,7 @@ These models describe a character and its relationship
 to players.
 """
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -90,9 +91,11 @@ class Character(models.Model):
         return reverse('characters:character_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return "{}::{}".format(
-            self.name, self.player
-        )
+        try:
+            return "{}::{}".format(
+                self.name, self.player)
+        except ObjectDoesNotExist:
+            return "{}".format(self.name)
 
     @property
     def background(self):

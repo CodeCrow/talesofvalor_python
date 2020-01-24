@@ -16,21 +16,9 @@ from .models import Character
 from .forms import CharacterForm, CharacterSkillForm
 
 
-class CharacterCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class CharacterCreateView(LoginRequiredMixin, CreateView):
     model = Character
     form_class = CharacterForm
-
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        try:
-            player = Player.objects.get(
-                pk=self.request.GET.get('player', None)
-            )
-            return (player.user == self.request.user)
-        except Player.DoesNotExist:
-            return False
-        return False
 
     def get_initial(self):
         # Get the initial dictionary from the superclass method
@@ -44,6 +32,11 @@ class CharacterCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             initial['player'] = self.request.user.player
         # etc...
         return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user # pass the 'user' in kwargs
+        return kwargs
 
     def get_success_url(self):
         return reverse(
@@ -65,6 +58,11 @@ class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         except Character.DoesNotExist:
             return False
         return False
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user # pass the 'user' in kwargs
+        return kwargs
 
     def get_success_url(self):
         return reverse(

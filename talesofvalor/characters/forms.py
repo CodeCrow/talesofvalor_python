@@ -17,9 +17,18 @@ class CharacterForm(forms.ModelForm):
         """
         use this to set up the different origins
         """
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        for origin in Origin.ORIGIN_TYPES:
-            self.fields[origin[0]].initial = self.instance.origins.get(type=origin[0])
+        if self.instance.id:
+            for origin in Origin.ORIGIN_TYPES:
+                self.fields[origin[0]].initial = self.instance.origins.get(type=origin[0])
+        # adjust fields for different users
+        print("FIELDS:")
+        print(self.fields)
+        if not user.has_perm('players.view_any_player'):
+            del self.fields['staff_notes_hidden']
+            del self.fields['staff_notes_visible']
+            del self.fields['staff_notes_hidden']
 
     def save(self, commit=True):
         character = super().save(commit=commit)
@@ -27,6 +36,8 @@ class CharacterForm(forms.ModelForm):
         for origin in Origin.ORIGIN_TYPES:
             character.origins.add(self.cleaned_data[origin[0]])
         return character
+
+
 
     class Meta:
         model = Character
