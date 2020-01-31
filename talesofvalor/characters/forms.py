@@ -5,6 +5,18 @@ from talesofvalor.origins.models import Origin
 from .models import Character
 
 
+PLAYER_ALLOWED_FIELDS = [
+    'name',
+    'description',
+    'history',
+    'picture',
+    'player_notes'
+]
+NEW_PLAYER_FIELDS = [
+    'background',
+    'race'
+]
+
 class CharacterForm(forms.ModelForm):
     background = forms.ModelChoiceField(
         queryset=Origin.objects.filter(type=Origin.BACKGROUND),
@@ -21,20 +33,27 @@ class CharacterForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.id:
             for origin in Origin.ORIGIN_TYPES:
-                self.fields[origin[0]].initial = self.instance.origins.get(type=origin[0])
+                # in case they had an origin that doesn't exist any more.
+                try:
+                    self.fields[origin[0]].initial = self.instance.origins.get(type=origin[0])
+                except Origin.DoesNotExist:
+                    pass
         # adjust fields for different users
-        print("FIELDS:")
-        print(self.fields)
-        if not user.has_perm('players.view_any_player'):
-            del self.fields['staff_notes_hidden']
-            del self.fields['staff_notes_visible']
-            del self.fields['staff_notes_hidden']
+        if user.has_perm('players.view_any_player'):
+            allowed_fields = self.fields.keys()
+        else:
+            allowed_fields = PLAYER_ALLOWED_FIELDS
+            if not self.instance.id:
+                allowed_fields = allowed_fields + NEW_PLAYER_FIELDS
+        self.fields = dict([(key, val) for key, val in self.fields.items() if key in allowed_fields])
 
     def save(self, commit=True):
         character = super().save(commit=commit)
-        character.origins.clear()
+        # if we have both the types of origins, then update the origins here.
         for origin in Origin.ORIGIN_TYPES:
-            character.origins.add(self.cleaned_data[origin[0]])
+            if origin[0] in self.cleaned_data:
+                character.origins.filter(type=self.cleaned_data[origin[0]]).delete()
+                character.origins.add(self.cleaned_data[origin[0]])
         return character
 
 

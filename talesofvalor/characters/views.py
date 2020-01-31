@@ -43,6 +43,14 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
             'characters:character_detail',
             kwargs={'pk': self.object.pk}
         )
+    def form_valid(self, form):
+        """
+        If this form is valid, then add the current player to the character
+        if the current user is not an admin
+        """
+        if not self.request.user.has_perm('players.view_any_player'):
+            form.instance.player = self.request.user.player
+        return super().form_valid(form)
 
 
 class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
