@@ -8,7 +8,10 @@
 
 <a href="{% url "events:register" pk=event.pk %}">Register for this event &hellip;</a>
 
+{% if object.summary %}
+<h2>Summary</h2>
 {{ object.summary }}
+{% endif %}
 
 <h2>Important Information</h2>
 {{ object.notes }}
