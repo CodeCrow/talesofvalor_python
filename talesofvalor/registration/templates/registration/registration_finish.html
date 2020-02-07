@@ -9,7 +9,36 @@
 	{{ request }}
 	<div id="paypal-button-container_{{ request.id }}"></div>
 {% endfor %}
-{% addtoblock "js "%}
+{% addtoblock "js" %}
 <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID}} "></script>
+{# 
+
+	Details of possible things we can add for the order
+	https://developer.paypal.com/docs/api/orders/v2/#orders_create
+#}
+{% for request in registration_requests %}
+	<script>paypal.Buttons({
+	    createOrder: function(data, actions) {
+			// This function sets up the details of the transaction, including the amount and line item details.
+			return actions.order.create({
+				purchase_units: [{
+					amount: {
+						value: {{ request.event_registration_item.price }}
+					},
+					description: "{{ request.event_registration_item.name }}",
+					custom_id: {{ request.id }}
+				}]
+			});
+		},
+		// Finalize the transaction
+		onApprove: function(data, actions) {
+			return actions.order.capture().then(function(details) {
+				console.log(details);
+				// Show a success message to the buyer
+				alert('Transaction completed by ' + details.payer.name.given_name + '!');
+			});
+		}
+	}).render('#paypal-button-container_{{ request.id }}');</script>
+{% endfor %}
 {% endaddtoblock %}
-{% endcontent %}
+{% endblock content %}

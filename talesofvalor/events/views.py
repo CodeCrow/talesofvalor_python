@@ -11,8 +11,10 @@ from django.views.generic.edit import CreateView, UpdateView,\
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.players.models import RegistrationRequest
 
-from .forms import EventForm, EventRegistrationForm
+from .forms import EventForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
+
+from talesofvalor.registration.forms import EventRegistrationForm
 
 
 class EventCreateView(PermissionRequiredMixin, CreateView):
@@ -60,7 +62,7 @@ class PlayerRegistrationView(
     """
     model = Event
     form_class = EventRegistrationForm
-    success_url = reverse_lazy('players:player_redirect_detail')
+    success_url = reverse_lazy('registration:create')
     template_name = 'events/registration_form.html'
 
     def get_context_data(self, **kwargs):
@@ -83,6 +85,7 @@ class PlayerRegistrationView(
         if form.is_valid():
             return self.form_valid(form)
         else:
+            print(form.errors)
             return self.form_invalid(form)
 
     def form_valid(self, form):
@@ -90,24 +93,7 @@ class PlayerRegistrationView(
         The form is valid, create the event registration request
         and resend the user to the paypal screen
         """
-        cleaned_data = form.cleaned_data
-        # Get the registartion item to create the request.
-        registration_item = EventRegistrationItem.objects.get(
-            pk=cleaned_data['event_registration_item']
-        )
-        registration_request = RegistrationRequest.objects.create(
-            event_registration_item=registration_item,
-            mealplan_flag=cleaned_data['add_meal_plan'],
-            vehicle_make=cleaned_data['vehicle_make'],
-            vehicle_model=cleaned_data['vehicle_model'],
-            vehicle_color=cleaned_data['vehicle_color'],
-            vehicle_registration=cleaned_data['vehicle_registration'],
-            local_contact=cleaned_data['local_contact'],
-            notes=cleaned_data['notes'],
-            player=self.request.user.player
-        )
-        registration_request.save()
-
+        form.instance.player = self.request.user.player
         return super().form_valid(form)
 
 

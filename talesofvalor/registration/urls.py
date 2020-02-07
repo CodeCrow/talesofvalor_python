@@ -9,6 +9,6 @@ urlpatterns = [
     path(
         'send/',
         RegistrationSendView.as_view(),
-        name='event_create'
+        name='create'
     ),
 ]

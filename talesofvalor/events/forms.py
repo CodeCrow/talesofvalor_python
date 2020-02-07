@@ -28,16 +28,3 @@ class EventForm(forms.ModelForm):
         }
         js = ('js/lib/jquery-ui.min.js', )
 
-
-class EventRegistrationForm(forms.Form):
-    """
-    Register for some event or events.
-    """
-    event_registration_item = forms.IntegerField()
-    add_meal_plan = forms.BooleanField(required=False)
-    vehicle_make = forms.CharField(required=False)
-    vehicle_model = forms.CharField(required=False)
-    vehicle_color = forms.CharField(required=False)
-    vehicle_registration = forms.CharField(required=False)
-    local_contact = forms.CharField(required=False)
-    notes = forms.CharField(widget=forms.Textarea, required=False)
