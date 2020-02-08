@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
 
 from talesofvalor.players.models import RegistrationRequest
@@ -16,7 +16,7 @@ client = PayPalHttpClient(environment)
 
 
 class RegistrationSendView(TemplateView):
-    template_name = "registration/registration_finish.html"
+    template_name = "registration/registration_send.html"
 
     def get_context_data(self, **kwargs):
         """
@@ -33,3 +33,7 @@ class RegistrationSendView(TemplateView):
         context_data['PAYPAL_CLIENT_ID'] = client_id
         context_data['PAYPAL_CLIENT_SECRET'] = client_secret
         return context_data
+
+class RegistrationCompleteView(DetailView):
+    template_name = "registration/registration_complete.html"
+    model = RegistrationRequest

@@ -23,7 +23,7 @@
 			return actions.order.create({
 				purchase_units: [{
 					amount: {
-						value: {{ request.event_registration_item.price }}
+						value: {{ request.event_registration_item.total }}
 					},
 					description: "{{ request.event_registration_item.name }}",
 					custom_id: {{ request.id }}
@@ -36,6 +36,7 @@
 				console.log(details);
 				// Show a success message to the buyer
 				alert('Transaction completed by ' + details.payer.name.given_name + '!');
+				window.location="{% url 'registration:finish' %}";
 			});
 		}
 	}).render('#paypal-button-container_{{ request.id }}');</script>

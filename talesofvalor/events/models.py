@@ -98,6 +98,9 @@ class EventRegistrationItem(models.Model):
     )
     price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
+    def total(self):
+        return self.price + EVENT_MEALPLAN_PRICE
+
     def __str__(self):
         return "{}".format(
                 self.name
