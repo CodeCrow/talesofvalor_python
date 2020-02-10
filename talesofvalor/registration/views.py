@@ -1,21 +1,15 @@
-from django.conf import settings
-from django.views.generic import TemplateView, DetailView
-from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
+from django.urls import reverse_lazy
+from django.views.generic import FormView, TemplateView
+from django.views.generic.detail import DetailView
+from paypalcheckoutsdk.orders import OrdersGetRequest
 
+from talesofvalor.mixins import PayPalClientMixin
 from talesofvalor.players.models import RegistrationRequest
 
-# Creating Access Token for Sandbox
-client_id = settings.PAYPAL_CLIENT_ID
-client_secret = settings.PAYPAL_CLIENT_SECRET
-# Creating an environment
-environment = SandboxEnvironment(
-    client_id=client_id,
-    client_secret=client_secret
-)
-client = PayPalHttpClient(environment)
+from .forms import RegistrationCompleteForm
 
 
-class RegistrationSendView(TemplateView):
+class RegistrationSendView(PayPalClientMixin, TemplateView):
     template_name = "registration/registration_send.html"
 
     def get_context_data(self, **kwargs):
@@ -30,10 +24,43 @@ class RegistrationSendView(TemplateView):
         """
         context_data = super().get_context_data(**kwargs)
         context_data['registration_requests'] = RegistrationRequest.objects.filter(player=self.request.user.player)
-        context_data['PAYPAL_CLIENT_ID'] = client_id
-        context_data['PAYPAL_CLIENT_SECRET'] = client_secret
+        context_data['PAYPAL_CLIENT_ID'] = self.client_id
+        context_data['PAYPAL_CLIENT_SECRET'] = self.client_secret
         return context_data
 
-class RegistrationCompleteView(DetailView):
+
+class RegistrationCompleteView(PayPalClientMixin, FormView):
     template_name = "registration/registration_complete.html"
+    form_class = RegistrationCompleteForm
+
+    def get_success_url(self):
+        """
+        The form has been successful.
+
+        Now, we want to create the success url, using the origin that was
+        editted.
+        """
+        return reverse_lazy('registration:detail', kwargs={
+                'pk': self.kwargs.get('pk')
+            })
+
+    def form_valid(self, form):
+        """
+        Getting the request and then:
+
+        - get the order from paypal
+        - Get the request
+        """
+        print(form.cleaned_data)
+        print("ORDER ID:{}".format(form.cleaned_data['order_id']))
+        request = OrdersGetRequest(form.cleaned_data['order_id'])
+        # Call PayPal to get the transaction
+        response = self.client.execute(request)
+        print("RESPONSE:{}".format(response.__dict__))
+        print("RESULT:{}".format(response.result.__dict__))
+
+        return super().form_valid(form)
+
+
+class RegistrationDetailView(DetailView):
     model = RegistrationRequest

@@ -4,11 +4,13 @@
 {% block title %}Event Registration{% endblock title %}
 
 {% block content %}
-{{ registration_requests }}
 {% for request in registration_requests %}
 	{{ request }}
-	<div id="paypal-button-container_{{ request.id }}"></div>
+	<div class="paypal-container" id="paypal-button-container_{{ request.id }}"></div>
 {% endfor %}
+<div class="hidden" id="paypal_wait_message">
+	Loading request.  Please be patient . . . 
+</div>
 {% addtoblock "js" %}
 <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID}} "></script>
 {# 
@@ -19,6 +21,9 @@
 {% for request in registration_requests %}
 	<script>paypal.Buttons({
 	    createOrder: function(data, actions) {
+	    	$(".paypal-container").fadeOut(function() {
+	    		$("#paypal_wait_message").removeClass("hidden");
+	    	});
 			// This function sets up the details of the transaction, including the amount and line item details.
 			return actions.order.create({
 				purchase_units: [{
@@ -36,7 +41,13 @@
 				console.log(details);
 				// Show a success message to the buyer
 				alert('Transaction completed by ' + details.payer.name.given_name + '!');
-				window.location="{% url 'registration:finish' %}";
+				var url = '{% url 'registration:complete' %}';
+				var $form = $('<form class="hidden" action="' + url + '" method="post">' + 
+  					'{% csrf_token %}' +
+				 	'<input type="text" name="order_id" value="' + data.orderID + '" />' +
+				 	'</form>');
+				$('body').append($form);
+				$form.submit();
 			});
 		}
 	}).render('#paypal-button-container_{{ request.id }}');</script>

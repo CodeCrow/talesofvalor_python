@@ -17,3 +17,12 @@ class EventRegistrationForm(forms.ModelForm):
             'local_contact',
             'notes'
         ]
+
+
+class RegistrationCompleteForm(forms.Form):
+    """
+    Handles the order request completion.
+
+    Is should only ever be involved in reacting to a POST call.
+    """
+    order_id = forms.CharField()
