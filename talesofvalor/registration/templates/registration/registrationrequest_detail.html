@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}{{ object.name }} {% endblock title %}
+
+{% block content %}
+
+{{ object }}
+
+{% endblock content %}

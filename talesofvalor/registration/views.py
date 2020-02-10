@@ -40,9 +40,10 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         Now, we want to create the success url, using the origin that was
         editted.
         """
+        print(self.__dict__)
         return reverse_lazy('registration:detail', kwargs={
-                'pk': self.kwargs.get('pk')
-            })
+            'pk': self.kwargs.get('registration_request_id')
+        })
 
     def form_valid(self, form):
         """
@@ -51,16 +52,15 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         - get the order from paypal
         - Get the request
         """
-        print(form.cleaned_data)
-        print("ORDER ID:{}".format(form.cleaned_data['order_id']))
         request = OrdersGetRequest(form.cleaned_data['order_id'])
         # Call PayPal to get the transaction
         response = self.client.execute(request)
-        print("RESPONSE:{}".format(response.__dict__))
-        print("RESULT:{}".format(response.result.__dict__))
+        # load the registration request id from the paypal order
+        self.kwargs['registration_request_id'] = response.result.purchase_units[0].custom_id
 
         return super().form_valid(form)
 
 
 class RegistrationDetailView(DetailView):
+    template_name = "registration/registrationrequest_detail.html"
     model = RegistrationRequest
