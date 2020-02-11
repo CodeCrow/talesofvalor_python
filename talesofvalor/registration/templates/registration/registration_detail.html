@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Registration {{ object.event.name }} {% endblock title %}
+
+{% block content %}
+
+<p>{{ object.player.user.first_name }} {{ object.player.user.last_name }}</p>
+
+{{ object }}
+
+{% endblock content %}

@@ -104,57 +104,6 @@ def save_user_profile(sender, instance, **kwargs):
     instance.player.save()
 
 
-class Registration(models.Model):
-    """
-    Registration for events.
-
-    Holds the registration for players for a specific event.
-
-    This doesn't just link to the Registration request information because
-    it is assumed that it might change on a per registration basis.
-    """
-
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    cabin = models.CharField(
-        max_length=100,
-        blank=True,
-        default='',
-        help_text=_("What cabin is the player staying in?")
-    )
-    mealplan_flag = models.BooleanField(
-        default=False,
-        help_text=_("Has the player signed up for a meal plan?")
-    )
-    car_registration = models.CharField(max_length=10, blank=True, default='')
-    notes = models.TextField(blank=True, default='')
-
-    def save(self, *args, **kwargs):
-        """
-        Save the registration.
-
-        When we do this, we should copy items from the previous registrations
-        as a starting point if those fields are not filled in.
-        """
-        print(self.player)
-        previous_registration = type(self).objects\
-            .filter(
-                event__event_date__lt=self.event.event_date,
-                player=self.player
-            )\
-            .order_by('-event__event_date')\
-            .first()
-        if self.pk is None:
-            # if this is new registration and not an update, take information
-            # from the previous one if it isn't updated.
-            if not self.cabin:
-                self.cabin = previous_registration.cabin
-            if not self.mealplan_flag:
-                self.mealplan_flag = previous_registration.mealplan_flag
-
-        super(Registration, self).save(*args, **kwargs)
-
-
 class RegistrationRequest(models.Model):
     """
     This is the request that a user has to register and is used to link the
@@ -195,6 +144,12 @@ class RegistrationRequest(models.Model):
         blank=True,
         default='',
         help_text=_("Order recieved from PayPal system.")
+    )   
+    requested = models.DateTimeField(
+        _('date created'),
+        null=True,
+        auto_now_add=True,
+        editable=False
     )
 
     def cost(self):
@@ -205,6 +160,58 @@ class RegistrationRequest(models.Model):
         if self.mealplan_flag:
             mealplan_price = self.event_registration_item.events.count() * EVENT_MEALPLAN_PRICE
         return self.event_registration_item.price + mealplan_price
+
+
+class Registration(models.Model):
+    """
+    Registration for events.
+
+    Holds the registration for players for a specific event.
+
+    This doesn't just link to the Registration request information because
+    it is assumed that it might change on a per registration basis.
+    """
+
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    registration_request = models.ForeignKey(
+        RegistrationRequest,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    cabin = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        help_text=_("What cabin is the player staying in?")
+    )
+    mealplan_flag = models.BooleanField(
+        default=False,
+        help_text=_("Has the player signed up for a meal plan?")
+    )
+    notes = models.TextField(blank=True, default='')
+
+    def save(self, *args, **kwargs):
+        """
+        Save the registration.
+
+        When we do this, we should copy items from the previous registrations
+        as a starting point if those fields are not filled in.
+        """
+        previous_registration = type(self).objects\
+            .filter(
+                event__event_date__lt=self.event.event_date,
+                player=self.player
+            )\
+            .order_by('-event__event_date')\
+            .first()
+        if self.pk is None and previous_registration:
+            # if this is new registration and not an update, take information
+            # from the previous one if it isn't updated.
+            if not self.cabin:
+                self.cabin = previous_registration.cabin
+
+        super(Registration, self).save(*args, **kwargs)
 
 
 class PEL(models.Model):

@@ -8,6 +8,8 @@
 
 <a href="{% url "events:register" pk=event.pk %}">Register for this event &hellip;</a>
 
+<p><strong>Event Date:</strong>{{ object.event_date|date:'m-d-Y'}}</p>
+
 {% if object.summary %}
 <h2>Summary</h2>
 {{ object.summary }}

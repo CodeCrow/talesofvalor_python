@@ -1,10 +1,24 @@
 {% extends "base.html" %}
 {% load cms_tags sekizai_tags %}
 
-{% block title %}{{ object.name }} {% endblock title %}
+{% block title %}Request on {{ object.requested|date:'m-d-Y'}} {% endblock title %}
 
 {% block content %}
 
-{{ object }}
+<table class="list">
+<thead>
+    <tr>
+        <th colspan="2">Events:</th>
+    </tr>
+</thead>
+<tbody>
+{% for event in object.event_registration_item.events.all %}
+	<tr>
+		<td><a href="{% url "events:event_detail" pk=event.pk %}">{{ event.name }}</a></td>
+        <td>{{ event.event_date|date:'m-d-Y'}}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
 
 {% endblock content %}

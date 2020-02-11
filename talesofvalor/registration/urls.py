@@ -2,7 +2,7 @@
 from django.urls import path
 
 from .views import RegistrationSendView, RegistrationCompleteView,\
-    RegistrationDetailView
+    RegistrationDetailView, RegistrationRequestDetailView
 
 app_name = 'registration'
 
@@ -16,10 +16,15 @@ urlpatterns = [
         'complete/',
         RegistrationCompleteView.as_view(),
         name='complete'
-    ),
+    ),   
     path(
         '<int:pk>/',
         RegistrationDetailView.as_view(),
         name='detail'
+    ),
+    path(
+        'request/<int:pk>/',
+        RegistrationRequestDetailView.as_view(),
+        name='request_detail'
     ),
 ]
