@@ -19,7 +19,7 @@
 </tr>
 {% endfor %}
 <tr>
-	<td><input type="checkbox" name="add_meal_plan" value="1"></td>
+	<td>{{ form.mealplan_flag }}</td>
 	<td>
 		<h2>Add a Mealplan to your registration.</h2>
 		<p>${{ mealplan_price | stringformat:'0.2f' }} per event.</p>

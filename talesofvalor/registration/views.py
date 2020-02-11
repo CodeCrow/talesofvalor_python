@@ -4,7 +4,8 @@ from django.views.generic.detail import DetailView
 from paypalcheckoutsdk.orders import OrdersGetRequest
 
 from talesofvalor.mixins import PayPalClientMixin
-from talesofvalor.players.models import RegistrationRequest
+from talesofvalor.players.models import RegistrationRequest,\
+    COMPLETE, REQUESTED
 
 from .forms import RegistrationCompleteForm
 
@@ -23,7 +24,11 @@ class RegistrationSendView(PayPalClientMixin, TemplateView):
         If there is no request, the paypal button should not be shown.
         """
         context_data = super().get_context_data(**kwargs)
-        context_data['registration_requests'] = RegistrationRequest.objects.filter(player=self.request.user.player)
+        context_data['registration_requests'] = \
+            RegistrationRequest.objects.filter(
+                player=self.request.user.player,
+                status=REQUESTED
+            )
         context_data['PAYPAL_CLIENT_ID'] = self.client_id
         context_data['PAYPAL_CLIENT_SECRET'] = self.client_secret
         return context_data
@@ -57,6 +62,13 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         response = self.client.execute(request)
         # load the registration request id from the paypal order
         self.kwargs['registration_request_id'] = response.result.purchase_units[0].custom_id
+        # update the request status and add the order id
+        event_reg_request = RegistrationRequest.objects.get(
+            pk=self.kwargs['registration_request_id']
+        )
+        event_reg_request.paypal_order_id = form.cleaned_data['order_id']
+        event_reg_request.status = COMPLETE
+        event_reg_request.save()
 
         return super().form_valid(form)
 

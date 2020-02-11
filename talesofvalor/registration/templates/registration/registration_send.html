@@ -5,7 +5,8 @@
 
 {% block content %}
 {% for request in registration_requests %}
-	{{ request }}
+	<h2>{{ request.event_registration_item.name }} &mdash; ${{ request.cost }}</h2>
+	{% if request.mealplan_flag%}(includes meal plan){% endif %}
 	<div class="paypal-container" id="paypal-button-container_{{ request.id }}"></div>
 {% endfor %}
 <div class="hidden" id="paypal_wait_message">
@@ -13,11 +14,11 @@
 </div>
 {% addtoblock "js" %}
 <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID}} "></script>
-{# 
+{% comment %}
 
 	Details of possible things we can add for the order
 	https://developer.paypal.com/docs/api/orders/v2/#orders_create
-#}
+{% endcomment %}
 {% for request in registration_requests %}
 	<script>paypal.Buttons({
 	    createOrder: function(data, actions) {
@@ -39,8 +40,6 @@
 		onApprove: function(data, actions) {
 			return actions.order.capture().then(function(details) {
 				console.log(details);
-				// Show a success message to the buyer
-				alert('Transaction completed by ' + details.payer.name.given_name + '!');
 				var url = '{% url 'registration:complete' %}';
 				var $form = $('<form class="hidden" action="' + url + '" method="post">' + 
   					'{% csrf_token %}' +

@@ -72,7 +72,7 @@ class PlayerRegistrationView(
         # Get the Event Registration Items that have an event in the
         # current year.
         context['event_items'] = EventRegistrationItem.objects.filter(
-            events__event_date__year=self.object.event_date.year
+            events__event_date__year=self.object.event_date.year,
         ).distinct()
         # The price for the mealplan.
         # TODO: make this part of an event, with a default.
@@ -93,7 +93,21 @@ class PlayerRegistrationView(
         The form is valid, create the event registration request
         and resend the user to the paypal screen
         """
-        form.instance.player = self.request.user.player
+        cleaned_data = form.cleaned_data
+        # Get the registartion item to create the request.
+        registration_request = RegistrationRequest.objects.create(
+            event_registration_item=cleaned_data['event_registration_item'],
+            mealplan_flag=cleaned_data['mealplan_flag'],
+            vehicle_make=cleaned_data['vehicle_make'],
+            vehicle_model=cleaned_data['vehicle_model'],
+            vehicle_color=cleaned_data['vehicle_color'],
+            vehicle_registration=cleaned_data['vehicle_registration'],
+            local_contact=cleaned_data['local_contact'],
+            notes=cleaned_data['notes'],
+            player=self.request.user.player
+        )
+        registration_request.save()
+
         return super().form_valid(form)
 
 

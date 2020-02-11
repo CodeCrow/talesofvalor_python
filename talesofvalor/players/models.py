@@ -16,6 +16,16 @@ from djangocms_text_ckeditor.fields import HTMLField
 from talesofvalor.events.models import Event, EventRegistrationItem,\
     EVENT_MEALPLAN_PRICE
 
+REQUESTED = 'requested'
+PENDING = 'pending'
+COMPLETE = 'complete'
+REFUSED = 'refused'
+REQUEST_STATUS_CHOICES = (
+    (REQUESTED, 'Requested'),
+    (PENDING, 'Pending'),
+    (COMPLETE, 'Complete'),
+    (REFUSED, 'Refused'),
+)
 
 class Player(models.Model):
     """
@@ -175,6 +185,17 @@ class RegistrationRequest(models.Model):
         help_text=_("On site contact, such as a cell phone.")
     )
     notes = models.TextField(blank=True, default='')
+    status = models.TextField(
+        default=REQUESTED,
+        choices=REQUEST_STATUS_CHOICES,
+        help_text=_("Status of the request in ToV system.")
+    )
+    # information about Paypal order status
+    paypal_order_id = models.TextField(
+        blank=True,
+        default='',
+        help_text=_("Order recieved from PayPal system.")
+    )
 
     def cost(self):
         """
