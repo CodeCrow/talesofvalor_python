@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Registrations {% endblock title %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-sm-12">
+		<table id="registration_list" class="list list-players">
+        <tr>
+          <th>Player</th>
+          <th>Event</th>
+          <th>Mealplan?</th>
+          <th>cabin</th>
+          <th>notes</th>
+        </tr>
+		   	{% for registration in object_list %}
+	        <tr>
+	            <td><a href="{% url 'players:player_detail' username=registration.player.user.username %}">{{ registration.player }}</a></td>
+	            <td><a href="{% url 'events:event_detail' pk=registration.event.id %}">{{ registration.event }}</a></td>
+	            <td>{% if registration.mealplan %}&check;{% endif %}</td>
+	            <td>{{ registration.cabin }}</td>
+	            <td>{{ registration.notes }}</td>
+	        </tr>
+	        {% empty %}
+	        <tr><td>No Registrations Yet.</td></tr>
+		    {% endfor %}
+		</table>
+	</div>
+</div>
+
+{% endblock content %}

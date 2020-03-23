@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView
+from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView,\
     FormMixin
@@ -50,6 +51,22 @@ class EventListView(ListView):
 
 class EventDetailView(DetailView):
     model = Event
+
+
+class PlayerRegistrationRedirectView(LoginRequiredMixin, RedirectView):
+    """
+    Redirect to the registration view of the next event.
+    """
+
+    pattern_name = 'events:register'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Figure out where the user should be redirected to if they want to
+        register for the next game.
+        """
+        kwargs['pk'] = Event.next_event().id
+        return super().get_redirect_url(*args, **kwargs)
 
 
 class PlayerRegistrationView(
@@ -109,6 +126,9 @@ class PlayerRegistrationView(
         registration_request.save()
 
         return super().form_valid(form)
+
+
+from django.views.generic.base import RedirectView
 
 
 class EventRegistrationItemListView(PermissionRequiredMixin, ListView):

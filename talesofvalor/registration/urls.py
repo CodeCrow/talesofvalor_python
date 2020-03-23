@@ -1,8 +1,9 @@
 """Router for views for events."""
-from django.urls import path
+from django.urls import path, re_path
 
 from .views import RegistrationSendView, RegistrationCompleteView,\
-    RegistrationDetailView, RegistrationRequestDetailView
+    RegistrationDetailView, RegistrationRequestDetailView,\
+    RegistrationListView
 
 app_name = 'registration'
 
@@ -16,11 +17,16 @@ urlpatterns = [
         'complete/',
         RegistrationCompleteView.as_view(),
         name='complete'
-    ),   
+    ),
     path(
         '<int:pk>/',
         RegistrationDetailView.as_view(),
         name='detail'
+    ),
+    re_path(
+        'event/(?P<event>[0-9]+)/((?P<player>[0-9]+)/)?',
+        RegistrationListView.as_view(),
+        name='list'
     ),
     path(
         'request/<int:pk>/',

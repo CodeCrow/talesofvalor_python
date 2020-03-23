@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.core import mail
 from django.urls import reverse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, ListView
 from django.views.generic.detail import DetailView
 from paypalcheckoutsdk.orders import OrdersGetRequest
 
@@ -130,6 +130,9 @@ class RegistrationDetailView(
         UserPassesTestMixin,
         DetailView
         ):
+    """
+    Show a specific, completed registration.
+    """
     template_name = "registration/registration_detail.html"
     model = Registration
     permission_required = ('player.create_registration', )
@@ -143,12 +146,47 @@ class RegistrationDetailView(
             return False
         return False
 
+
+class RegistrationListView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        ListView
+        ):
+    """
+    Show a specific, completed registration.
+    """
+    template_name = "registration/registration_list.html"
+    model = Registration
+    permission_required = ('player.create_registration', )
+
+    def test_func(self):
+        if self.request.user.has_perm('players.change_any_player'):
+            return True
+        try:
+            return (self.object.player.user == self.request.user)
+        except Player.DoesNotExist:
+            return False
+        return False
+
+    def get_queryset(self):
+        """
+        based on the event id, get the registrations for that event.
+        If we have a player id, or do not have admin permissions, we can limit
+        by the player.
+        """
+        return self.model.objects.filter(event=self.kwargs['event'])
+
+
 class RegistrationRequestDetailView(
         LoginRequiredMixin,
         PermissionRequiredMixin,
         UserPassesTestMixin,
         DetailView
         ):
+    """
+    Show a request for registration, whether it is finished or not.
+    """
     template_name = "registration/registrationrequest_detail.html"
     model = RegistrationRequest
     permission_required = ('players.create_registration', )
