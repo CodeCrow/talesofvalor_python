@@ -5,6 +5,7 @@ from django.core import mail
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView, ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 from paypalcheckoutsdk.orders import OrdersGetRequest
 
 from talesofvalor.mixins import PayPalClientMixin
@@ -145,6 +146,39 @@ class RegistrationDetailView(
         except Player.DoesNotExist:
             return False
         return False
+
+class RegistrationUpdateView(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        UpdateView
+        ):
+    """
+    Show a specific, completed registration.
+    """
+    fields = (
+        'cabin',
+        'mealplan_flag',
+        'notes',
+    )
+    template_name = "registration/registration_form.html"
+    model = Registration
+    permission_required = ('player.update_registration', )
+
+    def test_func(self):
+        if self.request.user.has_perm('players.change_any_player'):
+            return True
+        return False
+
+    def get_success_url(self):
+        """
+        The form has been successful.
+
+        Now, we want to create the success url, using the origin that was
+        editted.
+        """
+        return reverse('registration:list', kwargs={
+            'event': self.object.event.id
+        })
 
 
 class RegistrationListView(

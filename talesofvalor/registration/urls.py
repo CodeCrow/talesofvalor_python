@@ -2,8 +2,8 @@
 from django.urls import path, re_path
 
 from .views import RegistrationSendView, RegistrationCompleteView,\
-    RegistrationDetailView, RegistrationRequestDetailView,\
-    RegistrationListView
+    RegistrationDetailView, RegistrationUpdateView,\
+    RegistrationRequestDetailView, RegistrationListView
 
 app_name = 'registration'
 
@@ -22,6 +22,11 @@ urlpatterns = [
         '<int:pk>/',
         RegistrationDetailView.as_view(),
         name='detail'
+    ),
+    path(
+        '<int:pk>/edit/',
+        RegistrationUpdateView.as_view(),
+        name='edit'
     ),
     re_path(
         'event/(?P<event>[0-9]+)/((?P<player>[0-9]+)/)?',

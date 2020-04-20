@@ -5,8 +5,15 @@
 
 {% block content %}
 
-<p>{{ object.player.user.first_name }} {{ object.player.user.last_name }}</p>
+<h2><a href="{% url 'players:player_detail' username=object.player.user.username %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a> -- <a href="{% url 'events:event_detail' pk=object.event.id %}">{{ object.event }}</a></h2>
 
-{{ object }}
+<p><strong>Event:</strong> {{ object.event }}</p>
+{% if perms.players.view_any_player or object.player.user is request.user %}
+<p><a href="{% url 'registration:edit' pk=object.pk %}">edit</a></p>
+<p><strong>Cabin:</strong> {{ object.cabin }}</p>
+<p><strong>Mealplan?</strong> {% if object.mealplan %}&check;{% endif %}</p>
+<p><strong>Notes:</strong></p>
+<p>{{ object.notes }}</p>
+{% endif %}
 
 {% endblock content %}

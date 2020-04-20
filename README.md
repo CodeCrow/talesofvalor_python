@@ -80,6 +80,16 @@ Query OK, 1 row affected (0.00 sec)
 mysql> exit
 ```
 
+## Add local environment variables
+1. Install direnv for your machine: [https://direnv.net/docs/installation.html](https://direnv.net/docs/installation.html)	
+2. copy the contents in "envrc_template" into the ".envrc" file in the base directory of the code.
+
+Allow the code to run:
+
+```
+$ direnv allow .
+```
+
 ## Update the settings to run locally:
 
 Copy the "local.py" file and update it with your requirements for accessing the database.

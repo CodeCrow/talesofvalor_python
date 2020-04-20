@@ -7,7 +7,7 @@
 <form action="" method="post">{% csrf_token %}
     <table class="data">
         {{ form.as_table }}
-        {% if not perms.players.view_any_player %}
+        {% if not perms.players.view_any_player and object.id %}
        		<tr>
 				<th><label>Race:</label></th>
 				<td>{{ object.race }}</td>
