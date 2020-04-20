@@ -180,7 +180,7 @@ Deployment uses Fabric 2.0.  If you are used to Fabric < 2, sending CLI variable
 
 `fab deploy --environment {{ environment_name}} [--migrate][--updaterequirements][--branch {{ branch_name }} ]`
 
-Where “environment” is “stage”, “production”, “development”, and “branch_name” is the branch that should be deployed that should be deployed.
+Where “environment” is “stage”, “production”, “development”, and “branch_name” is the branch that should be deployed.
 
 Example:
 `fab deploy --environment stage --migrate`
