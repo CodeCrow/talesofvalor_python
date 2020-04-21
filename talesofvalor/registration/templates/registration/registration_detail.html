@@ -11,8 +11,17 @@
 {% if perms.players.view_any_player or object.player.user is request.user %}
 <p><a href="{% url 'registration:edit' pk=object.pk %}">edit</a></p>
 <p><strong>Cabin:</strong> {{ object.cabin }}</p>
+<p><strong>On-site Contact:</strong> {{ object.local_contact }}</p>
 <p><strong>Mealplan?</strong> {% if object.mealplan %}&check;{% endif %}</p>
-<p><strong>Notes:</strong></p>
+
+<h3>Vehicle Info:<h3><br />
+<p>
+	<strong>Make:</strong>{{ object.vehicle_make }}<br />
+	<strong>Model:</strong>{{ object.vehicle_model }}<br />
+	<strong>Color:</strong>{{ object.vehicle_color }}<br />
+	<strong>Registration:</strong>{{ object.vehicle_registration }}<br />
+</p>
+<h3><strong>Notes:</strong></h3>
 <p>{{ object.notes }}</p>
 {% endif %}
 

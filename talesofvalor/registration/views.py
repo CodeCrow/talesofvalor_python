@@ -83,6 +83,11 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
             registration = Registration(
                 player=self.request.user.player,
                 event=event,
+                vehicle_make=event_reg_request.vehicle_make,
+                vehicle_model=event_reg_request.vehicle_model,
+                vehicle_color=event_reg_request.vehicle_color,
+                vehicle_registration=event_reg_request.vehicle_registration,
+                local_contact=event_reg_request.local_contact,
                 registration_request=event_reg_request
                 )
             registration.save()
