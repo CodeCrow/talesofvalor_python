@@ -101,7 +101,12 @@ def save_user_profile(sender, instance, **kwargs):
     When a user has been updated, we have to make sure that the profile
     attached to it has as well.  This uses the 'post_save' signal.
     """
-    instance.player.save()
+    try:
+        instance.player.save()
+    except ObjectDoesNotExist:
+        # maybe throw an error or just create the player.
+        create_user_profile(User, instance, True)
+        pass
 
 
 class RegistrationRequest(models.Model):
