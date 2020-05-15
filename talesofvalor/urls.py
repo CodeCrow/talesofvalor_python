@@ -90,8 +90,11 @@ urlpatterns += i18n_patterns(
     ),
     # for paypal
     path('paypal/', include('paypal.standard.ipn.urls')),
+    path('notifications/', include('django_nyt.urls')),
+    path('wiki/', include('wiki.urls')),
     # for the main cms
-    path('', include('cms.urls')),
+    path('', include('cms.urls'))
+
 )
 
 # This is only needed when using runserver.

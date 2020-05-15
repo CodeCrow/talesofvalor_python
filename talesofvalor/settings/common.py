@@ -144,6 +144,16 @@ INSTALLED_APPS = (
     'djangocms_style',
     'djangocms_snippet',
     'djangocms_video',
+    # The wiki
+    'django.contrib.humanize.apps.HumanizeConfig',
+    'django_nyt.apps.DjangoNytConfig',
+    'mptt',
+    'sorl.thumbnail',
+    'wiki.apps.WikiConfig',
+    'wiki.plugins.attachments.apps.AttachmentsConfig',
+    'wiki.plugins.notifications.apps.NotificationsConfig',
+    'wiki.plugins.images.apps.ImagesConfig',
+    'wiki.plugins.macros.apps.MacrosConfig',
     # for api/ajax calls
     'rest_framework',
     # For tagging

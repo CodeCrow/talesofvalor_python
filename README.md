@@ -29,7 +29,7 @@ Tales of Valor will be using the virtual environment managment that comes with P
 python3 -m venv .virtualenv
 
 ```
-This will create a new director inside the codebase that holds the workings for the virtual environment.
+This will create a new directory inside the codebase that holds the workings for the virtual environment.
 
 Activate the environment (which will have to be done each time you work on the codebase.
 
