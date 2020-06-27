@@ -10,7 +10,7 @@
         {{ form.as_table }}
     </table>
     <table id="header_inline" class="list">
-        <caption>Header attachments</caption>
+        <caption><h2>Header attachments</h2></caption>
         <tr>
             <th>Header</th>
             <th>Cost</th>
@@ -20,7 +20,7 @@
         <tbody>
         {% for form in headerskill_formset %}
             {{ form.id }}
-            <tr>
+            <tr class="header-skill">
                 <td>{{ form.header }}</td>
                 <td>{{ form.cost }}</td>
                 <td>{{ form.dabble_flag }}</td>
@@ -44,11 +44,24 @@
         {% endfor %}
         {{ rule_formset.management_form }}
     </div>
+    <div id="prerequisite_formset"> 
+        <h2>Requirements</h2>
         {% for form in prerequisite_formset %}
-            {{ form.id }}
-            {{ form }}
+            <div class="prerequisite">
+                {{ form.id }}
+                <div class="header_requirement">
+                    Requires {{ form.points }} points in {{ form.number_of_different_skills}} different skills for {{ form.header }}
+                </div>
+                <div class="skill_requirement">
+                    Requires {{ form.number_of_purchases}} of {{ form.skill }}
+                </div>
+                <div class="origin_requirement">
+                    Requires {{ form.origin }} to be available.
+                </div>
+            </div>
         {% endfor %}
         {{ prerequisite_formset.management_form }}
+    </div>
     <div class="text-right">
         <input class="btn btn-primary" type="submit" value="Update" />
         {% if object.id %}
@@ -60,11 +73,15 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
     $(function() {
-        $('#header_inline tbody tr').formset({
+        $('#header_inline tbody tr.header-skill').formset({
             prefix: '{{ headerskill_formset.prefix }}',
             {% if headerskill_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
         });
         $('#rule_formset .rule').formset({
+            prefix: '{{ rule_formset.prefix }}',
+            {% if rule_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
+        });
+        $('#prerequisite_formset .prerequisite').formset({
             prefix: '{{ rule_formset.prefix }}',
             {% if rule_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
         });
