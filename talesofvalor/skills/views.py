@@ -10,7 +10,8 @@ from django.views.generic.edit import CreateView, UpdateView,\
 from django.views.generic import DetailView, ListView
 
 from .models import Header, Skill
-from .forms import SkillForm, HeaderSkillFormSet
+from .forms import SkillForm, HeaderSkillFormSet, RuleFormSet,\
+    PrerequisiteFormSet
 
 
 INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag"]
@@ -104,8 +105,12 @@ class SkillCreateView(PermissionRequiredMixin, CreateView):
         context = super(SkillCreateView, self).get_context_data(**kwargs)
         if self.request.POST:
             context['headerskill_formset'] = HeaderSkillFormSet(self.request.POST)
+            context['rule_formset'] = RuleFormSet(self.request.POST)
+            context['prerequisite_formset'] = PrerequisiteFormSet(self.request.POST)
         else:
             context['headerskill_formset'] = HeaderSkillFormSet()
+            context['rule_formset'] = RuleFormSet()
+            context['prerequisite_formset'] = PrerequisiteFormSet()
         return context
 
     def form_valid(self, form):
@@ -134,17 +139,33 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
         if self.request.POST:
             context['headerskill_formset'] = HeaderSkillFormSet(self.request.POST, instance=self.object)
             context['headerskill_formset'].full_clean()
+            context['rule_formset'] = RuleFormSet(self.request.POST, instance=self.object)
+            context['rule_formset'].full_clean()
+            context['prerequisite_formset'] = RuleFormSet(self.request.POST, instance=self.object)
+            context['prerequisite_formset'].full_clean()
         else:
             context['headerskill_formset'] = HeaderSkillFormSet(instance=self.object)
+            context['rule_formset'] = RuleFormSet(instance=self.object)
+            context['prerequisite_formset'] = PrerequisiteFormSet(instance=self.object)
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
-        formset = context['headerskill_formset']
-        if formset.is_valid():
+        header_formset = context['headerskill_formset']
+        rule_formset = context['rule_formset']
+        prerequisite_formset = context['prerequisite_formset']
+        if (
+                header_formset.is_valid() and
+                rule_formset.is_valid() and
+                prerequisite_formset.is_valid()
+        ):
             self.object = form.save()
-            formset.instance = self.object
-            formset.save()
+            header_formset.instance = self.object
+            header_formset.save()
+            rule_formset.instance = self.object
+            rule_formset.save()
+            prerequisite_formset.instance = self.object
+            prerequisite_formset.save()
             return redirect(self.success_url)
         else:
             return self.render_to_response(self.get_context_data(form=form))

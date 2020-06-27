@@ -1,4 +1,7 @@
 from django import forms
+from django.contrib.contenttypes.forms import generic_inlineformset_factory
+
+from talesofvalor.rules.models import Rule, Prerequisite
 
 from .models import Skill, HeaderSkill
 
@@ -13,14 +16,33 @@ class SkillForm(forms.ModelForm):
     The form will allow users to add the skill to multiple headers at multiple
     different costs.
     """
+
+    class Media:
+        js = ('js/lib/jquery.formset.js', )
+
     class Meta:
         model = Skill
         fields = INCLUDE_FOR_EDIT_SKILL
+
 
 HeaderSkillFormSet = forms.inlineformset_factory(
     Skill,
     HeaderSkill,
     fields=('header', 'cost', 'dabble_flag'),
+    extra=1,
+    can_delete=True
+)
+
+RuleFormSet = generic_inlineformset_factory(
+    Rule,
+    fields='__all__',
+    extra=1,
+    can_delete=True
+)
+
+PrerequisiteFormSet = generic_inlineformset_factory(
+    Prerequisite,
+    fields='__all__',
     extra=1,
     can_delete=True
 )

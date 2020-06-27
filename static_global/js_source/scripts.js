@@ -39,5 +39,3 @@ $.ajaxSetup({
 });
 
 require('./jquery.selection_save.js');
-
-console.log("I've been served!");

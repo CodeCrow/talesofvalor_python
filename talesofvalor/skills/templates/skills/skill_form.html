@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags %}
+{% load cms_tags sekizai_tags %}
 
 {% block bar_title %}{{ object.name }} : Skills{% endblock bar_title %}
 {% block title %}{{ object.name }}{% endblock title %}
@@ -10,7 +10,7 @@
     <table class="data">
         {{ form.as_table }}
     </table>
-    <table class="list">
+    <table id="header_inline" class="list">
         <tr>
             <th>Header</th>
             <th>Cost</th>
@@ -19,8 +19,10 @@
                 <th>Remove</th>
             {% endif %}
         </tr>
+        <tbody>
         {% for form in headerskill_formset %}
             {{ form.id }}
+            CAN DELETE{{ headerskill_formset.can_delete }}
             <tr>
                 <td>{{ form.header }}</td>
                 <td>{{ form.cost }}</td>
@@ -30,14 +32,37 @@
                 {% endif %}
             </tr>
         {% endfor %}
-        <tr>
-            <td colspan="4" class="text-right">
-                <input class="btn btn-primary" type="submit" value="Update" />
-                {% if object.id %}
-                	<a href="{% url "skills:header_delete" pk=object.id %}" class="btn btn-danger">Delete</a></td>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
+        </tbody>
+    </table>        
+
+        {{ rule_formset.management_form }}
+        {% for form in rule_formset %}
+            {{ form.id }}
+            {{ form }}
+        {% endfor %}
+
+        {{ prerequisite_formset.management_form }}
+        {% for form in prerequisite_formset %}
+            {{ form.id }}
+            {{ form }}
+        {% endfor %}
+    <div class="text-right">
+        <input class="btn btn-primary" type="submit" value="Update" />
+        {% if object.id %}
+        	<a href="{% url "skills:header_delete" pk=object.id %}" class="btn btn-danger">Delete</a></td>
+        {% endif %}
+    </div>
 </form>
+
+{% addtoblock "js" %}
+<script type="text/javascript">
+    $(function() {
+        $('#header_inline tbody tr').formset({
+            prefix: '{{ headerskill_formset.prefix }}',
+            hideLastAddForm: true
+        });
+    });
+</script>
+{% endaddtoblock %}
+
 {% endblock content %}

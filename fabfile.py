@@ -99,10 +99,10 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
             c.run('echo updaterequirements:{updaterequirements}'.format(updaterequirements=update_requirements))
 
             if updaterequirements is True:
-                c.run('echo Updating pip')
-                c.run('pip install --upgrade pip')
+                # c.run('echo Updating pip')
+                # c.run('pip install --upgrade pip')
                 c.run('echo Updating requirements...')
-                c.run('pip install -r requirements.txt')
+                c.run('pip3 install -r requirements.txt')
 
             if migrate is True:
                 c.run('echo Migrating database schema...')
