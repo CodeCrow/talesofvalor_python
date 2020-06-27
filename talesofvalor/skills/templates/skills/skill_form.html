@@ -6,23 +6,20 @@
 
 {% block content %}
 <form action="" method="post">{% csrf_token %}
-    {{ headerskill_formset.management_form }}
     <table class="data">
         {{ form.as_table }}
     </table>
     <table id="header_inline" class="list">
+        <caption>Header attachments</caption>
         <tr>
             <th>Header</th>
             <th>Cost</th>
             <th>Can Dabble</th>
-            {% if headerskill_formset.can_delete %}
-                <th>Remove</th>
-            {% endif %}
+            <th>Remove</th>
         </tr>
         <tbody>
         {% for form in headerskill_formset %}
             {{ form.id }}
-            CAN DELETE{{ headerskill_formset.can_delete }}
             <tr>
                 <td>{{ form.header }}</td>
                 <td>{{ form.cost }}</td>
@@ -32,20 +29,26 @@
                 {% endif %}
             </tr>
         {% endfor %}
+        {{ headerskill_formset.management_form }}
         </tbody>
-    </table>        
-
-        {{ rule_formset.management_form }}
+    </table> 
+    <div id="rule_formset"> 
+        <h2>Grants</h2>
         {% for form in rule_formset %}
+            <div class="rule">
             {{ form.id }}
-            {{ form }}
+            ( {{ form.name }} )
+            Makes skill {{ form.skill }} cost {{ form.new_cost }} or {{ form.free }} free. <br /> Limit to {{ form.picks_remaining }} purchases. <br />
+            {% if rule_formset.can_delete %}{{ form.DELETE }}{% endif %}
+            </div>
         {% endfor %}
-
-        {{ prerequisite_formset.management_form }}
+        {{ rule_formset.management_form }}
+    </div>
         {% for form in prerequisite_formset %}
             {{ form.id }}
             {{ form }}
         {% endfor %}
+        {{ prerequisite_formset.management_form }}
     <div class="text-right">
         <input class="btn btn-primary" type="submit" value="Update" />
         {% if object.id %}
@@ -59,7 +62,11 @@
     $(function() {
         $('#header_inline tbody tr').formset({
             prefix: '{{ headerskill_formset.prefix }}',
-            hideLastAddForm: true
+            {% if headerskill_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
+        });
+        $('#rule_formset .rule').formset({
+            prefix: '{{ rule_formset.prefix }}',
+            {% if rule_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
         });
     });
 </script>
