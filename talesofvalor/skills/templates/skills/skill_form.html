@@ -10,7 +10,12 @@
         {{ form.as_table }}
     </table>
     <table id="header_inline" class="list">
-        <caption><h2>Header attachments</h2></caption>
+        <caption>
+            <h2>Header attachments</h2>
+            {% if headerskill_formset.non_form_errors %}
+            <ul class="errors">{{ headerskill_formset.non_form_errors }}</ul>
+            {% endif %}
+        </caption>
         <tr>
             <th>Header</th>
             <th>Cost</th>
@@ -34,6 +39,10 @@
     </table> 
     <div id="rule_formset"> 
         <h2>Grants</h2>
+        {% if rule_formset.non_form_errors %}
+        <ul class="errors">{{ rule_formset.non_form_errors }}</ul>
+        {% endif %}
+        <div class="alternating-container">
         {% for form in rule_formset %}
             <div class="rule">
             {{ form.id }}
@@ -42,21 +51,37 @@
             {% if rule_formset.can_delete %}{{ form.DELETE }}{% endif %}
             </div>
         {% endfor %}
+        </div>
         {{ rule_formset.management_form }}
     </div>
     <div id="prerequisite_formset"> 
         <h2>Requirements</h2>
+        {% if prerequisite_formset.non_form_errors %}
+        <ul class="errors">{{ prerequisite_formset.non_form_errors }}</ul>
+        {% endif %}
         {% for form in prerequisite_formset %}
-            <div class="prerequisite">
+            <div class="prerequisite tabs">
                 {{ form.id }}
-                <div class="header_requirement">
-                    Requires {{ form.points }} points in {{ form.number_of_different_skills}} different skills for {{ form.header }}
+                <div class="header-requirement tab">
+                    <input type="radio" id="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-header" name="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-tab_group" {% if form.header.value %} checked{% endif%}>
+                    <label for="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-header">Header</label>
+                    <div class="tab-content">
+                        Requires {{ form.points }} points in {{ form.number_of_different_skills}} different skills for {{ form.header }}
+                    </div>
                 </div>
-                <div class="skill_requirement">
-                    Requires {{ form.number_of_purchases}} of {{ form.skill }}
+                <div class="skill-requirement tab">
+                    <input type="radio" id="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-skill" name="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-tab_group"{% if form.skill.value %} checked{% endif%}>
+                    <label for="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-skill">Skill</label>
+                    <div class="tab-content">
+                        Requires {{ form.number_of_purchases}} of {{ form.skill }}
+                    </div>
                 </div>
-                <div class="origin_requirement">
-                    Requires {{ form.origin }} to be available.
+                <div class="origin-requirement tab">
+                    <input type="radio" id="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-origin" name="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-tab_group"{% if form.origin.value %} checked{% endif%}>
+                    <label for="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-origin">Origin</label>
+                    <div class="tab-content">
+                        Requires {{ form.origin }} to be available.
+                    </div>
                 </div>
             </div>
         {% endfor %}
@@ -73,18 +98,30 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
     $(function() {
+        // Set up the formset to add nicely.
         $('#header_inline tbody tr.header-skill').formset({
             prefix: '{{ headerskill_formset.prefix }}',
-            {% if headerskill_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
+            formCssClass: 'dynamic-{{ headerskill_formset.prefix }}',
+            addCssClass: "add-row btn btn-primary"
+            {% if headerskill_formset.initial_form_count > 0 %}, hideLastAddForm: true {% endif %}
         });
         $('#rule_formset .rule').formset({
             prefix: '{{ rule_formset.prefix }}',
-            {% if rule_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
+            formCssClass: 'dynamic-{{ rule_formset.prefix }}',
+            addCssClass: "add-row btn btn-primary"
+            {% if rule_formset.initial_form_count > 0 %}, hideLastAddForm: true {% endif %}
         });
         $('#prerequisite_formset .prerequisite').formset({
-            prefix: '{{ rule_formset.prefix }}',
-            {% if rule_formset.initial_form_count > 0 %} hideLastAddForm: true {% endif %}
+            prefix: '{{ prerequisite_formset.prefix }}',
+            formCssClass: 'dynamic-{{ prerequisite_formset.prefix }}',
+            addCssClass: "add-row btn btn-primary",
+            added: ($row) => {
+                $row.find('.header-requirement.tab > input').first().prop('checked', true);
+            }
+            {% if prerequisite_formset.initial_form_count > 0 %}, hideLastAddForm: true {% endif %}
         });
+        // Set up the tabs for the prerequisites.
+
     });
 </script>
 {% endaddtoblock %}

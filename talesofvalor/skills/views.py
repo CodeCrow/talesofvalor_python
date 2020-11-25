@@ -141,7 +141,7 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
             context['headerskill_formset'].full_clean()
             context['rule_formset'] = RuleFormSet(self.request.POST, instance=self.object)
             context['rule_formset'].full_clean()
-            context['prerequisite_formset'] = RuleFormSet(self.request.POST, instance=self.object)
+            context['prerequisite_formset'] = PrerequisiteFormSet(self.request.POST, instance=self.object)
             context['prerequisite_formset'].full_clean()
         else:
             context['headerskill_formset'] = HeaderSkillFormSet(instance=self.object)
@@ -154,11 +154,17 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
         header_formset = context['headerskill_formset']
         rule_formset = context['rule_formset']
         prerequisite_formset = context['prerequisite_formset']
+        print(header_formset.is_valid())
+        print(rule_formset.is_valid())
+        print(rule_formset.errors)
+        print(prerequisite_formset.is_valid())
+        print(prerequisite_formset.errors)
         if (
                 header_formset.is_valid() and
                 rule_formset.is_valid() and
                 prerequisite_formset.is_valid()
         ):
+            print("WE ARE SAVING THE FORMSETS")
             self.object = form.save()
             header_formset.instance = self.object
             header_formset.save()

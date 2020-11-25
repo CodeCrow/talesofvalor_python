@@ -55,16 +55,64 @@ li.heading {
 #player_transfer_cp #id_amount {
   width: 4em; }
 
+.tabs {
+  position: relative;
+  min-height: 100px;
+  /* This part sucks */
+  clear: both;
+  margin: 25px 0; }
+  .tabs .delete-row {
+    line-height: 2.25em;
+    margin-left: 2em; }
+
+.tab {
+  float: left; }
+
+.tab label {
+  background: #eee;
+  padding: .25em 1em;
+  border: 1px solid #ccc;
+  margin-left: -1px;
+  position: relative;
+  left: 1px; }
+
+.tab [type=radio] {
+  display: none; }
+
+.tab-content {
+  position: absolute;
+  top: 2em;
+  left: 0;
+  background: white;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+  border: 1px solid #ccc; }
+
+[type=radio]:checked ~ label {
+  background: white;
+  border-bottom: 1px solid white;
+  z-index: 2; }
+
+[type=radio]:checked ~ label ~ .tab-content {
+  z-index: 1; }
+
 #player_list_filter_submit {
   position: absolute;
   bottom: 1em;
   right: 1em; }
+
+.rule {
+  padding: 1em 0.5em; }
 
 .list-characters td:first-child {
   width: 30%; }
 
 .portrait {
   float: right; }
+
+.alternating-container > *:nth-of-type(even) {
+  background: #e0e0e0; }
 
 html {
   box-sizing: border-box; }

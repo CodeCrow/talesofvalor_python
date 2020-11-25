@@ -18,7 +18,7 @@ class SkillForm(forms.ModelForm):
     """
 
     class Media:
-        js = ('js/lib/jquery.formset.js', )
+        js = ('js/lib/jquery.formset.js', 'js/lib/jquery-ui.min.js', )
 
     class Meta:
         model = Skill

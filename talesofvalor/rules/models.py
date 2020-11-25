@@ -41,7 +41,7 @@ class Rule(models.Model):
         (GRANT_RULE, 'Grant Rule')
     )
     name = models.CharField(max_length=100)
-    description = HTMLField(blank=False)
+    description = HTMLField(blank=True)
     # the origin, header, skill, grant that invokes this rule.
     content_type = models.ForeignKey(
         ContentType,
@@ -58,11 +58,18 @@ class Rule(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     # the skill that this will effect
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    skill = models.ForeignKey(
+        Skill,
+        on_delete=models.CASCADE
+    )
     # the new cost of the skill
-    new_cost = models.PositiveIntegerField(default=0)
+    new_cost = models.PositiveIntegerField(default=0, blank=True, null=True)
     # The character just gets this skill for free, without having to buy it at all.
-    free = models.BooleanField(default=False, help_text=_("This is granted for free if the requirements are met."))
+    free = models.BooleanField(
+        default=False,
+        blank=True,
+        help_text=_("This is granted for free if the requirements are met.")
+    )
     # There are a limited number of times that the user can choose this skill as a result of fulfilling
     # The requirement.  Defaults to infinite.
     picks_remaining = models.PositiveIntegerField(null=True, blank=True)
@@ -103,25 +110,40 @@ class Prerequisite(models.Model):
     )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    origin = models.ForeignKey(Origin, on_delete=models.CASCADE)
+    origin = models.ForeignKey(
+        Origin,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
     number_of_purchases = models.PositiveIntegerField(
-        help_text=_("How many you much purchase to me the requirement")
+        help_text=_("How many you much purchase to me the requirement"),
+        blank=True,
+        null=True
     )
     skill = models.ForeignKey(
         Skill,
         on_delete=models.CASCADE,
-        help_text=_("What skill must be purchased")
+        help_text=_("What skill must be purchased"),
+        blank=True,
+        null=True
     )
     points = models.PositiveIntegerField(
-        help_text=_("how many character points")
+        help_text=_("how many character points"),
+        blank=True,
+        null=True
     )
     number_of_different_skills = models.PositiveIntegerField(
-        help_text=_("how many different skills must be purchased")
+        help_text=_("how many different skills must be purchased"),
+        blank=True,
+        null=True
     )
     header = models.ForeignKey(
         Header,
         on_delete=models.CASCADE,
-        help_text=_("What header the skills must be in.")
+        help_text=_("What header the skills must be in."),
+        blank=True,
+        null=True
     )
 
     @property
