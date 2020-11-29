@@ -1,17 +1,51 @@
-const gulp = require('gulp');
-const sass = require('gulp-sass');
-const del = require('del');
+/* 
+ * TODO: 
+ * Add rebasing
+ * https://github.com/tunderdomb/rebase
+ */
 
-gulp.task('styles', () => {
-    return gulp.src('sass/**/*.scss')
-        .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest('./css/'));
+var gulp = require('gulp'),
+    sass = require('gulp-sass'),
+    path = require('path'),    
+    browserify = require('browserify'),
+    source = require('vinyl-source-stream'),
+    paths = {
+        // this is the starting point for the scripts.  
+        // add in other scripts in this file by using the "require"
+        // provided by browserfy.
+        js_source: 'static_global/js_source/**/*.js',
+        js: 'static_global/js_source/scripts.js',
+        scss: 'static_global/sass/**/*.scss',
+        css: 'static_global/css'
+    };
+
+
+
+gulp.task('sass', function () {
+  return gulp.src(paths.scss)
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest(paths.css));
 });
 
-gulp.task('clean', () => {
-    return del([
-        'css/main.css',
-    ]);
+gulp.task('browserify', function () {
+    var b = browserify({
+            entries: [paths.js]
+        });
+    return b.bundle()
+        .pipe(source('main.js'))
+        .pipe(gulp.dest('static_global/js'));
 });
 
-gulp.task('default', gulp.series(['clean', 'styles']));
+gulp.task('build', ['sass','browserify'], function(){
+
+});
+
+
+gulp.task('watch', function () {
+    gulp.watch(paths.scss, ['sass']);
+    gulp.watch(paths.js_source, ['browserify']);
+});
+
+gulp.task('default', ['build', 'watch'], function () {
+
+});

@@ -112,6 +112,12 @@ $.ajaxSetup({
     }
 });
 
+// UI niceties . . .
+$(".alert").click((e) => {
+    console.log("cliky the alert");
+    $(e.currentTarget).hide(500);
+});
+
 require('./jquery.selection_save.js');
 
 },{"./jquery.selection_save.js":1}]},{},[2]);
