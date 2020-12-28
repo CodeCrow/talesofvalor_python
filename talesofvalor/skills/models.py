@@ -128,9 +128,18 @@ class HeaderSkill(models.Model):
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
+    capstone_flag = models.BooleanField(
+        _("Is this a capstone?"),
+        help_text=_("""
+            Indicates that this is a capstone granted when
+            requirements are met.
+            (like for weapon skills)
+            """),
+        default=False)
 
     def __str__(self):
-        return "{header}:{skill}".format(
+        return "{header}:{skill}[{cost}]".format(
             header=self.header,
-            skill=self.skill
+            skill=self.skill,
+            cost=self.cost
         )
