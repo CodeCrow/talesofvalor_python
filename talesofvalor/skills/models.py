@@ -74,6 +74,24 @@ class Skill(models.Model):
             flat=True
         )])
 
+    @classmethod
+    def skillhash(cls):
+        """
+        Create the base hash of skills and costs
+        """
+        headers = Header.objects.all()
+        skill_hash = {
+            h.id: {
+                s.skill_id: s.cost
+                for s in h.headerskill_set.all()
+            }
+            for h in headers
+        }
+        for h in headers:
+            skill_hash[h.id]['cost'] = h.cost
+        print(skill_hash)
+        return skill_hash
+
 
 class Header(models.Model):
     """

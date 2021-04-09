@@ -105,8 +105,19 @@ class Character(models.Model):
     def race(self):
         return self.origins.get(type=Origin.RACE)
 
+    @property
+    def skillhash(self):
+        return Skill.skillhash()
+
+    def grants(self):
+        """
+        skills granted by a specific character grant or as a result of
+        of character backgrounds or headers granting skills without the need
+        for the player to spend points.
+        """
+
     class Meta:
-            ordering = ["name"]
+        ordering = ["name"]
 
 
 class CharacterSkills(models.Model):

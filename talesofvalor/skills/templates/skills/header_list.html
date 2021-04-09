@@ -57,7 +57,7 @@
 </tr>
 {% for header in object_list %}
 <tr>
-    <td><p><a href="{% url 'skills:header_update' pk=header.id %}">{{ header.name }}</a></p></td>
+    <td><p><a href="{% url 'skills:header_detail' pk=header.id %}">{{ header.name }}</a></p></td>
     <td>{{ header.description|truncatewords_html:10 }}</td>
     <td>
         <nav class="item-navigation">

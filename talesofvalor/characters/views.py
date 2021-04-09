@@ -9,7 +9,6 @@ from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DetailView, ListView, DeleteView
 
-from talesofvalor.players.models import Player
 from talesofvalor.skills.models import Header
 
 from .models import Character
@@ -35,7 +34,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user # pass the 'user' in kwargs
+        kwargs['user'] = self.request.user  # pass the 'user' in kwargs
         return kwargs
 
     def get_success_url(self):
@@ -43,6 +42,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
             'characters:character_detail',
             kwargs={'pk': self.object.pk}
         )
+
     def form_valid(self, form):
         """
         If this form is valid, then add the current player to the character
@@ -69,7 +69,7 @@ class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user # pass the 'user' in kwargs
+        kwargs['user'] = self.request.user  # pass the 'user' in kwargs
         return kwargs
 
     def get_success_url(self):
@@ -192,6 +192,13 @@ class CharacterSkillUpdateView(
         context = super(CharacterSkillUpdateView, self)\
             .get_context_data(**self.kwargs)
         context['skills'] = self.skills
+        """
+        skills granted by a specific character grant or as a result of
+        of character backgrounds or headers granting skills without the need
+        for the player to spend points.
+        """
+        context['grants'] = self.object.grants
+        context['skill_hash'] = self.object.skillhash
         return context
 
     def post(self, request, *args, **kwargs):

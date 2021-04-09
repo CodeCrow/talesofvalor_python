@@ -59,7 +59,7 @@ packaging==20.8
 paramiko==2.4.2
 paypal-checkout-serversdk==1.0.1
 paypalhttp==1.0.0
-Pillow==7.1.0
+Pillow==8.1.2
 protobuf==3.8.0
 pyasn1==0.4.4
 pycparser==2.18
@@ -79,4 +79,4 @@ Unidecode==0.4.20
 update==0.0.1
 urllib3==1.25.3
 webencodings==0.5.1
-wiki==0.7
+wiki==0.7.3
