@@ -112,6 +112,13 @@ class Header(models.Model):
     description = HTMLField(blank=False)
     cost = models.PositiveIntegerField(null=False, blank=False)
     hidden_flag = models.BooleanField("hidden?", default=False)
+    open_flag = models.BooleanField(
+        "open?", 
+        help_text=_("""
+        Header is automatically 'open' without the need for purchase.
+        """),
+        default=False
+    )
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
     # done like the to prevent circular imports
     prerequisites = GenericRelation('rules.Prerequisite')
