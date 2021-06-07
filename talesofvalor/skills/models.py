@@ -12,11 +12,11 @@ they can purchase the skills that belong to that header.
 """
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
-
 
 class Skill(models.Model):
     """
@@ -25,6 +25,8 @@ class Skill(models.Model):
     Attached to headers that are attached to characters.
     """
     name = models.CharField(max_length=100)
+    # done like the to prevent circular imports
+    prerequisites = GenericRelation('rules.Prerequisite')
     tag = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
     single_flag = models.BooleanField(
@@ -77,7 +79,9 @@ class Skill(models.Model):
     @classmethod
     def skillhash(cls):
         """
-        Create the base hash of skills and costs
+        Create the base hash of skills and costs.
+
+        It will be updated by the character.
         """
         headers = Header.objects.all()
         skill_hash = {
@@ -89,7 +93,6 @@ class Skill(models.Model):
         }
         for h in headers:
             skill_hash[h.id]['cost'] = h.cost
-        print(skill_hash)
         return skill_hash
 
 
@@ -110,6 +113,8 @@ class Header(models.Model):
     cost = models.PositiveIntegerField(null=False, blank=False)
     hidden_flag = models.BooleanField("hidden?", default=False)
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
+    # done like the to prevent circular imports
+    prerequisites = GenericRelation('rules.Prerequisite')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
     created_by = models.ForeignKey(

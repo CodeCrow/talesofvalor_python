@@ -9,10 +9,32 @@ from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DetailView, ListView, DeleteView
 
-from talesofvalor.skills.models import Header
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from talesofvalor.skills.models import Header, Skill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm
+
+
+class OwnsCharacter(BasePermission):
+    """
+    The current user is staff or owns the that is being manipulated.
+    """
+    message = "You don't own this character"
+
+    def has_object_permission(self, request, view, obj):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Character.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Character.DoesNotExist:
+            return False
+        return False
 
 
 class CharacterCreateView(LoginRequiredMixin, CreateView):
@@ -216,6 +238,72 @@ class CharacterSkillUpdateView(
         """
         return super(CharacterSkillUpdateView, self).form_valid(form)
 
+
+'''
+Put the AJAX work for Characters here
+'''
+
+
+class CharacterAddHeaderView(APIView):
+    '''
+    Set of AJAX views for a Characters
+
+    This handles different API calls for character actions.
+    '''
+
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [OwnsCharacter]
+
+    def post(self, request, format=None):
+        header_id = int(request.POST.get('header_id', 0))
+        character_id = int(request.POST.get('character_id', 0))
+        # get the character and then see if the header is allowed
+        header = Header.objects.get(pk=header_id)
+        character = Character.objects.get(pk=character_id)
+        print("CHARACTER HEADERS:{}".format(character.headers.all()))
+        # check that the header is allowed.
+        print("HEADER CHECK:{}".format(character.check_header_prerequisites(header)))
+        # if the prerequisites are met, add the header to the user and return
+        # the list of skills
+        if character.check_header_prerequisites(header):
+            character.headers.add(header)
+        # otherwise, return an error
+        content = {
+            'success': "testing right now"
+        }
+
+        return Response(content)
+
+
+class CharacterAddSkillView(APIView):
+    '''
+    Set of AJAX views for a Characters
+
+    This handles different API calls for character actions.
+    '''
+
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [OwnsCharacter]
+
+    def post(self, request, format=None):
+        skill_id = int(request.POST.get('skill_id', 0))
+        header_id = int(request.POST.get('header_id', 0))
+        character_id = int(request.POST.get('character_id', 0))
+        # get the character and then see if the skill is allowed
+        skill = Skill.objects.get(pk=skill_id)
+        header = Header.objects.get(pk=header_id)
+        character = Character.objects.get(pk=character_id)
+        print("CHARACTER HEADERS:{}".format(character.headers.all()))
+        # check that the skill is allowed.
+        print("HEADER CHECK:{}".format(character.check_skill_prerequisites(header)))
+        # if the prerequisites are met, add the header to the user and return
+        # the list of skills
+        # otherwise, return an error
+        content = {
+            'success': "testing right now"
+        }
+
+        return Response(content)
 
 class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     """

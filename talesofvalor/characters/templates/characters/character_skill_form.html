@@ -6,22 +6,13 @@
 {% block content %}
 Player: {{ object.player }}
 <h1>Pick skills for {{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
-<form action="" method="post">{% csrf_token %}
+<form id="charcterskill_form" action="" method="post">{% csrf_token %}
     {% include "characters/includes/character_stats.html" with object=object %}
     {% for header in skills %}
     {% with skill_hash|dict_key:header.id as header_costs %}
     <div class="header-group group">
-        <h2><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>&nbsp;{% if header_costs.cost %}({{ header_costs.cost }} CPs){% endif %}</h2>
-        <ul class="skill-group group">
-            {% for skill in header.skills.all %}
-            <li>
-                <a href="{% url "skills:skill_detail" pk=skill.id %}">{{ skill.name }}</a>&nbsp;
-                {% with header_costs|dict_key:skill.id as skill_cost %}
-                {% if skill_cost %}( {{ skill_cost }} CPs each){% endif %}
-                {% endwith %}
-            </li>
-            {% endfor %}
-        </ul>
+        <h2><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>&nbsp;{% if header_costs.cost %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a></h2>
+        {% include "characters/includes/character_skill_item.html" %}
     </div>
     {% endwith %}
     {% endfor %}
@@ -33,3 +24,25 @@ Player: {{ object.player }}
     </table>
 </form>
 {% endblock content %}
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $('.add-header').click((event) => {
+            event.preventDefault();
+            let header_id = $(event.currentTarget).data('header-id');
+            let character_id = {{ object.id }};
+            let submit_url = $(event.currentTarget).attr('href');
+            $.post(submit_url, { header_id: header_id, character_id: character_id } )
+            .done((data) => {
+                console.log(data);
+            })
+            .fail((data) => {
+                console.log(data);
+            });
+            return false;
+        });
+        $('.add-skill').click((event) => {
+            event.preventDefault();
+        });
+    </script>
+{% endblock %}

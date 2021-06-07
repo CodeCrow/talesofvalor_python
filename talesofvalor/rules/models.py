@@ -1,7 +1,5 @@
 """
 Describes special rules for skills, headers, origins.
-
-.
 """
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -11,7 +9,8 @@ from django.utils.translation import ugettext as _
 from djangocms_text_ckeditor.fields import HTMLField
 
 from talesofvalor.origins.models import Origin
-from talesofvalor.skills.models import Header, Skill
+from talesofvalor.skills.models import Header, HeaderSkill, Skill
+
 
 class Rule(models.Model):
     """
@@ -22,7 +21,7 @@ class Rule(models.Model):
     Rules track those changes and should be run when adding up
     character point changes/totals.
 
-    Grant skills are skills that have the Boolean "free" field set to true:  
+    Grant skills are skills that have the Boolean "free" field set to true:
     When a character fulfills the requirement,
     they get the skill automatically without having to buy it.
 
@@ -33,7 +32,7 @@ class Rule(models.Model):
     SKILL_RULE = 'SkillRule'
     HEADER_RULE = 'HeaderRule'
     ORIGIN_RULE = 'OriginRule'
-    GRANT_RULE = 'GrantRule' # happens without having to purchase the skill:  The skill is given automatically.
+    GRANT_RULE = 'GrantRule'  # happens without having to purchase the skill:  The skill is given automatically.
     RULE_REQUIREMENT_CHOICES = (
         (SKILL_RULE, 'Skill Rule'),
         (HEADER_RULE, 'Header Rule'),
@@ -59,8 +58,10 @@ class Rule(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     # the skill that this will effect
     skill = models.ForeignKey(
-        Skill,
-        on_delete=models.CASCADE
+        HeaderSkill,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
     # the new cost of the skill
     new_cost = models.PositiveIntegerField(default=0, blank=True, null=True)
@@ -70,7 +71,8 @@ class Rule(models.Model):
         blank=True,
         help_text=_("This is granted for free if the requirements are met.")
     )
-    # There are a limited number of times that the user can choose this skill as a result of fulfilling
+    # There are a limited number of times that the user can choose this skill
+    # as a result of fulfilling
     # The requirement.  Defaults to infinite.
     picks_remaining = models.PositiveIntegerField(null=True, blank=True)
 
@@ -117,7 +119,7 @@ class Prerequisite(models.Model):
         null=True
     )
     number_of_purchases = models.PositiveIntegerField(
-        help_text=_("How many you much purchase to me the requirement"),
+        help_text=_("How many you must purchase to meet the requirement"),
         blank=True,
         null=True
     )

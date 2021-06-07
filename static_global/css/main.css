@@ -38,12 +38,18 @@ li.heading {
 .content-align-right {
   text-align: right; }
 
+input[type='checkbox'] {
+  margin: 0 .5rem; }
+
 .data td, .data th {
   padding: 0.25em; }
 
 .data tr th:first-child {
   text-align: right;
   vertical-align: top; }
+
+.point-input {
+  width: 4rem; }
 
 .event-registration h2 {
   margin-top: 0; }

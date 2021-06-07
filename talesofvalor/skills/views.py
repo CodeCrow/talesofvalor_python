@@ -27,6 +27,33 @@ class HeaderCreateView(PermissionRequiredMixin, CreateView):
     permission_required = ('headers.can_edit', )
     success_url = reverse_lazy('skills:header_list')
 
+    def get_context_data(self, **kwargs):
+        context = super(HeaderCreateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['rule_formset'] = RuleFormSet(self.request.POST)
+            context['prerequisite_formset'] = PrerequisiteFormSet(self.request.POST)
+        else:
+            context['rule_formset'] = RuleFormSet()
+            context['prerequisite_formset'] = PrerequisiteFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        rule_formset = context['rule_formset']
+        prerequisite_formset = context['prerequisite_formset']
+        if (
+                rule_formset.is_valid() and
+                prerequisite_formset.is_valid()
+        ):
+            self.object = form.save()
+            rule_formset.instance = self.object
+            rule_formset.save()
+            prerequisite_formset.instance = self.object
+            prerequisite_formset.save()
+            return redirect(self.success_url)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
 
 class HeaderUpdateView(PermissionRequiredMixin, UpdateView):
     """
@@ -37,6 +64,36 @@ class HeaderUpdateView(PermissionRequiredMixin, UpdateView):
     fields = INCLUDE_FOR_EDIT_HEADER
     permission_required = ('headers.can_edit', )
     success_url = reverse_lazy('skills:header_list')
+
+    def get_context_data(self, **kwargs):
+        context = super(HeaderUpdateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['rule_formset'] = RuleFormSet(self.request.POST, instance=self.object)
+            context['rule_formset'].full_clean()
+            context['prerequisite_formset'] = PrerequisiteFormSet(self.request.POST, instance=self.object)
+            context['prerequisite_formset'].full_clean()
+        else:
+            context['rule_formset'] = RuleFormSet(instance=self.object)
+            context['prerequisite_formset'] = PrerequisiteFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        rule_formset = context['rule_formset']
+        prerequisite_formset = context['prerequisite_formset']
+        if (
+                rule_formset.is_valid() and
+                prerequisite_formset.is_valid()
+        ):
+            self.object = form.save()
+            rule_formset.instance = self.object
+            rule_formset.save()
+            prerequisite_formset.instance = self.object
+            prerequisite_formset.save()
+            return redirect(self.success_url)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
 
 class HeaderDeleteView(PermissionRequiredMixin, DeleteView):
     """
@@ -154,17 +211,11 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
         header_formset = context['headerskill_formset']
         rule_formset = context['rule_formset']
         prerequisite_formset = context['prerequisite_formset']
-        print(header_formset.is_valid())
-        print(rule_formset.is_valid())
-        print(rule_formset.errors)
-        print(prerequisite_formset.is_valid())
-        print(prerequisite_formset.errors)
         if (
                 header_formset.is_valid() and
                 rule_formset.is_valid() and
                 prerequisite_formset.is_valid()
         ):
-            print("WE ARE SAVING THE FORMSETS")
             self.object = form.save()
             header_formset.instance = self.object
             header_formset.save()

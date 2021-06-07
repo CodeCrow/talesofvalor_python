@@ -1,3 +1,7 @@
+input[type='checkbox'] {
+	margin: 0 .5rem;
+}
+
 .data {
     td, th {
         padding:0.25em;
@@ -6,6 +10,10 @@
         text-align:right;
         vertical-align: top;
     }
+}
+
+.point-input {
+	width: 4rem;
 }
 
 .event-registration {

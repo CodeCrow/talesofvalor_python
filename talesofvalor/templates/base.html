@@ -66,6 +66,7 @@
         <script src="{% static 'js/main.js' %}"></script>
         {{ form.media }}
         {% render_block "js" %}
+        {% block js %}{% endblock %}
     </body>
 </html>
 

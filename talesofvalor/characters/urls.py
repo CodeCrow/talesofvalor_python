@@ -3,7 +3,8 @@ from django.urls import path
 
 from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterDetailView, CharacterDeleteView, CharacterListView,\
-    CharacterSetActiveView, CharacterSkillUpdateView
+    CharacterSetActiveView, CharacterSkillUpdateView,\
+    CharacterAddHeaderView, CharacterAddSkillView
 
 app_name = 'characters'
 
@@ -42,5 +43,16 @@ urlpatterns = [
         '',
         CharacterListView.as_view(),
         name='character_list'
+    ),
+    # skill picking
+    path(
+        'addheader/',
+        CharacterAddHeaderView.as_view(),
+        name='header_add'
+    ),
+    path(
+        'addskill/',
+        CharacterAddSkillView.as_view(),
+        name='skill_add'
     ),
 ]

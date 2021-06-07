@@ -5,6 +5,7 @@ These models describe a character and its relationship
 to players.
 """
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
@@ -13,6 +14,7 @@ from django.utils.translation import ugettext as _
 from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
+from talesofvalor.rules.models import Prerequisite
 from talesofvalor.skills.models import Header, Skill
 from talesofvalor.origins.models import Origin
 
@@ -83,7 +85,7 @@ class Character(models.Model):
         User,
         editable=False,
         related_name='%(app_label)s_%(class)s_updater',
-        null=True ,
+        null=True,
         on_delete=models.SET_NULL
     )
 
@@ -107,7 +109,17 @@ class Character(models.Model):
 
     @property
     def skillhash(self):
-        return Skill.skillhash()
+        """
+        Get the base skill cost hash and update it based on the character
+        """
+        skillhash = Skill.skillhash()
+        # update skillhash with skills the character has.
+        print("HEADERS:")
+        print(self.headers.all())
+        # go throught the hash and figure out what headers have had the
+        # prerequisites met . . .
+        
+        return skillhash
 
     def grants(self):
         """
@@ -115,6 +127,59 @@ class Character(models.Model):
         of character backgrounds or headers granting skills without the need
         for the player to spend points.
         """
+
+    def check_header_prerequisites(self, header):
+        """
+        Does the sent header meet the prerequisites for that header.
+        If there are no prerequisites, it meets them.
+        """
+        try: 
+            header_type = ContentType.objects.get_for_model(Header)
+            header_prerequisites = Prerequisite.objects.filter(
+                content_type__pk=header_type.id,
+                object_id=header.id
+            )
+            # check for origin requirements
+            for prereq in header_prerequisites:
+                if prereq.origin: 
+                    if prereq.origin not in self.origins:
+                        return False
+                # check for header/skill requirements
+                if prereq.header:
+                    if prereq.header not in self.headers:
+                        return False
+                    # check for the number of different skills in the header.
+                    purchased_skills = self.skills.filter(headerskill__header_id=prereq.header.id)
+                    print(purchased_skills)
+                    if prereq.number_of_different_skills > self.skills.filter(headerskill__header_id=prereq.header.id).count(): 
+                        return False
+                    # figure out the total skill points
+                    total = 0
+                    for skill in purchased_skills:
+                        total += skill.headerskill.cost * skill
+
+                # check for skill requirements
+            # if we made it this far, we can assume all prerequisites
+            # have been met.
+            return True
+        except Prerequisite.DoesNotExist:
+            return True
+        return True
+
+    def check_skill_prerequisites(self, skill, header):
+        """
+        Does the sent skill meet the prerequisites for that header.
+        If there are no prerequisites, it meets them.
+        """
+        try: 
+            skill_type = ContentType.objects.get_for_model(Skill)
+            skill_prerequisites = Prerequisite.objects.filter(
+                content_type__pk=skill_type.id,
+                object_id=skill.id
+            )
+        except Prerequisite.DoesNotExist:
+            return True
+        return True
 
     class Meta:
         ordering = ["name"]
