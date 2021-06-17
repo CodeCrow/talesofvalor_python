@@ -14,7 +14,7 @@ from .forms import SkillForm, HeaderSkillFormSet, RuleFormSet,\
     PrerequisiteFormSet
 
 
-INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag"]
+INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "open_flag"]
 INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "attention_flag", "bgs_flag"]
 
 class HeaderCreateView(PermissionRequiredMixin, CreateView):
