@@ -8,7 +8,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView,\
     FormMixin
 
-
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.players.models import RegistrationRequest
 
@@ -136,9 +135,6 @@ class PlayerRegistrationView(
         return super().form_valid(form)
 
 
-from django.views.generic.base import RedirectView
-
-
 class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
     model = EventRegistrationItem
     permission_required = ('events.change_eventregistrationitem', )
@@ -147,11 +143,13 @@ class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
 class EventRegistrationItemCreateView(PermissionRequiredMixin, CreateView):
     model = EventRegistrationItem
     fields = '__all__'
+    success_url = reverse('events:eventregistrationitem_list')
     permission_required = ('events.add_eventregistrationitem', )
 
 
 class EventRegistrationItemUpdateView(PermissionRequiredMixin, UpdateView):
     model = EventRegistrationItem
     fields = '__all__'
+    success_url = reverse('events:eventregistrationitem_list')
     permission_required = ('events.change_eventregistrationitem', )
 
