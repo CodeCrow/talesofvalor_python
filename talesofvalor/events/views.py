@@ -134,6 +134,8 @@ class PlayerRegistrationView(
 
         return super().form_valid(form)
 
+class EventRegistrationItemDetailView(DetailView):
+    model = EventRegistrationItem
 
 class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
     model = EventRegistrationItem
@@ -143,13 +145,11 @@ class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
 class EventRegistrationItemCreateView(PermissionRequiredMixin, CreateView):
     model = EventRegistrationItem
     fields = '__all__'
-    success_url = reverse('events:eventregistrationitem_list')
     permission_required = ('events.add_eventregistrationitem', )
 
 
 class EventRegistrationItemUpdateView(PermissionRequiredMixin, UpdateView):
     model = EventRegistrationItem
     fields = '__all__'
-    success_url = reverse('events:eventregistrationitem_list')
     permission_required = ('events.change_eventregistrationitem', )
 

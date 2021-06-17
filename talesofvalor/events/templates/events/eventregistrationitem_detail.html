@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+
+<h2>Events covered:</h2>
+<ul>
+	{% for event in object.events.all %}
+		<li><a href="{% url "events:event_detail" pk=event.id %}">{{ event }}</a></li>
+	{% endfor %}
+</ul>
+
+<p><strong>Cost:</strong>{{ object.price }}</p>
+<p><strong>Still Available:</strong>{{ object.available|yesno }}</p>
+
+{% endblock content %}

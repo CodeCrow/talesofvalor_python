@@ -101,6 +101,15 @@ class EventRegistrationItem(models.Model):
     def total(self):
         return self.price + EVENT_MEALPLAN_PRICE
 
+    def get_absolute_url(self):
+        """
+        Return the absolute URL.
+
+        This is the canonical URL to show the detail page
+        for an EventRegistrationItem.
+        """
+        return reverse('events:eventregistrationitem_detail', kwargs={'pk': self.pk})
+    
     def __str__(self):
         return "{}".format(
                 self.name
