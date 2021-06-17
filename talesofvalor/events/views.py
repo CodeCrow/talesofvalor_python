@@ -1,9 +1,9 @@
 """These are views that are used for viewing and editing events."""
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView,\
     FormMixin
@@ -65,9 +65,17 @@ class PlayerRegistrationRedirectView(LoginRequiredMixin, RedirectView):
         Figure out where the user should be redirected to if they want to
         register for the next game.
         """
-        kwargs['pk'] = Event.next_event().id
+        try: 
+            kwargs['pk'] = Event.next_event().id
+        except AttributeError:
+            return reverse("events:event_no_next_event")
         return super().get_redirect_url(*args, **kwargs)
 
+class PlayerRegistrationNoEventView(TemplateView):
+    """
+    Redirect to the registration view of the next event.
+    """
+    template_name = 'events/registration_no_scheduled_event.html'
 
 class PlayerRegistrationView(
         LoginRequiredMixin,
