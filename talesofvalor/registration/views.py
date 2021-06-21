@@ -141,7 +141,7 @@ class RegistrationDetailView(
     """
     template_name = "registration/registration_detail.html"
     model = Registration
-    permission_required = ('player.create_registration', )
+    permission_required = ('registration.add_registration', )
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
@@ -167,7 +167,7 @@ class RegistrationUpdateView(
     )
     template_name = "registration/registration_form.html"
     model = Registration
-    permission_required = ('player.update_registration', )
+    permission_required = ('registration.change_registration', )
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
@@ -197,7 +197,7 @@ class RegistrationListView(
     """
     template_name = "registration/registration_list.html"
     model = Registration
-    permission_required = ('player.create_registration', )
+    permission_required = ('registration.add_registration', )
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
@@ -228,7 +228,7 @@ class RegistrationRequestDetailView(
     """
     template_name = "registration/registrationrequest_detail.html"
     model = RegistrationRequest
-    permission_required = ('players.create_registration', )
+    permission_required = ('registration.add_registration', )
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):

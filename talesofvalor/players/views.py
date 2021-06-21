@@ -47,7 +47,7 @@ class PlayerCreateView(
 
     model = Player
     fields = '__all__'
-    permission_required = ('players.create_player', )
+    permission_required = ('players.add_player', )
 
 
 class PlayerUpdateView(
@@ -84,7 +84,7 @@ class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
     """
 
     model = Player
-    permission_required = ('player.can_edit', )
+    permission_required = ('players.delete_player', )
     success_url = reverse_lazy('players:player_list')
 
     def delete(request, *args, **kwargs):

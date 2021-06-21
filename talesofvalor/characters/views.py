@@ -113,7 +113,7 @@ class CharacterDeleteView(
     """
 
     model = Character
-    permission_required = ('character.can_edit', )
+    permission_required = ('characters.change_character', )
     success_url = reverse_lazy('characters:character_list')
 
     def test_func(self):

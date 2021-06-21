@@ -21,7 +21,7 @@ from .models import Rule
 
 class RuleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Rule
-    permission_required = ('rules.create_rule', )
+    permission_required = ('rules.add_rule', )
     success_url = reverse_lazy('rules:rule_list')
 
     template_name = 'rules/rule_form.html'
@@ -46,7 +46,7 @@ class RuleDeleteView(PermissionRequiredMixin, DeleteView):
     """
 
     model = Rule
-    permission_required = ('rules.change_rule', )
+    permission_required = ('rules.delete_rule', )
     success_url = reverse_lazy('rules:rule_list')
 
 
@@ -55,7 +55,7 @@ class RuleDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     model = Rule
     fields = '__all__'
-    permission_required = ('rules.change_rule', )
+    permission_required = ('rules.view_rule', )
 
 class RuleListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """

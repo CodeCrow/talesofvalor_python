@@ -22,7 +22,7 @@ class OriginCreateView(PermissionRequiredMixin, CreateView):
     """
     model = Origin
     fields = INCLUDE_FOR_EDIT
-    permission_required = ('origins.can_edit', )
+    permission_required = ('origins.add_origin', )
     success_url = reverse_lazy('origins:origin_list')
 
 
@@ -33,7 +33,7 @@ class OriginUpdateView(PermissionRequiredMixin, UpdateView):
 
     model = Origin
     fields = INCLUDE_FOR_EDIT
-    permission_required = ('origins.can_edit', )
+    permission_required = ('origins.change_origin', )
     success_url = reverse_lazy('origins:origin_list')
 
 
@@ -45,7 +45,7 @@ class OriginDeleteView(PermissionRequiredMixin, DeleteView):
     """
 
     model = Origin
-    permission_required = ('origins.can_edit', )
+    permission_required = ('origins.delete_origin', )
     success_url = reverse_lazy('origins:origin_list')
 
 
