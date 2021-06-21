@@ -147,6 +147,14 @@ class Prerequisite(models.Model):
         blank=True,
         null=True
     )
+    additional_header = models.ForeignKey(
+        Header,
+        on_delete=models.CASCADE,
+        help_text=_("Additional header before you can purchase this."),
+        blank=True,
+        null=True,
+        related_name="additional_headers"
+    )
 
     @property
     def type(self):
