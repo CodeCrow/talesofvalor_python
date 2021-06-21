@@ -24,7 +24,7 @@ class HeaderCreateView(PermissionRequiredMixin, CreateView):
 
     model = Header
     fields = INCLUDE_FOR_EDIT_HEADER
-    permission_required = ('headers.can_edit', )
+    permission_required = ('headers.add_header', )
     success_url = reverse_lazy('skills:header_list')
 
     def get_context_data(self, **kwargs):
@@ -62,7 +62,7 @@ class HeaderUpdateView(PermissionRequiredMixin, UpdateView):
 
     model = Header
     fields = INCLUDE_FOR_EDIT_HEADER
-    permission_required = ('headers.can_edit', )
+    permission_required = ('headers.change_header', )
     success_url = reverse_lazy('skills:header_list')
 
     def get_context_data(self, **kwargs):
@@ -104,7 +104,7 @@ class HeaderDeleteView(PermissionRequiredMixin, DeleteView):
     """
 
     model = Header
-    permission_required = ('headers.can_edit', )
+    permission_required = ('headers.delete_header', )
     success_url = reverse_lazy('skills:header_list')
 
 
@@ -155,7 +155,7 @@ class SkillCreateView(PermissionRequiredMixin, CreateView):
 
     model = Skill
     form_class = SkillForm
-    permission_required = ('skills.can_edit', )
+    permission_required = ('skills.add_skill', )
     success_url = reverse_lazy('skills:skill_list')
 
     def get_context_data(self, **kwargs):
@@ -188,7 +188,7 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
 
     model = Skill
     form_class = SkillForm
-    permission_required = ('skills.can_edit', )
+    permission_required = ('skills.change_skill', )
     success_url = reverse_lazy('skills:skill_list')
 
     def get_context_data(self, **kwargs):
@@ -235,7 +235,7 @@ class SkillDeleteView(PermissionRequiredMixin, DeleteView):
     """
 
     model = Skill
-    permission_required = ('skills.can_edit', )
+    permission_required = ('skills.delete_skill', )
     success_url = reverse_lazy('skills:skill_list')
 
 
