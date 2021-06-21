@@ -71,13 +71,6 @@
                         Requires {{ form.points }} points in {{ form.number_of_different_skills}} different skills for {{ form.header }}
                     </div>
                 </div>
-                <div class="header-additional-requirement tab">
-                    <input type="radio" id="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-additional-header" name="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-tab_group" {% if form.additional_header.value %} checked{% endif%}>
-                    <label for="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-additional-header">Additional Header</label>
-                    <div class="tab-content">
-                        Requires Header {{ form.additional_header }}
-                    </div>
-                </div>
                 <div class="skill-requirement tab">
                     <input type="radio" id="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-skill" name="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-tab_group"{% if form.skill.value %} checked{% endif%}>
                     <label for="{{ prerequisite_formset.prefix }}-{{ forloop.counter0 }}-skill">Skill</label>
