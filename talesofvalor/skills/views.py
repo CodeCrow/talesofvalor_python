@@ -144,8 +144,6 @@ class HeaderListView(LoginRequiredMixin, ListView):
         if hidden_filter and len(hidden_filter):
             filter_args['hidden_flag'] = (int(hidden_filter) == 1)
         queryset = self.model.objects.filter(**filter_args)
-        print("CONTEXT:")
-        print(filter_args)
         return queryset
 
 class SkillCreateView(PermissionRequiredMixin, CreateView):
@@ -276,8 +274,6 @@ class SkillListView(LoginRequiredMixin, ListView):
             filter_args['bgs_flag'] = (int(bgs_filter) == 1)
         if unlinked_filter:
             filter_args['headerskill__isnull'] = True
-        print("SKILLS CONTEXT:")
-        print(filter_args)
         queryset = self.model.objects.filter(**filter_args)
         return queryset
 
