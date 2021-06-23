@@ -28,7 +28,7 @@ class SkillForm(forms.ModelForm):
 HeaderSkillFormSet = forms.inlineformset_factory(
     Skill,
     HeaderSkill,
-    fields=('header', 'cost', 'dabble_flag', 'capstone_flag'),
+    fields=('header', 'cost', 'dabble_flag', 'capstone_flag', 'magic_flag'),
     extra=1,
     can_delete=True
 )
