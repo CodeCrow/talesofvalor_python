@@ -158,6 +158,13 @@ class HeaderSkill(models.Model):
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
+    magic_flag = models.BooleanField(
+    	_("Is this magical?"),
+    	help_text=_("""
+            Indicates that this skill is magical.
+            """),
+    	default=False
+    )
     capstone_flag = models.BooleanField(
         _("Is this a capstone?"),
         help_text=_("""
@@ -165,7 +172,8 @@ class HeaderSkill(models.Model):
             requirements are met.
             (like for weapon skills)
             """),
-        default=False)
+        default=False
+    )
 
     def __str__(self):
         return "{header}:{skill}[{cost}]".format(

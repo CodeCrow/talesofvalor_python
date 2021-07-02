@@ -21,6 +21,7 @@
             <th>Cost</th>
             <th>Can Dabble</th>
             <th>Capstone?</th>
+            <th>Magic?</th>
             <th>Remove</th>
         </tr>
         <tbody>
@@ -31,6 +32,7 @@
                 <td>{{ form.cost }}</td>
                 <td>{{ form.dabble_flag }}</td>
                 <td>{{ form.capstone_flag }}</td>
+                <td>{{ form.magic_flag }}</td>
                 {% if headerskill_formset.can_delete %}
                     <td>{{ form.DELETE }}</td>
                 {% endif %}
