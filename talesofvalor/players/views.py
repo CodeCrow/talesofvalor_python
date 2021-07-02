@@ -15,7 +15,7 @@ from django.contrib.auth import authenticate, login
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
-from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import DeleteView,\
     FormView, FormMixin
 from django.urls import reverse, reverse_lazy
@@ -75,13 +75,13 @@ class PlayerUpdateView(
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(**kwargs)
-
-        if context['player_form'].is_valid():
+        if context['player_form'].is_valid() and context['user_form'].is_valid():
             context['player_form'].save()
-        if context['user_form'].is_valid():
-            context['user_form'].save()
-
-        return self.render_to_response(context)     
+            context['user_form'].save() 
+            messages.info(self.request, '{} Updated.'.format(self.object.user.username))
+            return HttpResponseRedirect(reverse('players:player_list'))
+        return self.render_to_response(context)  
+   
 
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
