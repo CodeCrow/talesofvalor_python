@@ -15,8 +15,8 @@ from django.contrib.auth import authenticate, login
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
-from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView,\
+from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.edit import DeleteView,\
     FormView, FormMixin
 from django.urls import reverse, reverse_lazy
 
@@ -27,38 +27,21 @@ from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
-from .forms import RegistrationForm,\
+from .forms import UserForm, PlayerForm, RegistrationForm,\
     MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm
 from .models import Player, Registration
-
-
-class PlayerCreateView(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        CreateView
-        ):
-    '''
-    Player is created.
-
-    when the player is created, we have to make sure that they are added
-    to the group "Player"
-    '''
-
-    model = Player
-    fields = '__all__'
-    permission_required = ('players.add_player', )
 
 
 class PlayerUpdateView(
         LoginRequiredMixin,
         PermissionRequiredMixin,
         UserPassesTestMixin,
-        UpdateView
+        DetailView
         ):
-    model = Player
-    fields = '__all__'
+    template_name = 'players/player_form.html'
     permission_required = ('players.change_player', )
+    model = Player
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
@@ -72,6 +55,33 @@ class PlayerUpdateView(
 
     def get_object(self):
         return Player.objects.get(user__username=self.kwargs['username'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['player_form'] = PlayerForm(
+                instance=self.object,
+                data=self.request.POST
+            )
+            context['user_form'] = UserForm(
+                instance=self.object.user,
+                data=self.request.POST
+            )
+        else:
+            context['player_form'] = PlayerForm(instance=self.object)
+            context['user_form'] = UserForm(instance=self.object.user)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(**kwargs)
+
+        if context['player_form'].is_valid():
+            context['player_form'].save()
+        if context['user_form'].is_valid():
+            context['user_form'].save()
+
+        return self.render_to_response(context)     
 
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):

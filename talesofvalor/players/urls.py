@@ -1,7 +1,7 @@
 """Router for views for players."""
 from django.urls import path
 
-from .views import PlayerCreateView, PlayerUpdateView,\
+from .views import PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
     PlayerListView, PlayerDeleteView, PlayerViewSet, MassEmailView,\
     PlayerListRegistrationView, PlayerListAttendanceView,\
@@ -39,11 +39,6 @@ urlpatterns = [
         'register/',
         RegistrationView.as_view(),
         name='registration'
-    ),
-    path(
-        'add/',
-        PlayerCreateView.as_view(),
-        name='player_create'
     ),
     path(
         'home/',

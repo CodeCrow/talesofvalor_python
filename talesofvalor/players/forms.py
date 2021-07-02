@@ -13,21 +13,13 @@ from .models import Player
 
 class UserForm(forms.ModelForm):
     """Handle main user form for the user model from django."""
-    password_confirm = forms.CharField(
-        widget=forms.PasswordInput(
-            attrs={'class': 'narrow-input', 'required': 'true'}
-        ), required=True
-    )
-
     class Meta:
         model = User
         fields = [
             'first_name',
             'last_name',
             'email',
-            'username',
-            'password',
-            'password_confirm',
+            'groups',
         ]
 
     def clean(self):
@@ -55,7 +47,11 @@ class UserForm(forms.ModelForm):
 class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
-        fields = []
+        fields = [
+            'game_started',
+            'cp_available',
+            'staff_attention_flag'
+        ]
 
 
 class RegistrationForm(forms.Form):
