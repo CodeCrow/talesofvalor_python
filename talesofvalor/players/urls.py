@@ -5,7 +5,7 @@ from .views import PlayerUpdateView,\
     PlayerRedirectDetailView, PlayerDetailView, RegistrationView,\
     PlayerListView, PlayerDeleteView, PlayerViewSet, MassEmailView,\
     PlayerListRegistrationView, PlayerListAttendanceView,\
-    MassGrantCPView
+    MassGrantCPView, PELListView, PELDetailView, PELUpdateView
 
 app_name = 'players'
 
@@ -44,6 +44,21 @@ urlpatterns = [
         'home/',
         PlayerRedirectDetailView.as_view(),
         name='player_redirect_detail'
+    ), 
+    path(
+        'pel/',
+        PELListView.as_view(),
+        name='pel_list'
+    ),
+    path(
+        'pel/<int:pk>/',
+        PELDetailView.as_view(),
+        name='pel_detail'
+    ),
+    path(
+        'pel/<slug:username>/<int:event_id>/',
+        PELUpdateView.as_view(),
+        name='pel_update'
     ),
     path(
         '<slug:username>/',

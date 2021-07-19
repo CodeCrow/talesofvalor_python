@@ -5,11 +5,13 @@ http://adamalton.blogspot.com/2014/02/displaying-django-genericforeignkey-as.htm
 import re
 from django import forms
 
+from django.contrib.contenttypes.forms import generic_inlineformset_factory
 from django.contrib.contenttypes.models import ContentType
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext as _
 
 # these are the models that we can gather the requirements from
-from .models import Rule
+from .models import Rule, Prerequisite, PrerequisiteGroup
 from talesofvalor.origins.models import Origin
 from talesofvalor.skills.models import Header, Skill
 
@@ -65,3 +67,39 @@ class RuleForm(forms.ModelForm):
         self.instance.content_type = content_type
         self.instance.object_id = object_id
         return super(RuleForm, self).save(*args, **kwargs)
+
+"""
+Set up the nexted forms for prerequisite groups
+
+https://micropyramid.com/blog/how-to-use-nested-formsets-in-django/
+"""
+PrerequisiteFormSet = generic_inlineformset_factory(
+    Prerequisite,
+    fields='__all__',
+    extra=1,
+    can_delete=True
+)
+    
+
+class BasePrerequisiteGroupFormSet(BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+
+        # save the formset in the 'nested' property
+        form.nested = PrerequisiteFormSet(
+                        instance=form.instance,
+                        data=form.data if form.is_bound else None,
+                        files=form.files if form.is_bound else None,
+                        prefix='address-%s-%s' % (
+                            form.prefix,
+                            PrerequisiteFormSet.get_default_prefix()),
+                        extra=1)
+
+
+PrerequisiteGroupFormSet = generic_inlineformset_factory(
+    PrerequisiteGroup,
+    formset=BasePrerequisiteGroupFormSet,
+    fields='__all__',
+    extra=1,
+    can_delete=True
+)

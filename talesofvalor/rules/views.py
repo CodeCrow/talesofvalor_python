@@ -5,12 +5,9 @@ Rules are descriptions of cost changes that are caused by origins, or headers or
 choices.
 """
 
-from django.contrib.auth.mixins import UserPassesTestMixin,\
-    LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User, Group
-from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin,\
+    PermissionRequiredMixin
 from django.views.generic import DetailView, ListView
-from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView,\
     DeleteView
 from django.urls import reverse_lazy

@@ -27,6 +27,7 @@ class Skill(models.Model):
     name = models.CharField(max_length=100)
     # done like the to prevent circular imports
     prerequisites = GenericRelation('rules.Prerequisite')
+    prerequisite_groups = GenericRelation('rules.PrerequisiteGroup')
     tag = models.CharField(max_length=100, blank=True, default='')
     description = HTMLField(blank=False)
     single_flag = models.BooleanField(
@@ -122,6 +123,7 @@ class Header(models.Model):
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
     # done like the to prevent circular imports
     prerequisites = GenericRelation('rules.Prerequisite')
+    prerequisite_groups = GenericRelation('rules.PrerequisiteGroup')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
     created_by = models.ForeignKey(

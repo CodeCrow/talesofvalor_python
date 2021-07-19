@@ -1,7 +1,8 @@
 """
 Describes special rules for skills, headers, origins.
 """
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey,\
+    GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -170,3 +171,36 @@ class Prerequisite(models.Model):
 
         Any of these can be attached to any object.
         """
+
+
+class PrerequisiteGroup(models.Model):
+    """
+    A grouping of prerequisites that can be combined with "AND" or "OR"
+    """
+    OR = 'OR'
+    AND = 'AND'
+    OPERATOR_CHOICES = [
+        (OR, 'or'),
+        (AND, 'and'),
+    ]
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=models.Q(
+            app_label='origins', model='Origin'
+        ) | models.Q(
+            app_label='skills', model='Header'
+        ) | models.Q(
+            app_label='skills', model='Skill'
+        )
+
+    )
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    operator = models.CharField(
+        max_length=3,
+        choices=OPERATOR_CHOICES,
+        default=OR,
+    )
+    # done like the to prevent circular imports
+    prerequisites = GenericRelation('rules.Prerequisite')

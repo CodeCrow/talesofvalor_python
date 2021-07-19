@@ -9,13 +9,15 @@ from django.views.generic.edit import CreateView, UpdateView,\
     DeleteView
 from django.views.generic import DetailView, ListView
 
+from talesofvalor.rules.forms import PrerequisiteFormSet
+
 from .models import Header, Skill
-from .forms import SkillForm, HeaderSkillFormSet, RuleFormSet,\
-    PrerequisiteFormSet
+from .forms import SkillForm, HeaderSkillFormSet, RuleFormSet
 
 
 INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "open_flag"]
 INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "attention_flag", "bgs_flag"]
+
 
 class HeaderCreateView(PermissionRequiredMixin, CreateView):
     """

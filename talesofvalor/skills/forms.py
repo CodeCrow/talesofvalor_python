@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.forms import generic_inlineformset_factory
 
-from talesofvalor.rules.models import Rule, Prerequisite
+from talesofvalor.rules.models import Rule
 
 from .models import Skill, HeaderSkill
 
@@ -35,13 +35,6 @@ HeaderSkillFormSet = forms.inlineformset_factory(
 
 RuleFormSet = generic_inlineformset_factory(
     Rule,
-    fields='__all__',
-    extra=1,
-    can_delete=True
-)
-
-PrerequisiteFormSet = generic_inlineformset_factory(
-    Prerequisite,
     fields='__all__',
     extra=1,
     can_delete=True

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags add_query_params %}
+
+{% block title %}PELs{% endblock title %}
+
+{% block content %}
+
+<div class="row">
+    <div id="pel_list_filter" class="col-sm-7">
+        <div class="box">
+            Event
+        </div>
+    </div>
+    <div id="pel_list_actions" class="col-sm-5">
+    </div>
+</div>
+<div class="row">
+	<div class="col-sm-12">
+		<table id="player_list" class="list list-players">
+
+        {% regroup object_list by event as pel_list %}
+		    {% for event in pel_list %}
+        <tr>
+          <td colspan="2"><h2>{{ event.grouper }}</h2></td>
+        </tr>
+         <tr>
+          <th>Player</th>
+          <th>&nbsp;</th>
+        </tr>
+        {% for pel in event.list%}
+          <tr>
+              <td><a href="{% url 'players:player_detail' username=pel.player.user.get_username %}">{{ pel.player }}</a></td>
+              <td><a href="{% url 'players:pel_detail' pk=pel.id %}">View</a></td>
+          </tr>
+        {% endfor %}
+        {% empty %}
+        <tr><td colspan="2">No PELs Yet.</td></tr>
+		    {% endfor %}
+		</table>
+	</div>
+</div>
+
+{% include "includes/pagination.html" %}
+
+{% endblock content %}

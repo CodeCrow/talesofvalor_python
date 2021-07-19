@@ -27,6 +27,7 @@ REQUEST_STATUS_CHOICES = (
     (REFUSED, 'Refused'),
 )
 
+
 class Player(models.Model):
     """
     Player of a game.
@@ -262,10 +263,9 @@ class PEL(models.Model):
         auto_now=True,
         editable=False
     )
-    likes = models.TextField(blank=True, default='')
-    dislikes = models.TextField(blank=True, default='')
-    best_moments = models.TextField(blank=True, default='')
-    worst_moments = models.TextField(blank=True, default='')
+    favorites = models.TextField(blank=True, default='')
+    suggestions = models.TextField(blank=True, default='')
+    code = models.TextField(blank=True, default='')
     learned = models.TextField(blank=True, default='')
     data = HTMLField(blank=True, default='')
-    rating = models.PositiveIntegerField(choices=RATINGS_CHOICES)
+    rating = models.PositiveIntegerField(null=True, choices=RATINGS_CHOICES)

@@ -16,7 +16,7 @@ from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import DeleteView,\
+from django.views.generic.edit import DeleteView, UpdateView,\
     FormView, FormMixin
 from django.urls import reverse, reverse_lazy
 
@@ -27,10 +27,12 @@ from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
+from talesofvalor.events.models import Event
+
 from .forms import UserForm, PlayerForm, RegistrationForm,\
     MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
-    MassGrantCPForm, TransferCPForm
-from .models import Player, Registration
+    MassGrantCPForm, TransferCPForm, PELUpdateForm
+from .models import Player, Registration, PEL
 
 
 class PlayerUpdateView(
@@ -510,3 +512,68 @@ class MassGrantCPView(FormView):
             # we should raise an error here so users know there is a problem.
             messages.warning(self.request, 'No players selected for grant.')
         return super(MassGrantCPView, self).form_valid(form)
+
+
+class PELListView(PermissionRequiredMixin, ListView):
+    '''
+    List the PELs for staff memebers
+    '''
+    permission_required = ('players.view_any_player', )
+    model = PEL
+    paginate_by = 25  # if pagination is desired
+
+
+class PELDetailView(UserPassesTestMixin, DetailView):
+    '''
+    Show a particular PEL
+    '''
+    model = PEL
+    permission_required = ('pels.view_pel', )
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            pel = PEL.objects.get(player=self.object.player)
+            return (pel.player.user == self.request.user)
+        except PEL.DoesNotExist:
+            return False
+        return False
+
+
+class PELUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = PELUpdateForm
+
+    return_url = None
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_object(self):
+        '''
+        get the object for this update, or create it.
+        Object is retrieved based on the current user and the 
+        sent event.  If it does not exist, it is created.
+        '''
+        event = Event.objects.get(pk=self.kwargs['event_id'])
+        player = Player.objects.get(user__username=self.kwargs['username'])
+        pel_object, created = PEL.objects.get_or_create(event=event, player=player)
+        return pel_object
+
+
+    def form_valid(self, form):
+        '''
+        send the user back where they came from
+        Because they chould have come from an event list
+        or the PEL list
+        '''
+        self.return_url = form.cleaned_data['return_url']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        if self.return_url:
+            return self.return_url
+        return super().get_success_url()
+

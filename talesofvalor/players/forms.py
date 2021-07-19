@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
 
-from .models import Player
+from .models import Player, PEL
 
 
 class UserForm(forms.ModelForm):
@@ -188,3 +188,24 @@ class TransferCPForm(forms.Form):
                 params={'value': transfer_cps},
                 )
         return transfer_cps
+
+
+class PELUpdateForm(forms.ModelForm):
+    return_url = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        '''
+        set up how to return based on where you came from
+        '''
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+        self.return_url = self.request.META['HTTP_REFERER']
+        self.fields['return_url'].initial = self.return_url
+
+    class Meta:
+        model = PEL
+        fields = '__all__'
+        widgets = {
+            'player': forms.HiddenInput(),
+            'event': forms.HiddenInput()
+        }
