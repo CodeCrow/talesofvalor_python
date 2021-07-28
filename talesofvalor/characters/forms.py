@@ -17,6 +17,7 @@ NEW_PLAYER_FIELDS = [
     'people'
 ]
 
+
 class CharacterForm(forms.ModelForm):
     tradition = forms.ModelChoiceField(
         queryset=Origin.objects.filter(type=Origin.TRADITION),
@@ -35,7 +36,7 @@ class CharacterForm(forms.ModelForm):
             for origin in Origin.ORIGIN_TYPES:
                 # in case they had an origin that doesn't exist any more.
                 try:
-                    self.fields[origin[0]].initial = self.instance.origins.get(type=origin[0])
+                    self.fields[origin[0]].initial = self.instance.origins.filter(type=origin[0]).first()
                 except Origin.DoesNotExist:
                     pass
         # adjust fields for different users
