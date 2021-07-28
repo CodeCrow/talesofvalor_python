@@ -3,14 +3,13 @@ Origins (Attributes) of characters.
 
 Describes character traits that are not learned or used in game.
 
-These would be things like "race", "nationality", "caste".
+These would be things like "peple", "nationality", "caste".
 
 This should not be something that can be changed or learned.
 
 These attributes may have an affect on the cost of abilities or grant
 abilities or headers.
 """
-from datetime import date
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -28,17 +27,17 @@ class Origin(models.Model):
     This will describe the attributes of a character.
     """
 
-    RACE = 'race'
-    BACKGROUND = 'background'
+    PEOPLE = 'people'
+    TRADITION = 'tradition'
     ORIGIN_TYPES = (
-        (RACE, 'Race'),
-        (BACKGROUND, 'Background'),
+        (PEOPLE, 'People'),
+        (TRADITION, 'Tradition'),
     )
     name = models.CharField(_("Name"), blank=False, max_length=100)
     description = HTMLField(blank=False)
     type = models.CharField(
         _("Type"),
-        default=RACE,
+        default=PEOPLE,
         choices=ORIGIN_TYPES,
         max_length=15
     )

@@ -100,12 +100,12 @@ class Character(models.Model):
             return "{}".format(self.name)
 
     @property
-    def background(self):
-        return self.origins.get(type=Origin.BACKGROUND)
+    def tradition(self):
+        return self.origins.get(type=Origin.TRADITION)
 
     @property
-    def race(self):
-        return self.origins.get(type=Origin.RACE)
+    def people(self):
+        return self.origins.get(type=Origin.PEOPLE)
 
     @property
     def skillhash(self):

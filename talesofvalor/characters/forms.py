@@ -13,16 +13,16 @@ PLAYER_ALLOWED_FIELDS = [
     'player_notes'
 ]
 NEW_PLAYER_FIELDS = [
-    'background',
-    'race'
+    'tradition',
+    'people'
 ]
 
 class CharacterForm(forms.ModelForm):
-    background = forms.ModelChoiceField(
-        queryset=Origin.objects.filter(type=Origin.BACKGROUND),
+    tradition = forms.ModelChoiceField(
+        queryset=Origin.objects.filter(type=Origin.TRADITION),
     )
-    race = forms.ModelChoiceField(
-        queryset=Origin.objects.filter(type=Origin.RACE),
+    people = forms.ModelChoiceField(
+        queryset=Origin.objects.filter(type=Origin.PEOPLE),
     )
 
     def __init__(self, *args, **kwargs):
