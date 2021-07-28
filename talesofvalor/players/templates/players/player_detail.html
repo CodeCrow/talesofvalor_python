@@ -34,7 +34,7 @@
             <ul>
             {% for event in future_event_list %}
                 <li>{{ event }} - <a href="{% url 'registration:list' event=event.id %}">Registration</a><br />
-                 - <a href="{% url 'betweengameskills:bgs_list' event_id=event.id username=object.user.get_username %}">BGS</a></li>
+                 - <a href="{% url 'betweengameskills:betweengameskill_list' %}?event_id={{ event.id}}&username={{ object.user.get_username }}">BGS</a></li>
             {% endfor %}
             </ul>
             <hr />
@@ -42,7 +42,7 @@
             <ul>
             {% for event in past_event_list %}
                 <li>{{ event }} - <a href="{% url 'registration:list' event=event.id %}">Registration</a><br />
-                 <a href="{% url 'players:pel_update' event_id=event.id username=object.user.get_username %}">PEL</a> - <a href="{% url 'betweengameskills:bgs_list' event_id=event.id username=object.user.get_username %}">BGS</a></li>
+                 <a href="{% url 'players:pel_update' event_id=event.id username=object.user.get_username %}">PEL</a> - <a href="{% url 'betweengameskills:betweengameskill_list' %}?event_id={{ event.id}}&username={{ object.user.get_username }}">BGS</a></li>
             {% endfor %}
             </ul>
         </div>
