@@ -6,7 +6,7 @@ to players.
 """
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -101,11 +101,17 @@ class Character(models.Model):
 
     @property
     def tradition(self):
-        return self.origins.get(type=Origin.TRADITION)
+        try:
+            return self.origins.get(type=Origin.TRADITION)
+        except MultipleObjectsReturned:
+            return self.origins.filter(type=Origin.TRADITION).first()
 
     @property
     def people(self):
-        return self.origins.get(type=Origin.PEOPLE)
+        try:
+            return self.origins.get(type=Origin.PEOPLE)
+        except MultipleObjectsReturned:
+            return self.origins.filter(type=Origin.PEOPLE).first()
 
     @property
     def skillhash(self):
