@@ -1,87 +1,108 @@
 h2 {
-  font-size: 1.5em; }
+  font-size: 1.5em;
+}
 
 .heading {
   font-size: 1.3em;
-  font-weight: 600; }
+  font-weight: 600;
+}
 
 li.heading {
-  list-style: none; }
+  list-style: none;
+}
 
 table.list {
-  width: 100%; }
-  table.list td {
-    padding: 1em .25em;
-    vertical-align: top; }
+  width: 100%;
+}
+table.list td {
+  padding: 1em 0.25em;
+  vertical-align: top;
+}
 
 li.heading {
-  margin-left: -1em; }
+  margin-left: -1em;
+}
 
 .nav {
-  padding-left: 0; }
+  padding-left: 0;
+}
 
 .nav li {
   display: inline;
   list-style-type: none;
-  padding-right: 20px; }
+  padding-right: 20px;
+}
 
 .box {
   margin: 0.25em;
   padding: 1em;
   border: 1px solid #000;
   border-radius: 1em;
-  position: relative; }
+  position: relative;
+}
 
 .item-navigation {
-  margin-right: 0.25em; }
+  margin-right: 0.25em;
+}
 
 .content-align-right {
-  text-align: right; }
+  text-align: right;
+}
 
-input[type='checkbox'] {
-  margin: 0 .5rem; }
+input[type=checkbox] {
+  margin: 0 0.5rem;
+}
 
 .data td, .data th {
-  padding: 0.25em; }
-
+  padding: 0.25em;
+}
 .data tr th:first-child {
   text-align: right;
-  vertical-align: top; }
+  vertical-align: top;
+}
 
 .point-input {
-  width: 4rem; }
+  width: 4rem;
+}
 
 .event-registration h2 {
-  margin-top: 0; }
-
+  margin-top: 0;
+}
 .event-registration td:first-child {
   vertical-align: top;
-  padding: 0.25em 1.0em 0 0; }
+  padding: 0.25em 1em 0 0;
+}
 
 #player_transfer_cp #id_amount {
-  width: 4em; }
+  width: 4em;
+}
 
 .tabs {
   position: relative;
   min-height: 100px;
   /* This part sucks */
   clear: both;
-  margin: 25px 0; }
-  .tabs .delete-row {
-    line-height: 2.25em;
-    margin-left: 2em; }
+  margin: 25px 0;
+}
+.tabs .delete-row {
+  line-height: 2.25em;
+  margin-left: 2em;
+}
 
 .tab {
-  float: left; }
+  float: left;
+}
 
 .tab label {
   background: #eee;
-  padding: .25em 1em;
+  padding: 0.25em 1em;
   border: 1px solid #ccc;
-  position: relative; }
+  position: relative;
+}
 
 .tab [type=radio] {
-  display: none; }
+  display: none;
+}
 
 .tab-content {
   position: absolute;
@@ -91,39 +112,50 @@ input[type='checkbox'] {
   right: 0;
   bottom: 0;
   padding: 20px;
-  border: 1px solid #ccc; }
+  border: 1px solid #ccc;
+}
 
 [type=radio]:checked ~ label {
   background: white;
   border-bottom: 1px solid white;
-  z-index: 2; }
+  z-index: 2;
+}
 
 [type=radio]:checked ~ label ~ .tab-content {
-  z-index: 1; }
+  z-index: 1;
+}
 
 #player_list_filter_submit {
   position: absolute;
   bottom: 1em;
-  right: 1em; }
+  right: 1em;
+}
 
 .rule {
-  padding: 1em 0.5em; }
+  padding: 1em 0.5em;
+}
 
 .list-characters td:first-child {
-  width: 30%; }
+  width: 30%;
+}
 
 .portrait {
-  float: right; }
+  float: right;
+}
 
 .alternating-container > *:nth-of-type(even) {
-  background: #e0e0e0; }
+  background: #e0e0e0;
+}
 
 html {
-  box-sizing: border-box; }
+  box-sizing: border-box;
+}
 
 *, *:before, *:after {
-  box-sizing: inherit; }
+  box-sizing: inherit;
+}
 
 body {
   margin: 0;
-  padding: 0; }
+  padding: 0;
+}

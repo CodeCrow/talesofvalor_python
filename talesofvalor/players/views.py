@@ -562,11 +562,10 @@ class PELUpdateView(LoginRequiredMixin, UpdateView):
         pel_object, created = PEL.objects.get_or_create(event=event, player=player)
         return pel_object
 
-
     def form_valid(self, form):
         '''
         send the user back where they came from
-        Because they chould have come from an event list
+        Because they could have come from an event list
         or the PEL list
         '''
         self.return_url = form.cleaned_data['return_url']

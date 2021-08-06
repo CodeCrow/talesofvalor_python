@@ -4,8 +4,8 @@
  * https://github.com/tunderdomb/rebase
  */
 
-var gulp = require('gulp'),
-    sass = require('gulp-sass'),
+var {gulp, src, dest, watch, series, parallel} = require('gulp'),
+    sass = require('gulp-sass')(require('sass')),
     path = require('path'),    
     browserify = require('browserify'),
     source = require('vinyl-source-stream'),
@@ -20,32 +20,44 @@ var gulp = require('gulp'),
     };
 
 
-
-gulp.task('sass', function () {
-  return gulp.src(paths.scss)
-    .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest(paths.css));
-});
-
-gulp.task('browserify', function () {
+var js_build = function (done) {
     var b = browserify({
             entries: [paths.js]
         });
     return b.bundle()
         .pipe(source('main.js'))
-        .pipe(gulp.dest('static_global/js'));
-});
+        .pipe(dest('static_global/js/'));
+};
 
-gulp.task('build', ['sass','browserify'], function(){
+var style_build = function (done) {
+    // Run tasks on all Sass files
+    return src(paths.scss)
+        .pipe(sass({
+            outputStyle: 'expanded',
+            sourceComments: true,
+            includePaths:[
+            ]
+        }))
+        .pipe(dest(paths.css));
 
-});
+};
+
+var watch_source = function (done) {
+    watch(paths.scss, series(style_build));
+    watch(paths.js_source, series(js_build));
+    done();
+};
 
 
-gulp.task('watch', function () {
-    gulp.watch(paths.scss, ['sass']);
-    gulp.watch(paths.js_source, ['browserify']);
-});
+// gulp build
+exports.build = series(
+    style_build,
+    js_build
+);
 
-gulp.task('default', ['build', 'watch'], function () {
-
-});
+// Default task
+// gulp watch
+exports.default = series(
+    exports.build,
+    watch_source
+);
