@@ -384,11 +384,11 @@ class PlayerListView(LoginRequiredMixin, ListView):
         registered_for = self.request.GET.get('registered_for', None)
         if registered_for:
             # get a list of players who are registered for the selected event.
-            registered_players = Registration.objects.filter(event=registered_for).values_list('id', flat=True)
+            registered_players = Registration.objects.filter(event=registered_for).values_list('player__id', flat=True)
             queryset = queryset.filter(id__in=registered_players)
         attended = self.request.GET.get('attended', None)
         if attended:
-            attended_players = Attendance.objects.filter(event=attended).values_list('id', flat=True)
+            attended_players = Attendance.objects.filter(event=attended).values_list('player__id', flat=True)
             queryset = queryset.filter(id__in=attended_players)
         select = self.request.GET.get('select', None)
         if select:
