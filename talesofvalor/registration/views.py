@@ -2,8 +2,9 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.core import mail
-from django.urls import reverse
-from django.views.generic import FormView, TemplateView, ListView
+from django.http import HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import FormView, TemplateView, ListView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from paypalcheckoutsdk.orders import OrdersGetRequest
@@ -238,3 +239,15 @@ class RegistrationRequestDetailView(
         except Player.DoesNotExist:
             return False
         return False
+
+
+class RegistrationRequestDeleteView(PermissionRequiredMixin, DeleteView):
+    """
+    Removes a request for registration that a user has.
+
+    This is so someone can get rid of abandoned requests.
+    """
+    template_name = "registration/registration_delete.html"
+    model = RegistrationRequest
+    permission_required = ('registration.delete_registration', )
+    success_url = reverse_lazy('registration:create')

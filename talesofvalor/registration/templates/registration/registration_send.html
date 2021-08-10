@@ -7,7 +7,10 @@
 {% for request in registration_requests %}
 	<h2>{{ request.event_registration_item.name }} &mdash; ${{ request.cost }}</h2>
 	{% if request.mealplan_flag%}(includes meal plan){% endif %}
-	<div class="paypal-container" id="paypal-button-container_{{ request.id }}"></div>
+	<div class="registration-request">
+		<div class="paypal-container" id="paypal-button-container_{{ request.id }}"></div>
+		<a href="{% url "registration:request_delete" pk=request.id %}" class="btn btn-danger">Remove Registration</a>
+	</div>
 {% endfor %}
 <div class="hidden" id="paypal_wait_message">
 	Loading request.  Please be patient . . . 

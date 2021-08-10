@@ -1,0 +1,7 @@
+.registration-request {
+	border-bottom: dotted $divider-color 1px;
+	padding: 1em;
+	&:last-child {
+		border-bottom: none;
+	}
+}

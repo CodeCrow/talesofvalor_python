@@ -131,6 +131,14 @@ input[type=checkbox] {
   right: 1em;
 }
 
+.registration-request {
+  border-bottom: dotted #333 1px;
+  padding: 1em;
+}
+.registration-request:last-child {
+  border-bottom: none;
+}
+
 .rule {
   padding: 1em 0.5em;
 }
