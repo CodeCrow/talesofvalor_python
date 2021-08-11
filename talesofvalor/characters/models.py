@@ -19,7 +19,7 @@ from talesofvalor.skills.models import Header, Skill
 from talesofvalor.origins.models import Origin
 
 
-STARTING_POINTS = 20
+STARTING_POINTS = 30
 
 
 class Character(models.Model):
