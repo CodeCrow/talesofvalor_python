@@ -41,11 +41,13 @@
  
           </div>
       </div>
+      {% if perms.skills.add_header %}
       <div class="col-sm-8">
           <div class="box text-right">
             <a class="btn btn-primary" href="{% url 'skills:header_create' %}">add header</a>
           </div>
       </div>
+      {% endif %}
   </div>
 
 <div class="row col-sm-12">
@@ -61,8 +63,8 @@
     <td>{{ header.description|truncatewords_html:10 }}</td>
     <td>
         <nav class="item-navigation">
-            <a href="{% url 'skills:header_update' pk=header.id %}">Edit</a>
-            <a href="{% url 'skills:header_delete' pk=header.id %}">Destroy</a>
+            {% if perms.skills.change_header %}<a href="{% url 'skills:header_update' pk=header.id %}">Edit</a>&nbsp;|&nbsp;{% endif %}
+            {% if perms.skills.delete_header %}<a href="{% url 'skills:header_delete' pk=header.id %}">Destroy</a>{% endif %}
         </nav>
     </td> 
 </tr>

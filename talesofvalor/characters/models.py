@@ -19,6 +19,9 @@ from talesofvalor.skills.models import Header, Skill
 from talesofvalor.origins.models import Origin
 
 
+STARTING_POINTS = 20
+
+
 class Character(models.Model):
     """
     Character a player can play.
@@ -54,7 +57,7 @@ class Character(models.Model):
     npc_flag = models.BooleanField(default=False)
     active_flag = models.BooleanField(default=False)
     cp_spent = models.PositiveIntegerField(default=0)
-    cp_available = models.PositiveIntegerField(default=0)
+    cp_available = models.PositiveIntegerField(default=STARTING_POINTS)
     cp_transferred = models.PositiveIntegerField(default=0)
     # The headers and skills that a character has.
     headers = models.ManyToManyField(Header)
