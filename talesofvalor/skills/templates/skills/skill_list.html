@@ -63,8 +63,8 @@
     <td><p>{% for h in skill.header_set.all %}<a href="{% url 'skills:header_detail' pk=h.id %}">{{ h }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p></td>
     <td>
         <nav class="item-navigation">
-            <a href="{% url 'skills:skill_update' pk=skill.id %}">Edit</a>
-            <a href="{% url 'skills:skill_delete' pk=skill.id %}">Destroy</a>
+            {% if perms.skills.change_skills %}<a href="{% url 'skills:skill_update' pk=skill.id %}">Edit</a>&nbsp;|&nbsp;{% endif %}
+            {% if perms.skills.delete_skills %}<a href="{% url 'skills:skill_delete' pk=skill.id %}">Destroy</a>{% endif %}
         </nav>
     </td> 
 </tr>
