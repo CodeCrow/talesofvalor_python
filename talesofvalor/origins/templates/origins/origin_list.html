@@ -9,11 +9,13 @@
 
 
 <table class="list">
+{% if perms.origins.add_origins %}
 <tr>
     <td class="table-navigation content-align-right" colspan="4">
         <a class="btn btn-primary" href="{% url 'origins:origin_create' %}">add origin</a>
     </td>
 </tr>
+{% endif %}
 <tr>
     <th>Name</th>
     <th>Description</th>
@@ -22,14 +24,14 @@
 </tr>
 {% for origin in object_list %}
 <tr>
-    <td><p><a href="{% url 'origins:origin_update' pk=origin.id %}">{{ origin.name }}</a></p></td>
+    <td><p><a href="{% url 'origins:origin_detail' pk=origin.id %}">{{ origin.name }}</a></p></td>
     <td>{{ origin.description|truncatewords_html:10 }}</td>
     <td><p>{{ origin.type }}</p></td>
     <td>
         <nav class="item-navigation">
-            <a href="{% url 'origins:origin_update' pk=origin.id %}">Edit</a>
-            <a href="{% url 'origins:origin_addskill' pk=origin.id %}">Add Skills</a>
-            <a href="{% url 'origins:origin_delete' pk=origin.id %}">Destroy</a>
+            {% if perms.origins.change_origins %}<a href="{% url 'origins:origin_update' pk=origin.id %}">Edit</a>&nbsp;|&nbsp;{% endif %}
+            {% if perms.origins.change_origins %}<a href="{% url 'origins:origin_addskill' pk=origin.id %}">Add Skills</a>&nbsp;|&nbsp;{% endif %}
+            {% if perms.origins.delete_origins %}<a href="{% url 'origins:origin_delete' pk=origin.id %}">Destroy</a>{% endif %}
         </nav>
     </td> 
 </tr>

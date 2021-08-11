@@ -60,7 +60,7 @@ class OriginDetailView(DetailView):
     fields = '__all__'
 
 
-class OriginAddSkillView(LoginRequiredMixin, FormView):
+class OriginAddSkillView(PermissionRequiredMixin, FormView):
     """
     Add skills to the Origin/Background.
 
@@ -69,6 +69,7 @@ class OriginAddSkillView(LoginRequiredMixin, FormView):
     """
     template_name = 'origins/origin_addskill.html'
     form_class = OriginAddSkillForm
+    permission_required = ('origins.add_origin', )
 
     def get_success_url(self):
         """
