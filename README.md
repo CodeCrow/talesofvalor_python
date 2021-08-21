@@ -199,3 +199,10 @@ Example Error:
 To fix the error, you can either remove the constrait using a GUI such as [Sequel Pro](http://www.sequelpro.com/) or the following command:
 
 ``ALTER TABLE video_splvideoasset DROP FOREIGN KEY 'cmsplugin_ptr_id';``
+
+# Testing
+## Paypal
+1. go to paypal.com
+2. click "developer"
+3. log in with regular account
+4. Test user are under "accounts"
