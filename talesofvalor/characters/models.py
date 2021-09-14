@@ -155,8 +155,9 @@ class Character(models.Model):
                         return False
                 # check for header/skill requirements
                 if prereq.header:
-                    if prereq.header not in self.headers:
-                        return False
+                    for h in prereq.header:
+                        if h not in self.headers:
+                            return False            
                     # check for the number of different skills in the header.
                     purchased_skills = self.skills.filter(headerskill__header_id=prereq.header.id)
                     print(purchased_skills)

@@ -263,14 +263,29 @@ class CharacterAddHeaderView(APIView):
         print("CHARACTER HEADERS:{}".format(character.headers.all()))
         # check that the header is allowed.
         print("HEADER CHECK:{}".format(character.check_header_prerequisites(header)))
+        # Default to error.
+        content = {
+            'error': "prerequisites not met"
+        }
+
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
         if character.check_header_prerequisites(header):
-            character.headers.add(header)
-        # otherwise, return an error
-        content = {
-            'success': "testing right now"
-        }
+            # see if the character has enough points to add the header
+            if (character.cp_available - header.cost) > 0:
+                print("HEADER:{}".format(header.__dict__))
+                character.cp_available -= header.cost
+                character.cp_spent += header.cost
+                character.headers.add(header)
+                print("CHARACTER:{}".format(character.__dict__))
+                character.save()
+                content = {
+                    'success': "header added"
+                }
+            else: 
+                content = {
+                    'error': "not enough points"
+                }
 
         return Response(content)
 
@@ -293,15 +308,32 @@ class CharacterAddSkillView(APIView):
         skill = Skill.objects.get(pk=skill_id)
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
-        print("CHARACTER HEADERS:{}".format(character.headers.all()))
+        print("CHARACTER SKILLS:{}".format(character.skills.all()))
         # check that the skill is allowed.
-        print("HEADER CHECK:{}".format(character.check_skill_prerequisites(header)))
+        print("SKILL CHECK:{}".format(character.check_skill_prerequisites(skill, header)))
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
         # otherwise, return an error
         content = {
             'success': "testing right now"
         }
+        if character.check_skill_prerequisites(skill, header):
+            # see if the character has enough points to add the header
+            if (character.cp_available - header.cost) > 0:
+                print("HEADER:{}".format(header.__dict__))
+                character.cp_available -= header.cost
+                character.cp_spent += header.cost
+                character.headers.add(header)
+                print("CHARACTER:{}".format(character.__dict__))
+                character.save()
+                content = {
+                    'success': "header added"
+                }
+            else: 
+                content = {
+                    'error': "not enough points"
+                }
+
 
         return Response(content)
 
