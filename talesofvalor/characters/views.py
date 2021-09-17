@@ -320,12 +320,6 @@ class CharacterAddSkillView(APIView):
         if character.check_skill_prerequisites(skill, header):
             # see if the character has enough points to add the header
             if (character.cp_available - header.cost) > 0:
-                print("HEADER:{}".format(header.__dict__))
-                character.cp_available -= header.cost
-                character.cp_spent += header.cost
-                character.headers.add(header)
-                print("CHARACTER:{}".format(character.__dict__))
-                character.save()
                 content = {
                     'success': "header added"
                 }
