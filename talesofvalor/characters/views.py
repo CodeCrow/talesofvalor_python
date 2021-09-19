@@ -279,6 +279,7 @@ class CharacterAddHeaderView(APIView):
                 character.headers.add(header)
                 print("CHARACTER:{}".format(character.__dict__))
                 character.save()
+                print("SKILLS:{}".format(header.skills.all()))
                 content = {
                     'success': "header added"
                 }

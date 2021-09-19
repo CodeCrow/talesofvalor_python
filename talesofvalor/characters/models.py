@@ -126,7 +126,7 @@ class Character(models.Model):
         print("HEADERS:")
         print(self.headers.all())
         # go throught the hash and figure out what headers have had the
-        # prerequisites met . . .
+        # prerequisites met . . .   
         
         return skillhash
 
@@ -160,7 +160,7 @@ class Character(models.Model):
                             return False            
                     # check for the number of different skills in the header.
                     purchased_skills = self.skills.filter(headerskill__header_id=prereq.header.id)
-                    print(purchased_skills)
+                    print("PURCHASED SKILLS:{}".format(purchased_skills))
                     if prereq.number_of_different_skills > self.skills.filter(headerskill__header_id=prereq.header.id).count(): 
                         return False
                     # figure out the total skill points
