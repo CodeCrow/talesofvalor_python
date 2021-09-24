@@ -66,6 +66,11 @@ class Skill(models.Model):
 
     class Meta:
         ordering = ['tag', 'name']
+        """Add permissions."""
+
+        permissions = (
+            ("view_all_skills", "View All Skills when choosing"),
+        )
 
     def __str__(self):
         return self.name
@@ -81,10 +86,13 @@ class Skill(models.Model):
     def skillhash(cls):
         """
         Create the base hash of skills and costs.
-
+        {
+            3: {6: 4, 7: 3, 8: 4, 9: 2, 10: 2, 11: 1, 12: 4, 13: 4, 'cost': 0}, 
+            14: {26: 0, 27: 0, 36: 1, 38: 1, 39: 1, 41: 1, 42: 3, 'cost': 0},
+        }
         It will be updated by the character.
         """
-        headers = Header.objects.all()
+        headers = Header.objects.all().order_by('-open_flag')
         skill_hash = {
             h.id: {
                 s.skill_id: s.cost

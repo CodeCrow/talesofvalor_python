@@ -220,6 +220,16 @@ class CharacterSkillUpdateView(
         for the player to spend points.
         """
         context['grants'] = self.object.grants
+
+        # if this is a user who can see all skills, just return the skill hash.
+        '''
+        if self.request.user.has_perm('players.view_all_skills'):
+            context['skill_hash'] = Skill.skillhash()
+        else:
+            # otherwise, limit the displayed skills to those the character
+            # should have.
+            context['skill_hash'] = self.object.skillhash
+        '''
         context['skill_hash'] = self.object.skillhash
         return context
 

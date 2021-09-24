@@ -125,8 +125,11 @@ class Character(models.Model):
         # update skillhash with skills the character has.
         print("HEADERS:")
         print(self.headers.all())
-        # go throught the hash and figure out what headers have had the
+        # go throught the headers and figure out what headers have had the
         # prerequisites met . . .   
+        for h, skills in skillhash.items():
+            print("header:{}:{}".format(h, skills))
+            # if the header is open, or if the user bought it.
         
         return skillhash
 

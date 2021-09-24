@@ -1,3 +1,8 @@
+# Useful and reference links
+* [Installing MySQL on OS X](https://ruddra.com/install-mysqlclient-macos/) 
+* [Django](https://www.djangoproject.com/)
+* [Django CMS](https://docs.django-cms.org/en/latest/)
+
 # Installation
 
 ## Get the code
