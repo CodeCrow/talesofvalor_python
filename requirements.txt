@@ -79,4 +79,4 @@ Unidecode==0.4.20
 update==0.0.1
 urllib3==1.25.3
 webencodings==0.5.1
-wiki==0.7.3
+wiki==0.7.9
