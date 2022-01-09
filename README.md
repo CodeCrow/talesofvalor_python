@@ -14,6 +14,8 @@ $ git clone https://github.com/CodeCrow/talesofvalor_python.git
 $ cd talesofvalor_python
 ```
 
+## Get repo write permission
+Send your git username to Rob Archer so he can give you write permission to the repo.
 
 ## Set up virtual environment
 
