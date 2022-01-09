@@ -275,3 +275,8 @@ class PEL(models.Model):
     learned = models.TextField(blank=True, default='')
     data = HTMLField(blank=True, default='')
     rating = models.PositiveIntegerField(null=True, choices=RATINGS_CHOICES)
+    heavy_armor_worn_flag = models.BooleanField(
+    	_('Character wore heavy armor this event?'),
+    	help_text=_('This character wore heavy armor the entire event.'),
+    	default=False
+    )
