@@ -244,3 +244,10 @@ or at the more granular level, the Issues list:
 
 If you change a model and need to migrate the changes to the database:
 $ ./manage.py makemigrations --settings=talesofvalor.settings.local
+
+Nuking and re-creating the database:
+in mysql using a db snapshot:
+> drop database talesofvalor
+> source path/to/filename
+or use migrate to minimally repopulate:
+$ ./manage.py migrate --settings=talesofvalor.settings.local
