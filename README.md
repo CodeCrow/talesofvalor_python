@@ -27,6 +27,13 @@ And make sure it is upgraded:
 python3 -m pip install --user --upgrade pip
 ```
 
+On Windows: 
+
+```
+talesofvalor_python.virtualenv\Scripts\python.exe -m pip install --upgrade pip
+```
+
+
 Tales of Valor will be using the virtual environment managment that comes with Python 3:
 
 
@@ -41,6 +48,12 @@ Activate the environment (which will have to be done each time you work on the c
 ```
 source .virtualenv/bin/activate
 
+```
+
+On Windows, use:
+
+```
+\.virtualenv\Scripts\activate.bat
 ```
 
 The prompt should now change:
