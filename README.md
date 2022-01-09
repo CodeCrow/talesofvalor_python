@@ -232,3 +232,8 @@ To fix the error, you can either remove the constrait using a GUI such as [Seque
 2. click "developer"
 3. log in with regular account
 4. Test user are under "accounts"
+
+## Once you have everything working, how do you restart everything when you've been away for a few days
+In separate terminal windows, activate the venv and then run:
+* ./manage.py runserver --settings=talesofvalor.settings.local
+* gulp
