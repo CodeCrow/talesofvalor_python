@@ -237,3 +237,5 @@ To fix the error, you can either remove the constrait using a GUI such as [Seque
 In separate terminal windows, activate the venv and then run:
 * ./manage.py runserver --settings=talesofvalor.settings.local
 * gulp
+and then on github, look at the Projects page to see the todo list:
+  https://github.com/CodeCrow/talesofvalor_python/projects
