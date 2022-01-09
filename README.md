@@ -261,3 +261,4 @@ Importing an exported db:
    mysql> create database new_database_name;
 5. mysql> use new_database_name
 6. mysql> source path/to/export/file
+7. Go to the local settings file (typically ROOT/talesofvalor/settings/local.py ) and update the database's NAME
