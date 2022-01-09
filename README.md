@@ -144,6 +144,12 @@ Run the initial migrations in case there are differences between the development
 $ ./manage.py migrate --settings=talesofvalor.settings.local
 ```
 
+# Set up the super user
+To be able to log in for the first time (or if you forget your logins!) you have to create a "superuser".
+
+```
+$ ./manage.py createsuperuser --settings=talesofvalor.settings.local
+```
 
 # Run the development server
 So you can now develop locally.
