@@ -44,7 +44,7 @@ class Player(models.Model):
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
     player_pronouns = models.CharField(max_length=25, default='')
-    print(f'**** Player instantiate: player_pronouns {player_pronouns.__dict__}')
+
 
     def __str__(self):
         """General display of model."""
