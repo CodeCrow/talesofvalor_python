@@ -27,6 +27,12 @@ Player: {{ object.player }}
 {% block js %}
     {{ block.super }}
     <script type="text/javascript">
+
+        var updateSkill = (vector) => {
+            console.log("vector:" + vector)
+
+        }
+
         $('.add-header').click((event) => {
             event.preventDefault();
             let header_id = $(event.currentTarget).data('header-id');
@@ -41,7 +47,9 @@ Player: {{ object.player }}
             });
             return false;
         });
-        $('.add-skill').click((event) => {
+        $('.update-skill').click((event) => {
+            console.log("updating skill");
+            updateSkill($(event.currentTarget).data('skill-vector'));
             event.preventDefault();
         });
     </script>
