@@ -239,3 +239,5 @@ In separate terminal windows, activate the venv and then run:
 * gulp
 and then on github, look at the Projects page to see the todo list:
   https://github.com/CodeCrow/talesofvalor_python/projects
+or at the more granular level, the Issues list:
+  https://github.com/CodeCrow/talesofvalor_python/issues
