@@ -251,3 +251,13 @@ in mysql using a db snapshot:
 > source path/to/filename
 or use migrate to minimally repopulate:
 $ ./manage.py migrate --settings=talesofvalor.settings.local
+
+Importing an exported db:
+1. Download the exported file
+2. Fire up mysql ("mysql" at the prompt)
+3. If you want to see what dbs exist:
+   show databases;
+4. Back at the mysql prompt:
+   mysql> create database new_database_name;
+5. mysql> use new_database_name
+6. mysql> source path/to/export/file
