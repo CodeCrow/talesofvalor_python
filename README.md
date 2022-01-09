@@ -241,3 +241,6 @@ and then on github, look at the Projects page to see the todo list:
   https://github.com/CodeCrow/talesofvalor_python/projects
 or at the more granular level, the Issues list:
   https://github.com/CodeCrow/talesofvalor_python/issues
+
+If you change a model and need to migrate the changes to the database:
+$ ./manage.py makemigrations --settings=talesofvalor.settings.local
