@@ -6,7 +6,11 @@
 {% block content %}
 <div class="container character">
 Player: {{ object.player }}
-<h1>{{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
+<div>
+    <span class="h1"> {{ object.name }} </span>
+    <span style="font-size: large"> {{ object.pronouns }} </span>
+    {% if object.active_flag %} (active){% endif %}
+</div> 
 <img class="portrait" src="{{ object.picture.url }}" alt="{{ object.name }}" />
 
 <nav>

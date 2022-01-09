@@ -47,6 +47,7 @@ class Character(models.Model):
         default='alive'
     )
     name = models.CharField(_("Character Name"), max_length=255)
+    pronouns = models.CharField('pronouns', max_length=25, default='')
     description = models.TextField(blank=True)
     history = models.TextField(blank=True)
     picture = FilerImageField(blank=True, null=True, on_delete=models.CASCADE)

@@ -7,6 +7,7 @@ from .models import Character
 
 PLAYER_ALLOWED_FIELDS = [
     'name',
+    'pronouns',
     'description',
     'history',
     'picture',
