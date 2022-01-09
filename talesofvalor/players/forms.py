@@ -50,13 +50,16 @@ class PlayerForm(forms.ModelForm):
         fields = [
             'game_started',
             'cp_available',
-            'staff_attention_flag'
+            'staff_attention_flag',
+            'player_pronouns'
         ]
 
 
 class RegistrationForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
+    player_pronouns = forms.CharField()
+
     email = forms.EmailField()
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)

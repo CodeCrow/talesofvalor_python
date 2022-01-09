@@ -267,6 +267,11 @@ class RegistrationView(FormView):
         # The player is automatically created using post_save signals
         # on the "Player" model
         self.instance = user.player
+        # This is where other custom player fields (not included in a django User)
+        # gets updated.
+        self.instance.player_pronouns = form.cleaned_data['player_pronouns']
+        # Don't forget to save!
+        self.instance.save()
         user = authenticate(
             username=user.username,
             password=form.cleaned_data['password']
@@ -375,7 +380,7 @@ class PlayerListView(LoginRequiredMixin, ListView):
         if (name.strip()):
             entry_query = get_query(
                 name,
-                ['user__username', 'user__first_name', 'user__last_name', 'user__email']
+                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'user__player_pronouns']
             )
             queryset = queryset.filter(entry_query)
         selected = self.request.GET.get('selected', False)

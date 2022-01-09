@@ -34,18 +34,24 @@ class Player(models.Model):
 
     An individual who is playing a game.  All users are players
     of some sort.
+
+    If you are adding a new field here (e.g., pronouns), it
+    also needs to be added to the registration view.
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     game_started = models.ForeignKey(Event, blank=True, null=True, on_delete=models.CASCADE)
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
+    player_pronouns = models.CharField(max_length=25, default='')
+    print(f'**** Player instantiate: player_pronouns {player_pronouns.__dict__}')
 
     def __str__(self):
         """General display of model."""
-        return "{} {}".format(
+        return "{} {} {}".format(
             self.user.first_name,
-            self.user.last_name
+            self.user.last_name,
+            self.player_pronouns
         )
 
     @property
