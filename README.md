@@ -262,3 +262,22 @@ Importing an exported db:
 5. mysql> use new_database_name
 6. mysql> source path/to/export/file
 7. Go to the local settings file (typically ROOT/talesofvalor/settings/local.py ) and update the database's NAME
+
+# Testing
+## Note: below instructions are for a windows machine
+1. Open project in VSCode
+2. Click 'View' > 'Terminal'
+3. In the terminal that opens in VSCode start the server using above method
+4. In the upper right hand side of the terminal click the dropdown and start a new terminal of your choice (I typically use CMD, but Powershell will also work)
+5. In the new terminal run
+```
+python .\talesofvalor\tests\SimpleTests.py
+```
+6. A instance of chrome should then open and attempt to log in to the sever as well as run other tests
+7. At the end of the tests you will see something to the effect of the following if all the tests passed otherwise you will get messages saying which tests failed. 
+```
+----------------------------------------------------------------------
+Ran 3 tests in 14.240s
+
+OK
+```
