@@ -72,22 +72,6 @@ pip install -r requirements.txt
 
 ## Set up the database:
 
-Start by creating a file named `.my.cnf` in your home directory (if you haven't already):
-
-```
-$ vim ~/.my.cnf
-```
-
-Next, paste the following block of text into the file replacing the user and password fields with your local MySQL credentials:
-
-```
-[client]
-user = username_here
-password = password_here
-default-character-set = utf8
-```
-
-Save the file and close it.
 
 ### Create a MySQL database for this project:
 
@@ -139,13 +123,8 @@ DATABASES = {
 }
 ```
 
-## database syncing
+## database and media syncing
 
-Now run `syncdb` to ensure the database and local settings are set up correctly:
-
-```
-$ ./manage.py syncdb --settings=talesofvalor.settings.local
-```
 
 Pull down the database and media files from the development server **not needed yet**:
 
@@ -231,8 +210,9 @@ To fix the error, you can either remove the constrait using a GUI such as [Seque
 1. go to paypal.com
 2. click "developer"
 3. log in with regular account
-4. Test user are under "accounts"
+4. Test users are under "accounts"
 
+# Continuing to work
 ## Once you have everything working, how do you restart everything when you've been away for a few days
 In separate terminal windows, activate the venv and then run:
 * ./manage.py runserver --settings=talesofvalor.settings.local
@@ -262,6 +242,96 @@ Importing an exported db:
 5. mysql> use new_database_name
 6. mysql> source path/to/export/file
 7. Go to the local settings file (typically ROOT/talesofvalor/settings/local.py ) and update the database's NAME
+
+## Get the latest code
+1. Navigate to where you have the code.
+2. Pull the newest code from the repository:
+  3. ```git pull```
+
+## Activate the virtual environment
+This loads the correct modules and prepares the code libraries
+
+1.  Navigate to where you have the code.
+2.  ```source .virtualenv/bin/activate``` 
+
+## Run the gulp compiler for styling and javascript
+1. Navigate to where you have the code.
+2. Start the compiler:
+   3. ```gulp``` 
+
+## Run the development server
+1. Navigate to where you have the code.
+2. Start the server:
+  3. ```./manage.py migrate --settings=talesofvalor.settings.local```
+
+## Update the database after making a change to any of the ```models.py``` files
+1. Create the migration files:
+  2.  ```./manage.py makemigrations --settings.talesofvalor.local```
+3. Run the migration files:
+  4.  ```./manage.py migrate --settings.talesofvalor.local```
+
+## Update the database from others' changes
+You are basically going to run the last step of updating the database, because other people have already created the migration files.
+
+1. Navigate to where you have the code.
+2. Run the migration
+  3. ```./manage.py migrate --settings.talesofvalor.local```
+
+## Removing and recreating the database
+If something has gone wrong, or you want start from scratch, data-wise, you can recreate the database.
+
+1.  Log into your local mysql server
+  2. ```mysql -u username -p```
+3. Drop the database:
+  4. ```DROP DATABASE databasename;```
+5. Exit mysql: 
+  6. ```exit;```
+7. Create the database again:
+  8. ```./manage.py migrate --settings=talesofvalor.settings.local```
+
+Remember, this gets rid of the entire database.  You'll have to recreate your superuser to log in again.  And there is no going back . . .
+
+## Getting the newest database from the production site
+
+If you want to get the database from the production site, so you can look at something or test something with valid data, you can log into the database online and export that.
+
+1. Enter 'mysql.talesofvalor.com' in your browser.
+2. Enter the username and password (Contact Rob Archer for that information)
+3. Choose 'talesof_rhiven' from the left hand list.
+4. Click 'Export' from the top navigation.
+5. Format the export as SQL and click the "Go" button.
+  6. You can change export method to 'custom' if you want more control.
+7. Save the SQL file somewhere on your machine and take note of the location.
+8. Open the command line on your machine.
+9. Log into your local mysql.
+  10. ```mysql -u username -p```
+11. Create a new database.
+  12. ```create database `talesofvalor_test` character set utf8;```
+  13. You can name it whatever you want.
+14. Indicate that you want to use that database:
+  15. ```use talesofvalor_test;```
+13. Load the data into the new database:
+  14. ```source path/to/exported/database;```
+15. Update the settings file to point to the new database:
+  16.  
+  
+  ```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'talesofvalor_test',
+        'USER': '############',
+        'PASSWORD': '############',
+        'HOST': '',                     
+        'PORT': '',                      # Set to empty string for default.
+        'OPTIONS': {
+        }
+     }
+}
+```
+  17.  make sure the 'NAME' here matches the name of the database you created.
+18. Restart the server.
+
 
 # Testing
 ## Setup
