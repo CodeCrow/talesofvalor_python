@@ -264,6 +264,13 @@ Importing an exported db:
 7. Go to the local settings file (typically ROOT/talesofvalor/settings/local.py ) and update the database's NAME
 
 # Testing
+## Setup
+if you have not already, in the virtual environment that you have created for TOV, run the following pip install command
+```
+pip install selenium
+```
+This will install the packaged needed to interface with a webdriver. For now there is a instance of chrome included in the repo.
+
 ## Note: below instructions are for a windows machine
 1. Open project in VSCode
 2. Click 'View' > 'Terminal'
