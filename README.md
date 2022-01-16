@@ -335,9 +335,10 @@ DATABASES = {
 
 # Testing
 ## Setup
-if you have not already, in the virtual environment that you have created for TOV, run the following pip install command
+if you have not already, in the virtual environment that you have created for TOV, run the following pip install commands
 ```
 pip install selenium
+pip install --upgrade mailosaur
 ```
 This will install the packaged needed to interface with a webdriver. For now there is a instance of chrome included in the repo.
 
