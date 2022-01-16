@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time 
 import page
+import uuid
+from mailosaur import MailosaurClient
 
 class TOVTests(unittest.TestCase):
     
@@ -12,19 +14,21 @@ class TOVTests(unittest.TestCase):
         self.driver = webdriver.Chrome()
         self.driver.get("http://127.0.0.1:8000/")
         self.driver.implicitly_wait(5)
+        self.mailosaur = MailosaurClient("0rKzKCj7G8x58VZQ")
+        self.emailDomain = "xpfj38ez.mailosaur.net"
         return super().setUp()
     
-    def test_Login(self):
+    def test_Login(self,username="animefreak4242",password="4Tdi5d$?&yT$ELEQ"):
         main_page = page.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches("Tales of Valor : Fellowship" ))
         main_page.click_login()
         LIPage = page.LogInPage(self.driver)
-        LIPage.username = "timtp"
-        LIPage.password = "Asti6464"
+        LIPage.username = username
+        LIPage.password = password
         LIPage.click_login_btn()
         self.assertTrue("Your username and password didn't match. Please try again." not in self.driver.page_source)
         header = self.driver.find_element(By.XPATH,"//h1")
-        self.assertTrue(header.text == "timtp")
+        self.assertTrue(header.text == username)
         
     def test_Bad_Password(self):
         main_page = page.MainPage(self.driver)
@@ -45,7 +49,40 @@ class TOVTests(unittest.TestCase):
         LIPage.password = "Asti6464"
         LIPage.click_login_btn()
         self.assertTrue("Your username and password didn't match. Please try again." in self.driver.page_source)
-        
+    
+    def test_duplicate_registration(self):
+        main_page = page.MainPage(self.driver)
+        self.assertTrue(main_page.is_title_matches("Tales of Valor : Fellowship" ))
+        main_page.click_register()
+        reg_page = page.RegisterPage(self.driver)
+        reg_page.firstname = "Tim"
+        reg_page.lastName = "Plummer"
+        reg_page.Pronouns = "he/him"
+        reg_page.email = "animefreak4242+test@gmail.com"
+        reg_page.username = "animefreak4242"
+        reg_page.password = "4Tdi5d$?&yT$ELEQ"
+        reg_page.passwordConfirm = "4Tdi5d$?&yT$ELEQ"
+        reg_page.click_save_changes_btn()
+        self.assertTrue("IntegrityError at /en/players/register/" in self.driver.page_source)
+
+    def test_random_registration(self):
+        main_page = page.MainPage(self.driver)
+        self.assertTrue(main_page.is_title_matches("Tales of Valor : Fellowship" ))
+        main_page.click_register()
+        reg_page = page.RegisterPage(self.driver)
+        reg_page.firstname = "Tester"
+        reg_page.lastName = "McTester"
+        reg_page.email = "tester.McTester@"+self.emailDomain
+        reg_page.Pronouns = "they/them"
+        reg_page.username = str(uuid.uuid4())[:15]
+        self.password = str(uuid.uuid4())[:15]
+        reg_page.password = self.password
+        reg_page.passwordConfirm = self.password
+        reg_page.click_save_changes_btn()
+        self.assertTrue("IntegrityError at /en/players/register/" not in self.driver.page_source)
+
+    def test_login_admin(self):
+        self.test_Login(username="timtp",password="Asti6464")
 
     def tearDown(self) -> None:
         time.sleep(1) #so that you can view the final page for a second before the page closes.

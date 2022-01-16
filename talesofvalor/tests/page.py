@@ -1,14 +1,26 @@
 from element import BasePageElement
 from locators import MainPageLocators
 from locators import LoginLocators
-
+from locators import RegisterLocators
 class UsernameElement(BasePageElement):
-    """This class gets the search text from the specified locator"""
     locator = "//input[@name='username']"
 
 class PasswordElement(BasePageElement):
-    """This class gets the search text from the specified locator"""
     locator = "//input[@name='password']"
+class PasswordConfirmElement(BasePageElement):
+    locator = "//input[@name='password_confirm']"
+
+class FirstNameElement(BasePageElement):
+    locator = "//input[@name='first_name']"
+
+class LastNameElement(BasePageElement):
+    locator = "//input[@name='last_name']"
+
+class PlayerPronounsElement(BasePageElement):
+    locator = "//input[@name='player_pronouns']"
+
+class EmailElement(BasePageElement):
+    locator = "//input[@name='email']"
 
 class BasePage(object):
     """Base class to initialize the base page that will be called from all
@@ -20,39 +32,35 @@ class BasePage(object):
 class MainPage(BasePage):
     """Home page action methods come here"""
 
-    #Declares a variable that will contain the retrieved text
     def is_title_matches(self,title):
-        """Verifies that the "Python" appears in page title"""
-
         return title in self.driver.title
 
     def click_login(self):
-        """Triggers the search"""
-
         element = self.driver.find_element(*MainPageLocators.LoginLink)
+        element.click()
+    def click_register(self):
+        element = self.driver.find_element(*MainPageLocators.RegistationLink)
         element.click()
 
 class LogInPage(BasePage):
-    """Home page action methods come here"""
-
-    #Declares a variable that will contain the retrieved text
     username = UsernameElement()
     password = PasswordElement()
     def is_title_matches(self,title):
-        """Verifies that the "Python" appears in page title"""
-
         return title in self.driver.title
 
     def click_login_btn(self):
-        """Triggers the search"""
-
         element = self.driver.find_element(*LoginLocators.LoginBtn)
         element.click()
 
-class SearchResultsPage(BasePage):
-    """Search results page action methods come here"""
+class RegisterPage(BasePage):
+    firstname = FirstNameElement()
+    lastName = LastNameElement()
+    username = UsernameElement()
+    password = PasswordElement()
+    passwordConfirm = PasswordConfirmElement()
+    email = EmailElement()
+    Pronouns = PlayerPronounsElement()
 
-    def is_login_success(self):
-        # Probably should search for this text in the specific page
-        # element, but as for now it works fine
-        return "No results found." not in self.driver.page_source
+    def click_save_changes_btn(self):
+        element = self.driver.find_element(*RegisterLocators.Save_Changes)
+        element.click()
