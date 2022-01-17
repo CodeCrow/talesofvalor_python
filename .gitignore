@@ -13,3 +13,5 @@ passenger_wsgi.py
 /config/
 /node_modules
 /node_modules/*
+package-lock.json
+poetry.lock
