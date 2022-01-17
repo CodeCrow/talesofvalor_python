@@ -1,3 +1,4 @@
+from typing import ClassVar
 from selenium.webdriver.common.by import By
 
 class MainPageLocators(object):
@@ -9,3 +10,18 @@ class LoginLocators(object):
     LoginBtn = (By.XPATH, "//input[@type='submit']")
 class RegisterLocators(object):
     Save_Changes = (By.XPATH,"//button[@type='submit' and text()='Save changes']")
+
+class SideBar(object):
+    ActionMenu = (By.XPATH,"//div[@id='action_menu']")
+    EventRegistrationLink = (By.XPATH,".//a[text()='Registration']")
+    EventList = (By.XPATH,".//a[text()='List']")
+    BasicInfoBackgrounds = (By.XPATH,".//a[text()='Backgrounds']")
+    BasicInfoHeaders = (By.XPATH,".//a[text()='Headers']")
+    BasicInfoSkills = (By.XPATH,".//a[text()='Skills']")
+    BasicInfoSkillsRules = (By.XPATH,".//a[text()='Skill Rules']")
+    StaffInfo = (By.XPATH,".//ul[@id='navigation_action_staff']")
+    PELS= (By.XPATH,".//a[text()='PELS']")
+
+class HomeLocators(SideBar):
+    LogoutLink =(By.XPATH,"//nav[@id='navigation_user']//a[text()='Log Out']")
+

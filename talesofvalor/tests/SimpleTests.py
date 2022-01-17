@@ -1,12 +1,15 @@
-from logging import warn
+import time
 import unittest
+import uuid
+from logging import warn
+
+from mailosaur import MailosaurClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import time 
+
 import page
-import uuid
-from mailosaur import MailosaurClient
+
 
 class TOVTests(unittest.TestCase):
     
@@ -64,8 +67,9 @@ class TOVTests(unittest.TestCase):
         reg_page.passwordConfirm = "4Tdi5d$?&yT$ELEQ"
         reg_page.click_save_changes_btn()
         self.assertTrue("IntegrityError at /en/players/register/" in self.driver.page_source)
+        # TODO update this for when the error page for duplicate username/email is active
 
-    def test_random_registration(self):
+    def test_random_registration(self,username =str(uuid.uuid4())[:8], password = str(uuid.uuid4())[:15]):
         main_page = page.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches("Tales of Valor : Fellowship" ))
         main_page.click_register()
@@ -74,16 +78,31 @@ class TOVTests(unittest.TestCase):
         reg_page.lastName = "McTester"
         reg_page.email = "tester.McTester@"+self.emailDomain
         reg_page.Pronouns = "they/them"
-        reg_page.username = str(uuid.uuid4())[:15]
-        self.password = str(uuid.uuid4())[:15]
+        self.username = username
+        reg_page.username = self.username
+        self.password = password
         reg_page.password = self.password
         reg_page.passwordConfirm = self.password
         reg_page.click_save_changes_btn()
-        self.assertTrue("IntegrityError at /en/players/register/" not in self.driver.page_source)
+        
 
     def test_login_admin(self):
         self.test_Login(username="timtp",password="Asti6464")
+        home = page.HomePage(self.driver)
+        home.click_Registration()
+        self.assertTrue("Register for events" in self.driver.page_source)
 
+    def test_click_register(self):
+        self.test_Login(username="timtp",password="Asti6464")
+        home = page.HomePage(self.driver)
+        home.click_Registration()
+        self.assertTrue("Register for events" in self.driver.page_source)
+    
+    def test_click_PELS(self):
+        self.test_Login(username="timtp",password="Asti6464")
+        home = page.HomePage(self.driver)
+        home.click_StaffInfo_PELS()
+        
     def tearDown(self) -> None:
         time.sleep(1) #so that you can view the final page for a second before the page closes.
         self.driver.close()
