@@ -1,24 +1,25 @@
 from .common import *
 
+DEBUG = False
+TEMPLATE_DEBUG = DEBUG
+FILER_DEBUG = DEBUG
+
 ALLOWED_HOSTS = [
-    'tov.crowbringsdaylight.com',
+    'rhiven.stage.talesofvalor.com',
 ]
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'talesofvalor',
-        'USER': 'cr0w_us3r',
-        'PASSWORD': 't3stc0rvid',
-        'HOST': 'mysql.crowbringsdaylight.com'
+        'NAME': 'talesof_rhiven_stage',
+        'USER': 'fodder',
+        'PASSWORD': 'wereunicorn',
+        'HOST': 'mysql.talesofvalor.com',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES',innodb_strict_mode=1",
+        },
     }
 }
 
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp_upload")
 STATIC_ROOT = BASE_DIR + '/public/static/'
-
-'''
-Paypal integration with  django-paypal
-'''
-PAYPAL_TEST = DEBUG
-PAYPAL_RECEIVER_EMAIL = "replaceme@gmail.com"
