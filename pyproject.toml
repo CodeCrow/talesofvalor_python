@@ -23,6 +23,8 @@ djangocms-page-tags = "^0.9.0"
 django-paypal = "^1.1.2"
 mysqlclient = "^2.1.0"
 paypal-checkout-serversdk = "^1.0.1"
+selenium = "^4.1.0"
+mailosaur = "^7.9.0"
 
 [tool.poetry.dev-dependencies]
 
