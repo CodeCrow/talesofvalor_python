@@ -14,7 +14,7 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from talesofvalor.skills.models import Header, Skill
+from talesofvalor.skills.models import Header, Skill, HeaderSkill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm
@@ -267,6 +267,7 @@ class CharacterAddHeaderView(APIView):
     def post(self, request, format=None):
         header_id = int(request.POST.get('header_id', 0))
         character_id = int(request.POST.get('character_id', 0))
+        cp_available = int(request.POST.get('cp_available', 0))
         # get the character and then see if the header is allowed
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
@@ -277,12 +278,12 @@ class CharacterAddHeaderView(APIView):
         content = {
             'error': "prerequisites not met"
         }
-
+        print("HEADER COST:{}".format(header.cost))
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
         if character.check_header_prerequisites(header):
             # see if the character has enough points to add the header
-            if (character.cp_available - header.cost) > 0:
+            if (cp_available - header.cost) > 0:
                 print("HEADER:{}".format(header.__dict__))
                 character.cp_available -= header.cost
                 character.cp_spent += header.cost
@@ -291,7 +292,7 @@ class CharacterAddHeaderView(APIView):
                 character.save()
                 print("SKILLS:{}".format(header.skills.all()))
                 content = {
-                    'success': "header added"
+                    'success': header.cost * -1
                 }
             else: 
                 content = {
@@ -315,6 +316,13 @@ class CharacterAddSkillView(APIView):
         skill_id = int(request.POST.get('skill_id', 0))
         header_id = int(request.POST.get('header_id', 0))
         character_id = int(request.POST.get('character_id', 0))
+        cp_available = int(request.POST.get('cp_available', 0))
+        try:
+            vector = int(request.POST.get('vector'))
+        except AttributeError:
+            return {
+                'error': "No change indicated"
+            }
         # get the character and then see if the skill is allowed
         skill = Skill.objects.get(pk=skill_id)
         header = Header.objects.get(pk=header_id)
@@ -329,10 +337,14 @@ class CharacterAddSkillView(APIView):
             'success': "testing right now"
         }
         if character.check_skill_prerequisites(skill, header):
+            # since vector is the direction, we want to reverse it when
+            # dealing with what we want to change for the available points
             # see if the character has enough points to add the header
-            if (character.cp_available - header.cost) > 0:
+            cost = HeaderSkill.objects.get(skill=skill, header=header).cost * (vector * -1)
+            if (cp_available - cost) > 0:
+                # when this is returned, change the available costs
                 content = {
-                    'success': "header added"
+                    'success': cost
                 }
             else: 
                 content = {
