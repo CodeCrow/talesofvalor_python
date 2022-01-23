@@ -35,6 +35,8 @@ from .forms import UserForm, PlayerForm, RegistrationForm,\
 from .models import Player, Registration, PEL
 
 
+
+
 class PlayerUpdateView(
         LoginRequiredMixin,
         PermissionRequiredMixin,
@@ -534,6 +536,8 @@ class PELDetailView(UserPassesTestMixin, DetailView):
     '''
     model = PEL
     permission_required = ('pels.view_pel', )
+    show_staff_comments = True # self.request.user.has_perm('players.show_pel_staff_comments')
+    edit_staff_comments = True # self.request.user.has_perm('players.edit_pel_staff_comments')
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
