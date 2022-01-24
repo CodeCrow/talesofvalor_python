@@ -1,5 +1,14 @@
 {
     "python.analysis.extraPaths": [
         "./talesofvalor/tests"
-    ]
+    ],
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "talesofvalor\\tests",
+        "-p",
+        "*Test*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
 }

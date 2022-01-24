@@ -10,15 +10,15 @@ class BasePageElement(object):
 
         driver = obj.driver
         WebDriverWait(driver, 100).until(
-            lambda driver: driver.find_element(By.XPATH,self.locator))
-        driver.find_element(By.XPATH,self.locator).clear()
-        driver.find_element(By.XPATH,self.locator).send_keys(value)
+            lambda driver: driver.find_element(By.XPATH, self.locator))
+        driver.find_element(By.XPATH, self.locator).clear()
+        driver.find_element(By.XPATH, self.locator).send_keys(value)
 
     def __get__(self, obj: object, owner) -> str:
         """Gets the text of the specified object"""
 
         driver = obj.driver
         WebDriverWait(driver, 100).until(
-            lambda driver: driver.find_element(By.XPATH,self.locator))
-        element = driver.find_element(By.XPATH,self.locator)
+            lambda driver: driver.find_element(By.XPATH, self.locator))
+        element = driver.find_element(By.XPATH, self.locator)
         return element.get_attribute("value")
