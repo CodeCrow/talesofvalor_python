@@ -8,6 +8,8 @@ Player: {{ object.player }}
 <h1>Pick skills for {{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
 <form id="charcterskill_form" action="" method="post">{% csrf_token %}
     {% include "characters/includes/character_stats.html" with object=object %}
+    <h2>Available Character Points: <span id="character_point_display">{{ object.cp_available }}</span></h2>
+    {{ skill_hash }}
     {% for header in skills %}
     {% with skill_hash|dict_key:header.id as header_costs %}
     <div class="header-group group">
@@ -28,9 +30,27 @@ Player: {{ object.player }}
     {{ block.super }}
     <script type="text/javascript">
 
-        var updateSkill = (vector) => {
+        var updateSkill = (submit_url, skill_id, header_id, character_id, vector) => {
             console.log("vector:" + vector);
+            // get the current cp:
+            let cp_available = parseInt($('#character_point_display').html());
             // update the skill points for a character
+            $.post(submit_url, { 
+                skill_id: skill_id,
+                header_id: header_id,
+                character_id: character_id,
+                vector: vector,
+                cp_available: cp_available,
+             })
+            .done((data) => {
+                console.log(data);
+                // We care getting the change in points back, so update the available points
+                cp_available = parseInt($('#character_point_display').html());
+                $('#character_point_display').html(cp_available + data.success);
+            })
+            .fail((data) => {
+                console.log(data);
+            });
 
         }
 
@@ -39,9 +59,17 @@ Player: {{ object.player }}
             let header_id = $(event.currentTarget).data('header-id');
             let character_id = {{ object.id }};
             let submit_url = $(event.currentTarget).attr('href');
-            $.post(submit_url, { header_id: header_id, character_id: character_id } )
+            // get the current cp:
+            let cp_available = parseInt($('#character_point_display').html());
+            $.post(submit_url, {
+                header_id: header_id,
+                character_id: character_id,
+                cp_available: cp_available,
+            })
             .done((data) => {
-                console.log(data);
+                // We care getting the change in points back, so update the available points
+                cp_available = parseInt($('#character_point_display').html());
+                $('#character_point_display').html(cp_available + data.success);
             })
             .fail((data) => {
                 console.log(data);
@@ -49,9 +77,14 @@ Player: {{ object.player }}
             return false;
         });
         $('.update-skill').click((event) => {
-            console.log("updating skill");
-            updateSkill($(event.currentTarget).data('skill-vector'));
             event.preventDefault();
+            updateSkill(
+                $(event.currentTarget).attr('href'),
+                $(event.currentTarget).data('skill-id'),
+                $(event.currentTarget).data('header-id'),
+                {{ object.id }},
+                $(event.currentTarget).data('skill-vector')
+            );
         });
     </script>
 {% endblock %}
