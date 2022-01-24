@@ -6,17 +6,28 @@
 
 {% block content %}
 
-Rating:
+<p>Donations (time): {{ object.donations_time }} </p>
 
-Event Favorites:
+<p>Donations (props): {{ object.donations_props }} </p>
 
-Suggestions:
+<p>Rating: {{ object.rating }} </p>
 
-Skills or spells learned:
+<p>Event Favorites: {{ object.favorites }} </p>
 
-About the event:
+<p>Suggestions: {{ object.suggestions }} </p>
 
-Code of conduct:
+<p>Plans: {{ object.plans }} </p>
 
+<p>Devout: {{ object.devout }} </p>
+
+<p>New rule likes: {{ object.new_rule_likes }} </p>
+
+<p>New rule dislikes: {{ object.new_rule_dislikes }} </p>
+
+<p>Skills or spells learned: {{ object.learned }} </p>
+
+<p>Heavy armor worn: {{ object.heavy_armor_worn_flag}} </p>
+
+<p>What did you do: {{ object.what_did_you_do }} </p>
 
 {% endblock content %}
