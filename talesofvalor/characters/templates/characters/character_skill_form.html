@@ -9,11 +9,10 @@ Player: {{ object.player }}
 <form id="charcterskill_form" action="" method="post">{% csrf_token %}
     {% include "characters/includes/character_stats.html" with object=object %}
     <h2>Available Character Points: <span id="character_point_display">{{ object.cp_available }}</span></h2>
-    {{ skill_hash }}
     {% for header in skills %}
     {% with skill_hash|dict_key:header.id as header_costs %}
     <div class="header-group group">
-        <h2><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>&nbsp;{% if header_costs.cost %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a></h2>
+        <h2><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>&nbsp;{% if 'cost' in header_costs %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a></h2>
         {% include "characters/includes/character_skill_item.html" %}
     </div>
     {% endwith %}

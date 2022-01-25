@@ -126,11 +126,18 @@ class Character(models.Model):
         # update skillhash with skills the character has.
         print("HEADERS:")
         print(self.headers.all())
-        # go throught the headers and figure out what headers have had the
-        # prerequisites met . . .   
+        # go through the headers and figure out what headers have had the
+        # prerequisites met . . .
+        bought_headers = self.headers.all().values_list('id', flat=True)
+        available_skills = []
         for h, skills in skillhash.items():
             print("header:{}:{}".format(h, skills))
             # if the header is open, or if the user bought it.
+            header = Header.objects.get(pk=h)
+            if h in bought_headers or header.open_flag:
+                available_skills.append(h)
+        print("RESOLVED HEADERS:{}".format(available_skills))
+
         
         return skillhash
 
