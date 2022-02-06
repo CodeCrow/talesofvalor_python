@@ -3,12 +3,14 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DetailView, ListView, DeleteView
 
+from rest_framework.status import HTTP_412_PRECONDITION_FAILED
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
@@ -213,7 +215,12 @@ class CharacterSkillUpdateView(
     def get_context_data(self, **kwargs):
         context = super(CharacterSkillUpdateView, self)\
             .get_context_data(**self.kwargs)
-        context['skills'] = self.skills
+
+        # remoev skills not in the hash.
+        available_skills = self.object.skillhash.keys()
+        context['skills'] = filter(lambda x:  x.id in available_skills, self.skills)
+
+        # context['skills'] = self.skills
         """
         skills granted by a specific character grant or as a result of
         of character backgrounds or headers granting skills without the need
@@ -278,6 +285,7 @@ class CharacterAddHeaderView(APIView):
         content = {
             'error': "prerequisites not met"
         }
+        status = None
         print("HEADER COST:{}".format(header.cost))
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
@@ -298,8 +306,9 @@ class CharacterAddHeaderView(APIView):
                 content = {
                     'error': "not enough points"
                 }
+                status = HTTP_412_PRECONDITION_FAILED
 
-        return Response(content)
+        return Response(content, status)
 
 
 class CharacterAddSkillView(APIView):
@@ -327,32 +336,36 @@ class CharacterAddSkillView(APIView):
         skill = Skill.objects.get(pk=skill_id)
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
-        print("CHARACTER SKILLS:{}".format(character.skills.all()))
         # check that the skill is allowed.
-        print("SKILL CHECK:{}".format(character.check_skill_prerequisites(skill, header)))
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
         # otherwise, return an error
         content = {
             'success': "testing right now"
         }
+        status = None
         if character.check_skill_prerequisites(skill, header):
             # since vector is the direction, we want to reverse it when
             # dealing with what we want to change for the available points
             # see if the character has enough points to add the header
-            cost = HeaderSkill.objects.get(skill=skill, header=header).cost * (vector * -1)
+            cost = HeaderSkill.objects.get(skill=skill, header=header).cost * vector
             if (cp_available - cost) > 0:
                 # when this is returned, change the available costs
                 content = {
-                    'success': cost
+                    'success': cost * -1
                 }
+                (character_skill, created) = character.characterskills_set.get_or_create(
+                    skill=skill
+                )
+                character_skill.count = F('count') + 1
+                character_skill.save()
             else: 
                 content = {
                     'error': "not enough points"
                 }
+                status = HTTP_412_PRECONDITION_FAILED
+        return Response(content, status)
 
-
-        return Response(content)
 
 class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     """

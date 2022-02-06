@@ -30,8 +30,10 @@ Player: {{ object.player }}
     <script type="text/javascript">
 
         var updateSkill = (submit_url, skill_id, header_id, character_id, vector) => {
-            console.log("vector:" + vector);
             // get the current cp:
+            console.log("CHARACTER POINT:");
+            console.log($('#character_point_display').html())
+            console.log( parseInt($('#character_point_display').html()));
             let cp_available = parseInt($('#character_point_display').html());
             // update the skill points for a character
             $.post(submit_url, { 

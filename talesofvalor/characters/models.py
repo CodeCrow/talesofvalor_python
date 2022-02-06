@@ -124,22 +124,32 @@ class Character(models.Model):
         """
         skillhash = Skill.skillhash()
         # update skillhash with skills the character has.
-        print("HEADERS:")
-        print(self.headers.all())
         # go through the headers and figure out what headers have had the
         # prerequisites met . . .
         bought_headers = self.headers.all().values_list('id', flat=True)
-        available_skills = []
+        available_skills = {}
         for h, skills in skillhash.items():
-            print("header:{}:{}".format(h, skills))
             # if the header is open, or if the user bought it.
             header = Header.objects.get(pk=h)
-            if h in bought_headers or header.open_flag:
-                available_skills.append(h)
-        print("RESOLVED HEADERS:{}".format(available_skills))
+            if h in bought_headers or header.open_flag or not header.hidden_flag:
+                available_skills[h] = skills
+                # update the has with what has been purchased
+                print(available_skills[h]['skills'])
 
-        
-        return skillhash
+                for skill_id in available_skills[h]['skills']:
+                    try:
+                        available_skills[h]['skills'][skill_id]['purchased'] = self.characterskills_set.get(
+                            pk=skill_id
+                        ).count
+                    except CharacterSkills.DoesNotExist:
+                        # if it doesn't exist, we can leave purchased as default.   
+                        pass
+
+
+        print("availablehash:{}".format(skillhash))
+
+        # skillhash = filter(lambda x: x % 2 != 0, skillhash)
+        return available_skills
 
     def grants(self):
         """
