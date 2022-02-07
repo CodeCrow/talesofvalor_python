@@ -205,7 +205,7 @@ class CharacterSkillUpdateView(
         )
 
     def get_form_kwargs(self):
-        kwargs = super(CharacterSkillUpdateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         self.skills = Header.objects\
             .order_by('hidden_flag', 'category', 'name')\
             .all()
@@ -213,8 +213,7 @@ class CharacterSkillUpdateView(
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(CharacterSkillUpdateView, self)\
-            .get_context_data(**self.kwargs)
+        context = super().get_context_data(**self.kwargs)
 
         # remoev skills not in the hash.
         available_skills = self.object.skillhash.keys()
@@ -333,8 +332,7 @@ class CharacterAddSkillView(APIView):
                 'error': "No change indicated"
             }
         # get the character and then see if the skill is allowed
-        skill = Skill.objects.get(pk=skill_id)
-        header = Header.objects.get(pk=header_id)
+        header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=header_id)
         character = Character.objects.get(pk=character_id)
         # check that the skill is allowed.
         # if the prerequisites are met, add the header to the user and return
@@ -344,21 +342,23 @@ class CharacterAddSkillView(APIView):
             'success': "testing right now"
         }
         status = None
-        if character.check_skill_prerequisites(skill, header):
+        if character.check_skill_prerequisites(header_skill.skill, header_skill.header):
             # since vector is the direction, we want to reverse it when
             # dealing with what we want to change for the available points
             # see if the character has enough points to add the header
-            cost = HeaderSkill.objects.get(skill=skill, header=header).cost * vector
-            if (cp_available - cost) > 0:
+            cost = header_skill.cost * vector
+            if (cp_available - cost) >= 0:
                 # when this is returned, change the available costs
                 content = {
                     'success': cost * -1
                 }
                 (character_skill, created) = character.characterskills_set.get_or_create(
-                    skill=skill
+                    skill=header_skill
                 )
                 character_skill.count = F('count') + 1
                 character_skill.save()
+                character_skill.refresh_from_db()
+                print(f"CHARACTER SKILL:{character_skill.__dict__}")
             else: 
                 content = {
                     'error': "not enough points"

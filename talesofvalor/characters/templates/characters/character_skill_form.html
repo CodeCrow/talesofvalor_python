@@ -31,10 +31,10 @@ Player: {{ object.player }}
 
         var updateSkill = (submit_url, skill_id, header_id, character_id, vector) => {
             // get the current cp:
-            console.log("CHARACTER POINT:");
-            console.log($('#character_point_display').html())
-            console.log( parseInt($('#character_point_display').html()));
-            let cp_available = parseInt($('#character_point_display').html());
+            const cp_available_display = $('#character_point_display');
+            const cp_available = parseInt(cp_available_display.html());
+            const purchased_display = $('#' + header_id + "_" + skill_id + "_display");
+            const purchased = parseInt(purchased_display.html());
             // update the skill points for a character
             $.post(submit_url, { 
                 skill_id: skill_id,
@@ -46,8 +46,8 @@ Player: {{ object.player }}
             .done((data) => {
                 console.log(data);
                 // We care getting the change in points back, so update the available points
-                cp_available = parseInt($('#character_point_display').html());
-                $('#character_point_display').html(cp_available + data.success);
+                cp_available_display.html(cp_available + data.success);
+                purchased_display.html(purchased + vector);
             })
             .fail((data) => {
                 console.log(data);
