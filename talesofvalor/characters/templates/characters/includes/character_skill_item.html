@@ -2,10 +2,10 @@
 <ul class="skill-group group">
     {% for skill in header.skills.all %}
     <li>
-        {% if skill.single_flag %}<input name="skill_{{ skill.id }}" id="id_skill_{{ skill.id }}" type="checkbox" value="1">{% else %}<a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="-1" class="update-skill">-</a>&nbsp;{{ skill.count }}<a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="1" class="update-skill">+</a>{% endif %}
+        {% with header_costs.skills|dict_key:skill.id as s %}
+        {% if skill.single_flag %}<input name="skill_{{ skill.id }}" id="id_skill_{{ skill.id }}" type="checkbox" value="1">{% else %}<a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="-1" class="update-skill">-</a>&nbsp;<span id="{{ header.id }}_{{ skill.id }}_display">{{ s.purchased }}</span><a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="1" class="update-skill">+</a>{% endif %}
         <a href="{% url "skills:skill_detail" pk=skill.id %}">{{ skill.name }}</a>&nbsp;
-        {% with header_costs|dict_key:skill.id as skill_cost %}
-        {% if skill_cost %}(&nbsp;{{ skill_cost }} CPs each&nbsp;){% endif %}
+        {% if s %}(&nbsp;{{ s.cost }} CPs each&nbsp;){% endif %}
         {% endwith %}
     </li>
     {% endfor %}
