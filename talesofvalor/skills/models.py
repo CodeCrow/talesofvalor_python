@@ -87,16 +87,27 @@ class Skill(models.Model):
         """
         Create the base hash of skills and costs.
         {
-            3: {6: 4, 7: 3, 8: 4, 9: 2, 10: 2, 11: 1, 12: 4, 13: 4, 'cost': 0}, 
-            14: {26: 0, 27: 0, 36: 1, 38: 1, 39: 1, 41: 1, 42: 3, 'cost': 0},
+            51: {'skills': {
+                    248: {'cost': 3, 'purchased': 0}, 
+                    49: {'cost': 3, 'purchased': 0},
+                    250: {'cost': 3, 'purchased': 0},
+                    251: {'cost': 3, 'purchased': 0},
+                    252: {'cost': 3, 'purchased': 0}
+                },
+                'cost': 0}}
         }
         It will be updated by the character.
         """
         headers = Header.objects.all().order_by('-open_flag')
         skill_hash = {
             h.id: {
-                s.skill_id: s.cost
-                for s in h.headerskill_set.all()
+                'skills': {
+                    s.skill_id: {
+                        'cost': s.cost,
+                        'purchased': 0
+                    }
+                    for s in h.headerskill_set.all()
+                }
             }
             for h in headers
         }

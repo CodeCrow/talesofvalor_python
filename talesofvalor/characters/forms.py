@@ -59,7 +59,6 @@ class CharacterForm(forms.ModelForm):
         return character
 
 
-
     class Meta:
         model = Character
         exclude = [

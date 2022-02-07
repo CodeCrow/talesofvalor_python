@@ -15,7 +15,7 @@ from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
 from talesofvalor.rules.models import Prerequisite
-from talesofvalor.skills.models import Header, Skill
+from talesofvalor.skills.models import Header, HeaderSkill, Skill
 from talesofvalor.origins.models import Origin
 
 
@@ -62,7 +62,7 @@ class Character(models.Model):
     cp_transferred = models.PositiveIntegerField(default=0)
     # The headers and skills that a character has.
     headers = models.ManyToManyField(Header)
-    skills = models.ManyToManyField(Skill, through='CharacterSkills')
+    skills = models.ManyToManyField(HeaderSkill, through='CharacterSkills')
     # origins.  Should only be as many as there are types.
     origins = models.ManyToManyField(Origin)
 
@@ -124,15 +124,27 @@ class Character(models.Model):
         """
         skillhash = Skill.skillhash()
         # update skillhash with skills the character has.
-        print("HEADERS:")
-        print(self.headers.all())
-        # go throught the headers and figure out what headers have had the
-        # prerequisites met . . .   
+        # go through the headers and figure out what headers have had the
+        # prerequisites met . . .
+        bought_headers = self.headers.all().values_list('id', flat=True)
+        available_skills = {}
         for h, skills in skillhash.items():
-            print("header:{}:{}".format(h, skills))
             # if the header is open, or if the user bought it.
-        
-        return skillhash
+            header = Header.objects.get(pk=h)
+            if h in bought_headers or header.open_flag or not header.hidden_flag:
+                available_skills[h] = skills
+                # update the has with what has been purchased
+                for skill_id in available_skills[h]['skills']:
+                    try:
+                        available_skills[h]['skills'][skill_id]['purchased'] = self.characterskills_set.get(
+                            skill_id=skill_id
+                        ).count
+                    except CharacterSkills.DoesNotExist:
+                        # if it doesn't exist, we can leave purchased as default.   
+                        pass
+
+        # skillhash = filter(lambda x: x % 2 != 0, skillhash)
+        return available_skills
 
     def grants(self):
         """
@@ -204,11 +216,14 @@ class CharacterSkills(models.Model):
     Links chracters with their skills.
 
     Indicates what skills a character has and how many of them exist.
+
+    It is important that we are attaching to the HeaderSkill table because
+    that contains the cost of the skill for that header.
     """
 
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField(null=False, default=1)
+    skill = models.ForeignKey(HeaderSkill, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(null=False, default=0)
 
 
 class CharacterLog(models.Model):
