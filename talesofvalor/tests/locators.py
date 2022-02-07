@@ -38,3 +38,11 @@ class SideBar(object):
 class HomeLocators(SideBar):
     LogoutLink = (
         By.XPATH, "//nav[@id='navigation_user']//a[text()='Log Out']")
+
+class EventLocators(object):
+    AddLink = (
+        By.XPATH, "//div[@id='main_content']//a[contains(text(),'Add one')]")
+    EventNames = (By.XPATH,"//table[@class='list']//td[1]//a")
+
+class AddEventLocators(object):
+    submitbutton = (By.XPATH,"//input[@type='submit']")

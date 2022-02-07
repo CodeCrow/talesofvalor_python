@@ -1,11 +1,13 @@
 from distutils.log import error
+from msilib.schema import Class
+from xml.sax.xmlreader import Locator
 from selenium import webdriver
-from element import BasePageElement
-from locators import MainPageLocators
+from element import BaseCheckboxElement, BasePageElement, IframeElement
+from locators import AddEventLocators, EventLocators, MainPageLocators
 from locators import LoginLocators
 from locators import RegisterLocators
 from locators import HomeLocators
-from typing import Union
+import re
 
 
 class UsernameElement(BasePageElement):
@@ -147,3 +149,91 @@ class HomePage(BasePage):
         if staffInfo is not None:
             Char_List = staffInfo.find_element(*HomeLocators.Characters_List)
             Char_List.click()
+
+
+class EventNameElement(BasePageElement):
+    locator = "//input[@name='name']"
+
+
+class EventDateElement(BasePageElement):
+    locator = "//input[@name='event_date']"
+
+
+class PELDateElement(BasePageElement):
+    locator = "//input[@name='pel_due_date']"
+
+
+class BGSDateElement(BasePageElement):
+    locator = "//input[@name='bgs_due_date']"
+
+
+class OOGEventCheckbox(BaseCheckboxElement):
+    locator = "//input[@id='id_oog_p']"
+
+
+class NotesIframe(IframeElement):
+    locator = "//p"
+    IframeLocator = "//div[@id='cke_1_contents']/iframe"
+
+
+class SummaryIframe(IframeElement):
+    locator = "//p"
+    IframeLocator = "//div[@id='cke_2_contents']/iframe"
+
+
+class AddEventPage(BasePage):
+    eventName = EventNameElement()
+    eventDate = EventDateElement()
+    PELDate = PELDateElement()
+    BGSDate = BGSDateElement()
+    OOGEvent = OOGEventCheckbox()
+    Notes = NotesIframe()
+    Summary = SummaryIframe()
+
+    def click_submit(self) -> None:
+        submitButton = self.driver.find_element(*AddEventLocators.submitbutton)
+        if submitButton is not None:
+            submitButton.click()
+
+
+class EventsPage(BasePage):
+
+    def click_addOne(self) -> None:
+        AddLink = self.driver.find_element(*EventLocators.AddLink)
+        if AddLink is not None:
+            AddLink.click()
+
+    def get_nextEvent(self) -> str:
+        eventList = self.driver.find_elements(*EventLocators.EventNames)
+        ptrn = "(Spring|Fall) ([0-9]+) ([0-9]*)"
+        maxyear = 0
+        for eventName in eventList:
+            matchSuccess = re.match(ptrn, eventName.text)
+            if matchSuccess is not None:
+                x = re.search(ptrn, eventName.text)
+                maxyear = max(int(x.group(3)), maxyear)
+        maxevent = {"Fall": 0, "Spring": 0}
+        for eventName in eventList:
+            if str(maxyear) in eventName.text:
+                matchSuccess = re.match(ptrn, eventName.text)
+                if matchSuccess is not None:
+                    x = re.search(ptrn, eventName.text)
+                    maxevent[x.group(1)] = max(
+                        int(x.group(2)), maxevent[x.group(1)])
+        if maxevent["Fall"] > maxevent["Spring"]:
+            nextSeason = "Fall"
+        else:
+            nextSeason = "Spring"
+        nextNumber = maxevent[nextSeason]+1
+        if nextNumber == 3:
+            nextNumber = 1
+            if nextSeason == 'Spring':
+                nextSeason = 'Fall'
+                next_year = maxyear
+            else:
+                nextSeason = 'Spring'
+                next_year = maxyear + 1
+        else:
+            next_year = maxyear
+        next_event_name = '%s %d %d' % (nextSeason, nextNumber, next_year)
+        return next_event_name

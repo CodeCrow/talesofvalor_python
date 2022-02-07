@@ -26,6 +26,7 @@ paypal-checkout-serversdk = "^1.0.1"
 selenium = "^4.1.0"
 mailosaur = "^7.9.0"
 autopep8 = "^1.6.0"
+names = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
 

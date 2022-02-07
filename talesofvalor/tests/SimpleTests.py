@@ -2,12 +2,13 @@ import sys
 import time
 import unittest
 import uuid
-from logging import warn
+import names
+from datetime import date
 
+from dateutil.relativedelta import relativedelta
 from mailosaur import MailosaurClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 
 import page
 
@@ -91,7 +92,8 @@ class TOVTests(unittest.TestCase):
         reg_page = page.RegisterPage(self.driver)
         reg_page.firstname = "Tester"
         reg_page.lastName = "McTester"
-        reg_page.email = "tester.McTester@"+self.emailDomain
+        self.email =  "tester.McTester+"+username+"@"+self.emailDomain
+        reg_page.email = self.email
         reg_page.Pronouns = "they/them"
         self.username = username
         reg_page.username = self.username
@@ -187,7 +189,8 @@ class TOVTests(unittest.TestCase):
         reg_page = page.RegisterPage(self.driver)
         reg_page.firstname = "Tester"
         reg_page.lastName = "McTester"
-        reg_page.email = "tester.McTester@"+self.emailDomain
+        self.email = "tester.McTester@"+self.emailDomain
+        reg_page.email = self.email
         reg_page.Pronouns = "they/them"
         self.username = username
         reg_page.username = self.username
@@ -209,7 +212,7 @@ class TOVTests(unittest.TestCase):
         home = page.HomePage(self.driver)
         home.click_Registration()
         self.assertTrue(
-            "<h1>Register for events</h1>" in self.driver.page_source)
+            ("<h1>Register for events</h1>" in self.driver.page_source) | ("<h1>No scheduled events at this time.</h1>" in self.driver.page_source))
 
     def test_click_EventList(self):
         self.test_Login(username="timtp", password="Asti6464")
@@ -254,6 +257,39 @@ class TOVTests(unittest.TestCase):
         self.assertTrue(
             "<h1>Between Game Skills</h1>" in self.driver.page_source)
 
+    def test_addEvent(self):
+        self.test_Login(username="timtp2", password="Asti6464")
+        home = page.HomePage(self.driver)
+        home.click_EventList()
+        self.assertTrue("<h1>Events</h1>" in self.driver.page_source)
+        events = page.EventsPage(self.driver)
+        nextEvent = events.get_nextEvent()
+        events.click_addOne()
+        addEvent = page.AddEventPage(self.driver)
+        addEvent.eventName = nextEvent
+        eventdate = date.today()+relativedelta(months=2)
+        pelDate = date.today()+relativedelta(months=2, days=14)
+        bgsDate = date.today()+relativedelta(months=2, days=14)
+        addEvent.eventDate = eventdate.strftime("%m/%d/%Y")
+        addEvent.PELDate = pelDate.strftime("%m/%d/%Y")
+        addEvent.BGSDate = bgsDate.strftime("%m/%d/%Y")
+        addEvent.Notes = "This is a MAJOR test"
+        addEvent.Summary = """Lets see if multiple lines will input as well. 
+        This is line 1 
+        this is line 2"""
+        addEvent.click_submit()
+        self.assertTrue(nextEvent in self.driver.page_source)
+
+    def test_registerForNextEvent(self):
+        self.test_random_registration()
+        home = page.HomePage(self.driver)
+        home.click_Registration()
+        self.assertTrue(
+            ("<h1>Register for events</h1>" in self.driver.page_source))
+        self.characterName = names.get_full_name()
+        
+
+        
     def tearDown(self) -> None:
         # so that you can view the final page for a second before the page closes.
         time.sleep(0.5)
