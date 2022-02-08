@@ -357,8 +357,9 @@ class CharacterAddSkillView(APIView):
                 )
                 character_skill.count = F('count') + 1
                 character_skill.save()
-                character_skill.refresh_from_db()
-                print(f"CHARACTER SKILL:{character_skill.__dict__}")
+                character.cp_spent = F('cp_spent') + cost
+                character.cp_available = F('cp_available') - cost
+                character.save()
             else: 
                 content = {
                     'error': "not enough points"
