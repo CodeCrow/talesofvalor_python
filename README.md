@@ -25,7 +25,12 @@ Send your git username to Rob Archer so he can give you write permission to the 
 
 *Nix/OS X:
 ```
-https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+```
+
+If that doesn't work for some reason, try:
+```
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 ```
 
 Windows:
