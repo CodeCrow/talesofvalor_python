@@ -5,6 +5,7 @@
 .sass-cache
 .sass-cache/*
 .virtualenv
+.vscode
 ENV
 npm-debug.log
 passenger_wsgi.py
