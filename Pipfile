@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django-cms = "*"
+fabric = "*"
+wiki = "*"
+djangocms-text-ckeditor = "*"
+djangocms-file = "*"
+djangocms-picture = "*"
+djangocms-link = "*"
+djangocms-style = "*"
+djangocms-snippet = "*"
+djangocms-video = "*"
+djangorestframework = "*"
+django-taggit = "*"
+django-taggit-autosuggest = "*"
+djangocms-page-tags = "*"
+django-paypal = "*"
+mysqlclient = "*"
+paypal-checkout-serversdk = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
