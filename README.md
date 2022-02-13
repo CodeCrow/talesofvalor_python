@@ -29,8 +29,9 @@ pip install --user pipenv
 ```
 
 Windows:
+Most of the windows commands are the same except you have to add ```python -m``` to the front of the command for instance to install pipenv use:
 ```
-(Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python 
+python -m pip install --user pipenv
 ```
 When the installation is done, open a new shell/terminal window. You should now be able to see the result of this command:
 ```
