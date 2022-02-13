@@ -76,7 +76,7 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
     with Connection(env.hosts, user=env.user, config=c.config) as c:
         c.run('ls')
         with c.prefix(
-            'cd {} && pipenv shell'.format(
+            'cd {}; pipenv shell'.format(
                 env.project_dir
             )
         ):
