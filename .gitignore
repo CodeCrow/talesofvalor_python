@@ -17,3 +17,4 @@ passenger_wsgi.py
 package-lock.json
 poetry.lock
 Pipfile.lock
+testing.out
