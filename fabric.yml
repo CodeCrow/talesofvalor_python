@@ -12,7 +12,7 @@ stage:
   media_path: /home/talesof/rhiven.stage.talesofvalor.com/public/media
   default_project_branch: stage
   refresh_app_command: touch /home/talesof/rhiven.stage.talesofvalor.com/tmp/restart.txt
-  settings_module_for_management_commands: talesofvalor.stage.settings.stage
+  settings_module_for_management_commands: talesofvalor.settings.stage
   mysql_defaults_file: /home/talesof/rhiven.stage.talesofvalor.com/config/mysql.cnf
 production:
   verbose_name: production 
