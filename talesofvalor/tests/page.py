@@ -220,7 +220,7 @@ class EventsPage(BasePage):
                     x = re.search(ptrn, eventName.text)
                     maxevent[x.group(1)] = max(
                         int(x.group(2)), maxevent[x.group(1)])
-        if maxevent["Fall"] > maxevent["Spring"]:
+        if maxevent["Spring"] == 2:
             nextSeason = "Fall"
         else:
             nextSeason = "Spring"
