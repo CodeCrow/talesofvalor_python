@@ -19,18 +19,13 @@ Send your git username to Rob Archer so he can give you write permission to the 
 
 ## Set up virtual environment and package managment
 
-[Reference](https://python-poetry.org/docs/)
+[Reference](https://pipenv.pypa.io/en/latest/)
 
-[Install poetry](https://pip.pypa.io/en/stable/installing/) (if it isn't installed already)
+[Install pipenv](pip install --user pipenv) (if it isn't installed already)
 
 *Nix/OS X:
 ```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
-```
-
-If that doesn't work for some reason, try:
-```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+pip install --user pipenv
 ```
 
 Windows:
@@ -39,26 +34,7 @@ Windows:
 ```
 When the installation is done, open a new shell/terminal window. You should now be able to see the result of this command:
 ```
-poetry --version
-```
-
-If not, you will probably have to add the path to the binary by hand in your ```.profile``` file, then open a new shell/terminal.
-
-**Important Note:**
-
-In the step where you update your profile, use the full path to the ```poetry``` binary, not the ```~``` shortcut.
-
-So NOT this:
-
-```
-export PATH="~/.local/bin:$PATH"
-
-```
-This:
-
-```
-export PATH="/Users/username/.local/bin:$PATH"
-
+pipenv --version
 ```
 
 ## install the packages
@@ -66,12 +42,12 @@ export PATH="/Users/username/.local/bin:$PATH"
 This installs libraries and modules that support our specific code:
 
 ```
-poetry install
+pipenv install
 ```
 
 ## Activate the shell with all the modules installed
 ```
-poetry shell
+pipenv shell
 ```
 
 ## Set up the database:
@@ -152,9 +128,9 @@ $ ./manage.py createsuperuser --settings=talesofvalor.settings.local
 # Run the development server
 So you can now develop locally.
 
-Make sure you have your poetry shell running:
+Make sure you have your pipenv shell running:
 ```
-poetry shell
+pipenv shell
 ```
 
 Then activate the server:
@@ -263,7 +239,7 @@ Importing an exported db:
 This loads the correct modules and prepares the code libraries
 
 1.  Navigate to where you have the code.
-2.  ```poetry shell``` 
+2.  ```pipenv shell``` 
 
 ## Run the gulp compiler for styling and javascript
 1. Navigate to where you have the code.
@@ -303,12 +279,12 @@ If something has gone wrong, or you want start from scratch, data-wise, you can 
 Remember, this gets rid of the entire database.  You'll have to recreate your superuser to log in again.  And there is no going back . . .
 
 ## Installing new external modules
-If you need a module to help with development, you would use poetry to install it.
+If you need a module to help with development, you would use pipenv to install it.
 
 1. Make sure you are in the code director
 2. Add the module:
-	3. 	```poetry add modulename```
-4. commit the changes that it makes to the ```pyproject.toml``` file.
+	3. 	```pipenv install modulename```
+4. commit the changes that it makes to the ```Pipfile``` file.
 
 
 ## Getting the newest database from the production site
