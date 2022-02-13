@@ -18,3 +18,4 @@ package-lock.json
 poetry.lock
 Pipfile.lock
 testing.out
+chromedriver.exe
