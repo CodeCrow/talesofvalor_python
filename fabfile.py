@@ -76,8 +76,7 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
     with Connection(env.hosts, user=env.user, config=c.config) as c:
         c.run('ls')
         with c.prefix(
-            'source {}/bin/activate && cd {}'.format(
-                env.virtualenv_path,
+            'cd {} && pipenv shell'.format(
                 env.project_dir
             )
         ):
@@ -102,7 +101,7 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
                 # c.run('echo Updating pip')
                 # c.run('pip install --upgrade pip')
                 c.run('echo Updating requirements...')
-                c.run('pip3 install -r requirements.txt')
+                c.run('pipenv install')
 
             if migrate is True:
                 c.run('echo Migrating database schema...')
