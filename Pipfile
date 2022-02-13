@@ -21,6 +21,9 @@ djangocms-page-tags = "*"
 django-paypal = "*"
 mysqlclient = "*"
 paypal-checkout-serversdk = "*"
+selenium = "*"
+mailosaur = "*"
+names = "*"
 
 [dev-packages]
 
