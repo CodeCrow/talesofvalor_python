@@ -11,6 +11,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='pel',
+            name='code',
+        ),
+        migrations.RemoveField(
+            model_name='pel',
+            name='data',
+        ),
         migrations.AddField(
             model_name='pel',
             name='devout',
