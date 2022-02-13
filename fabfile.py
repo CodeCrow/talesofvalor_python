@@ -74,10 +74,8 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
     update_requirements = _prep_bool_arg(updaterequirements)
     env = c.config[environment]
     with Connection(env.hosts, user=env.user, config=c.config) as c:
-        c.run('ls')
         with c.prefix(
-            'source {}/bin/activate && cd {}'.format(
-                env.virtualenv_path,
+            'source ~/.bash_profile && cd {}'.format(
                 env.project_dir
             )
         ):
@@ -102,12 +100,12 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
                 # c.run('echo Updating pip')
                 # c.run('pip install --upgrade pip')
                 c.run('echo Updating requirements...')
-                c.run('pip3 install -r requirements.txt')
+                c.run('pipenv sync')
 
             if migrate is True:
                 c.run('echo Migrating database schema...')
                 c.run(
-                    'python manage.py migrate --settings={settings_module}'
+                    'pipenv run python manage.py migrate --settings={settings_module}'
                     .format(
                         settings_module=env.
                         settings_module_for_management_commands
@@ -116,7 +114,7 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
 
             c.run('echo Updating static files...')
             c.run(
-                'python manage.py collectstatic --ignore=node_modules '
+                'pipenv run python manage.py collectstatic --ignore=node_modules '
                 '--ignore=sass --ignore=hacks --noinput '
                 '--settings={settings_module}'.format(
                     settings_module=env.settings_module_for_management_commands

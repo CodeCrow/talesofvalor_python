@@ -5,6 +5,7 @@
 .sass-cache
 .sass-cache/*
 .virtualenv
+.vscode
 ENV
 npm-debug.log
 passenger_wsgi.py
@@ -15,4 +16,6 @@ passenger_wsgi.py
 /node_modules/*
 package-lock.json
 poetry.lock
+Pipfile.lock
 testing.out
+chromedriver.exe

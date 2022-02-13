@@ -10,16 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='pel',
-            name='donations_props',
-            field=models.TextField(blank=True, default='', verbose_name='Donations (Props/funds/or other materials'),
-        ),
-        migrations.AddField(
-            model_name='pel',
-            name='donations_time',
-            field=models.TextField(blank=True, default='', verbose_name='Donations (Time spent doing set up / breakdown'),
-        ),
         migrations.AlterField(
             model_name='pel',
             name='heavy_armor_worn_flag',
