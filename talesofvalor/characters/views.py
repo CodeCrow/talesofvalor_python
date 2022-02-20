@@ -349,17 +349,23 @@ class CharacterAddSkillView(APIView):
             cost = header_skill.cost * vector
             if (cp_available - cost) >= 0:
                 # when this is returned, change the available costs
-                content = {
-                    'success': cost * -1
-                }
                 (character_skill, created) = character.characterskills_set.get_or_create(
                     skill=header_skill
                 )
-                character_skill.count = F('count') + 1
-                character_skill.save()
-                character.cp_spent = F('cp_spent') + cost
-                character.cp_available = F('cp_available') - cost
-                character.save()
+                if character_skill.count + vector < 0:
+                    content = {
+                        'error': f"You don't have any points in {header_skill.skill}"
+                    }
+                    status = HTTP_412_PRECONDITION_FAILED
+                else:                
+                    content = {
+                        'success': cost * -1
+                    }
+                    character_skill.count = F('count') + vector
+                    character_skill.save()
+                    character.cp_spent = F('cp_spent') + cost
+                    character.cp_available = F('cp_available') - cost
+                    character.save()
             else: 
                 content = {
                     'error': "not enough points"

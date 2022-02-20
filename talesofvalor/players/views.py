@@ -27,13 +27,10 @@ from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
-from talesofvalor.events.models import Event
-
 from .forms import UserForm, PlayerForm, RegistrationForm,\
     MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm
 from .models import Player, Registration, PEL
-
 
 
 
@@ -86,7 +83,6 @@ class PlayerUpdateView(
             return HttpResponseRedirect(reverse('players:player_list'))
         return self.render_to_response(context)  
    
-
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
     """
