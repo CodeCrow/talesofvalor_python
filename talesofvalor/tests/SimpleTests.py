@@ -90,9 +90,9 @@ class TOVTests(unittest.TestCase):
             "Tales of Valor : Fellowship"))
         main_page.click_register()
         reg_page = page.RegisterPage(self.driver)
-        reg_page.firstname = "Tester"
-        reg_page.lastName = "McTester"
-        self.email =  "tester.McTester+"+username+"@"+self.emailDomain
+        reg_page.firstname = names.get_first_name()
+        reg_page.lastName = names.get_last_name()
+        self.email =  reg_page.firstname +reg_page.lastName +username+"@"+self.emailDomain
         reg_page.email = self.email
         reg_page.Pronouns = "they/them"
         self.username = username
