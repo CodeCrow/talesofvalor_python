@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags %}
+{% load cms_tags sekizai_tags %}
 
 {% block bar_title %}{% if object.id %}{{ object.name }} : {% endif %}Origins{% endblock bar_title %}
 {% block title %}{% if object.id %}{{ object.name }} : {% endif %}{{ object.name }}{% endblock title %}
@@ -33,4 +33,20 @@
         {% endif %}
     </div>
 </form>
+
+{% addtoblock "js" %}
+<script type="text/javascript">
+    $(function() {
+        // Set up the formset to add nicely.
+        $('#rule_formset .rule').formset({
+            prefix: '{{ rule_formset.prefix }}',
+            formCssClass: 'dynamic-{{ rule_formset.prefix }}',
+            addCssClass: "add-row btn btn-primary"
+            {% if rule_formset.initial_form_count > 0 %}, hideLastAddForm: true {% endif %}
+        });
+
+    });
+</script>
+{% endaddtoblock %}
+
 {% endblock content %}

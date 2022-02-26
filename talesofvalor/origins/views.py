@@ -12,9 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView,\
 from django.views.generic import DetailView, ListView
 
 from .models import Origin
-from .forms import RuleFormSet
-
-INCLUDE_FOR_EDIT = ["name", "type", "description"]
+from .forms import OriginForm, RuleFormSet
 
 
 class OriginCreateView(PermissionRequiredMixin, CreateView):
@@ -22,7 +20,7 @@ class OriginCreateView(PermissionRequiredMixin, CreateView):
     Allows the Creation of an origin
     """
     model = Origin
-    fields = INCLUDE_FOR_EDIT
+    form_class = OriginForm
     permission_required = ('origins.add_origin', )
     success_url = reverse_lazy('origins:origin_list')
 
@@ -52,7 +50,7 @@ class OriginUpdateView(PermissionRequiredMixin, UpdateView):
     """
 
     model = Origin
-    fields = INCLUDE_FOR_EDIT
+    form_class = OriginForm
     permission_required = ('origins.change_origin', )
     success_url = reverse_lazy('origins:origin_list')
     
