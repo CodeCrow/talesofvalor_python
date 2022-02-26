@@ -5,13 +5,14 @@ Origins function as backgrounds for characters and are mechanically equivalent.
 """
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView,\
-    DeleteView, FormView
+    DeleteView
 from django.views.generic import DetailView, ListView
 
-from .models import Origin, OriginSkill
-from .forms import OriginAddSkillForm
+from .models import Origin
+from .forms import RuleFormSet
 
 INCLUDE_FOR_EDIT = ["name", "type", "description"]
 
@@ -25,6 +26,25 @@ class OriginCreateView(PermissionRequiredMixin, CreateView):
     permission_required = ('origins.add_origin', )
     success_url = reverse_lazy('origins:origin_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['rule_formset'] = RuleFormSet(self.request.POST)
+        else:
+            context['rule_formset'] = RuleFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        rule_formset = context['rule_formset']
+        if rule_formset.is_valid():
+            self.object = form.save()
+            rule_formset.instance = self.object
+            rule_formset.save()
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+        return redirect(self.success_url)
+
 
 class OriginUpdateView(PermissionRequiredMixin, UpdateView):
     """
@@ -35,6 +55,27 @@ class OriginUpdateView(PermissionRequiredMixin, UpdateView):
     fields = INCLUDE_FOR_EDIT
     permission_required = ('origins.change_origin', )
     success_url = reverse_lazy('origins:origin_list')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['rule_formset'] = RuleFormSet(self.request.POST, instance=self.object)
+            context['rule_formset'].full_clean()
+        else:
+            context['rule_formset'] = RuleFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        rule_formset = context['rule_formset']
+        if rule_formset.is_valid():
+            self.object = form.save()
+            rule_formset.instance = self.object
+            rule_formset.save()
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+        return redirect(self.success_url)
+
 
 
 class OriginDeleteView(PermissionRequiredMixin, DeleteView):
@@ -58,45 +99,6 @@ class OriginDetailView(DetailView):
 
     model = Origin
     fields = '__all__'
-
-
-class OriginAddSkillView(PermissionRequiredMixin, FormView):
-    """
-    Add skills to the Origin/Background.
-
-    This is how skills are added to the origin so they are automatically
-    added to characters with that origin.
-    """
-    template_name = 'origins/origin_addskill.html'
-    form_class = OriginAddSkillForm
-    permission_required = ('origins.add_origin', )
-
-    def get_success_url(self):
-        """
-        The form has been successful.
-
-        Now, we want to create the success url, using the origin that was
-        editted.
-        """
-        return reverse_lazy('origins:origin_detail', kwargs={
-                'pk': self.kwargs.get('pk')
-            })
-
-    def form_valid(self, form):
-        """
-        The form is valid.
-
-        Now that the form is valid, create the link between the Origin
-        and the Skill.
-        """
-        origin = Origin.objects.get(id=self.kwargs.get('pk'))
-        origin_skill = OriginSkill(
-                origin=origin,
-                count=form.cleaned_data['count'],
-                skill=form.cleaned_data['skill']
-            )
-        origin_skill.save()
-        return super(OriginAddSkillView, self).form_valid(form)
 
 
 class OriginListView(LoginRequiredMixin, ListView):

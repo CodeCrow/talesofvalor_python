@@ -2,8 +2,8 @@
 from django.urls import path
 
 from .views import OriginCreateView, OriginUpdateView,\
-    OriginDetailView, OriginListView, OriginDeleteView,\
-    OriginAddSkillView
+    OriginDetailView, OriginListView, OriginDeleteView
+
 
 app_name = 'origins'
 
@@ -32,10 +32,5 @@ urlpatterns = [
         '<int:pk>/delete/',
         OriginDeleteView.as_view(),
         name='origin_delete'
-    ),
-    path(
-        '<int:pk>/addskill/',
-        OriginAddSkillView.as_view(),
-        name='origin_addskill'
     )
 ]

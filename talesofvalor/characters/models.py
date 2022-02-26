@@ -14,7 +14,7 @@ from django.utils.translation import ugettext as _
 from filer.fields.image import FilerImageField
 
 from talesofvalor.players.models import Player
-from talesofvalor.rules.models import Prerequisite
+from talesofvalor.rules.models import Prerequisite, Rule
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
 from talesofvalor.origins.models import Origin
 
@@ -127,6 +127,12 @@ class Character(models.Model):
         # go through the headers and figure out what headers have had the
         # prerequisites met . . .
         bought_headers = self.headers.all().values_list('id', flat=True)
+        # get the updates from the rules that affect the character skills.
+        tradition_rules = self.traditions.Rule.objects.filter(content_object=self.tradition)
+        people_rules = Rule.objects.filter(content_object=self.people)
+        print(f"TRADITION RULES:{tradition_rules}")
+        print(f"PEOPLE RULES:{people_rules}")
+
         available_skills = {}
         for h, skills in skillhash.items():
             # if the header is open, or if the user bought it.
@@ -146,7 +152,14 @@ class Character(models.Model):
         # skillhash = filter(lambda x: x % 2 != 0, skillhash)
         return available_skills
 
-    def grants(self):
+    def header_grants(self):
+        """
+        headers granted by a specific character grant or as a result of
+        of character backgrounds.
+        """
+
+
+    def skill_grants(self):
         """
         skills granted by a specific character grant or as a result of
         of character backgrounds or headers granting skills without the need
