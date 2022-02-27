@@ -40,7 +40,7 @@ class Origin(models.Model):
         max_length=15
     )
     hidden_flag = models.BooleanField(_("Hidden?"), default=False)
-    rules = GenericRelation('rules.Rule')
+    rules = GenericRelation('rules.Rule', related_query_name='rules')
 
     created = models.DateTimeField(
         'date published',

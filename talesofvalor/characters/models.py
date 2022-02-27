@@ -128,8 +128,8 @@ class Character(models.Model):
         # prerequisites met . . .
         bought_headers = self.headers.all().values_list('id', flat=True)
         # get the updates from the rules that affect the character skills.
-        tradition_rules = self.traditions.Rule.objects.filter(content_object=self.tradition)
-        people_rules = Rule.objects.filter(content_object=self.people)
+        tradition_rules = self.tradition.rules.all()
+        people_rules = self.people.rules.all()
         print(f"TRADITION RULES:{tradition_rules}")
         print(f"PEOPLE RULES:{people_rules}")
 
