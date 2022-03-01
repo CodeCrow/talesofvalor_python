@@ -29,29 +29,38 @@ Player: {{ object.player }}
     {{ block.super }}
     <script type="text/javascript">
 
-        var updateSkill = (submit_url, skill_id, header_id, character_id, vector) => {
+        var updateSkill = (submit_url, skill_id, header_id, character_id, vector, original_purchased) => {
             // get the current cp:
             const cp_available_display = $('#character_point_display');
             const cp_available = parseInt(cp_available_display.html());
             const purchased_display = $('#' + header_id + "_" + skill_id + "_display");
             const purchased = parseInt(purchased_display.html());
-            // update the skill points for a character
-            $.post(submit_url, { 
-                skill_id: skill_id,
-                header_id: header_id,
-                character_id: character_id,
-                vector: vector,
-                cp_available: cp_available,
-             })
-            .done((data) => {
-                console.log(data);
-                // We care getting the change in points back, so update the available points
-                cp_available_display.html(cp_available + data.success);
-                purchased_display.html(purchased + vector);
-            })
-            .fail((data) => {
-                console.log(data);
-            });
+            if (purchased + vector >= original_purchased) {
+                // update the skill points for a character
+                $.post(submit_url, { 
+                    skill_id: skill_id,
+                    header_id: header_id,
+                    character_id: character_id,
+                    vector: vector,
+                    cp_available: cp_available,
+                 })
+                .done((data) => {
+                    console.log(data);
+                    // We care getting the change in points back, so update the available points
+                    cp_available_display.html(cp_available + data.success);
+                    purchased_display.html(purchased + vector);
+                    // see if we need to turn on or off the reduce button
+                    const reduce = purchased_display.siblings('.update-skill[data-skill-vector="-1"]');
+                    if (purchased + vector <= original_purchased) {
+                        reduce.addClass('invisible');
+                    } else {
+                        reduce.removeClass('invisible');
+                    }
+                })
+                .fail((data) => {
+                    console.log(data);
+                });
+            }
 
         }
 
@@ -84,7 +93,8 @@ Player: {{ object.player }}
                 $(event.currentTarget).data('skill-id'),
                 $(event.currentTarget).data('header-id'),
                 {{ object.id }},
-                $(event.currentTarget).data('skill-vector')
+                $(event.currentTarget).data('skill-vector'),
+                $(event.currentTarget).data('original-purchased'),
             );
         });
     </script>

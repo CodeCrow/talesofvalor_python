@@ -3,7 +3,7 @@
     {% for skill in header.skills.all %}
     <li>
         {% with header_costs.skills|dict_key:skill.id as s %}
-        {% if skill.single_flag %}<input name="skill_{{ skill.id }}" id="id_skill_{{ skill.id }}" type="checkbox" value="1">{% else %}<a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="-1" class="update-skill">-</a>&nbsp;<span id="{{ header.id }}_{{ skill.id }}_display">{{ s.purchased }}</span><a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="1" class="update-skill">+</a>{% endif %}
+        {% if skill.single_flag %}<input name="skill_{{ skill.id }}" data-original-purchased="{{ s.purchased }}" id="id_skill_{{ skill.id }}" type="checkbox" value="1">{% else %}<a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-original-purchased="{{ s.purchased }}" data-header-id="{{ header.id }}" data-skill-vector="-1" class="update-skill invisible">-</a>&nbsp;<span id="{{ header.id }}_{{ skill.id }}_display">{{ s.purchased }}</span><a href="{% url "characters:skill_add" %}" data-skill-id="{{ skill.id }}" data-header-id="{{ header.id }}" data-skill-vector="1"  data-original-purchased="{{ s.purchased }}" class="update-skill">+</a>{% endif %}
         <a href="{% url "skills:skill_detail" pk=skill.id %}">{{ skill.name }}</a>&nbsp;
         {% if s %}(&nbsp;{{ s.cost }} CPs each&nbsp;){% endif %}
         {% endwith %}

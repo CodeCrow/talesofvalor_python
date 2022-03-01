@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags %}
+{% load cms_tags sekizai_tags %}
 
 {% block bar_title %}{% if object.id %}{{ object.name }} : {% endif %}Origins{% endblock bar_title %}
 {% block title %}{% if object.id %}{{ object.name }} : {% endif %}{{ object.name }}{% endblock title %}
@@ -8,14 +8,45 @@
 <form action="" method="post">{% csrf_token %}
     <table class="data">
         {{ form.as_table }}
-        <tr>
-            <td colspan="2" class="text-right">
-                <input class="btn btn-primary" type="submit" value="Update" />
-                {% if object.id %}
-                	<a href="{% url "origins:origin_delete" pk=object.id %}" class="btn btn-danger">Delete</a></td>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
+    </table>   
+    <div id="rule_formset"> 
+        <h2>Grants</h2>
+        {% if rule_formset.non_form_errors %}
+        <ul class="errors">{{ rule_formset.non_form_errors }}</ul>
+        {% endif %}
+        <div class="alternating-container">
+        {% for form in rule_formset %}
+            <div class="rule">
+            {{ form.id }}
+            ( {{ form.name }} )
+            Makes skill {{ form.skill }} cost {{ form.new_cost }} or {{ form.free }} free. <br /> Limit to {{ form.picks_remaining }} purchases. <br />
+            {% if rule_formset.can_delete %}{{ form.DELETE }} Remove{% endif %}
+            </div>
+        {% endfor %}
+        </div>
+        {{ rule_formset.management_form }}
+    </div> 
+    <div class="text-right">
+        <input class="btn btn-primary" type="submit" value="Update" />
+        {% if object.id %}
+            <a href="{% url "origins:origin_delete" pk=object.id %}" class="btn btn-danger">Delete</a></td>
+        {% endif %}
+    </div>
 </form>
+
+{% addtoblock "js" %}
+<script type="text/javascript">
+    $(function() {
+        // Set up the formset to add nicely.
+        $('#rule_formset .rule').formset({
+            prefix: '{{ rule_formset.prefix }}',
+            formCssClass: 'dynamic-{{ rule_formset.prefix }}',
+            addCssClass: "add-row btn btn-primary"
+            {% if rule_formset.initial_form_count > 0 %}, hideLastAddForm: true {% endif %}
+        });
+
+    });
+</script>
+{% endaddtoblock %}
+
 {% endblock content %}

@@ -219,14 +219,6 @@ class CharacterSkillUpdateView(
         available_skills = self.object.skillhash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills, self.skills)
 
-        # context['skills'] = self.skills
-        """
-        skills granted by a specific character grant or as a result of
-        of character backgrounds or headers granting skills without the need
-        for the player to spend points.
-        """
-        context['grants'] = self.object.grants
-
         # if this is a user who can see all skills, just return the skill hash.
         '''
         if self.request.user.has_perm('players.view_all_skills'):

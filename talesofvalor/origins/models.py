@@ -12,13 +12,11 @@ abilities or headers.
 """
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
-
-from talesofvalor.skills.models import Skill
-
 
 class Origin(models.Model):
     """
@@ -42,7 +40,7 @@ class Origin(models.Model):
         max_length=15
     )
     hidden_flag = models.BooleanField(_("Hidden?"), default=False)
-    skills = models.ManyToManyField(Skill, through='OriginSkill')
+    rules = GenericRelation('rules.Rule', related_query_name='rules')
 
     created = models.DateTimeField(
         'date published',
@@ -71,16 +69,3 @@ class Origin(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class OriginSkill(models.Model):
-    """
-    Links up skills and Origins.
-
-    Because some origins give characters abilities, this will automatically
-    give those characters the skills that they should have.
-    """
-
-    origin = models.ForeignKey(Origin, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField(null=False, default=1)
