@@ -39,7 +39,7 @@ class BaseCheckboxElement(object):
             driver.find_element(By.XPATH, self.locator).click()
 
     def __get__(self, obj: object, owner) -> bool:
-        """Gets the text of the specified object"""
+        """Gets the value of the specified object"""
 
         driver = obj.driver
         WebDriverWait(driver, 100).until(
@@ -70,3 +70,26 @@ class IframeElement(object):
         output = driver.page_source
         driver.switch_to.default_content()
         return output
+
+class BaseRadioElement(object):
+    """Base page class that is initialized on every page object class."""
+    def __set__(self, obj, value: tuple) -> None:
+        """Sets the text to the value supplied"""
+        path = self.locator(value[0])
+        driver = obj.driver
+        WebDriverWait(driver, 100).until(
+            lambda driver: driver.find_element(By.XPATH, path))
+        result = driver.find_element(By.XPATH, path).is_selected()
+        if not result and value[1]:
+            driver.find_element(By.XPATH, path).click()
+        elif result and not value[1]:
+            driver.find_element(By.XPATH, path).click()
+
+    def __get__(self, obj: object, owner) -> tuple:
+        """Gets the value of the specified object"""
+        path = self._locator
+        driver = obj.driver
+        WebDriverWait(driver, 100).until(
+            lambda driver: driver.find_element(By.XPATH, path))
+        element = driver.find_element(By.XPATH, path)
+        return element.is_selected()

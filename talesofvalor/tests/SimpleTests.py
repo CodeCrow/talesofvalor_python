@@ -286,9 +286,17 @@ class TOVTests(unittest.TestCase):
         home.click_Registration()
         self.assertTrue(
             ("<h1>Register for events</h1>" in self.driver.page_source))
-        self.characterName = names.get_full_name()
-        
-
+        EventReg = page.RegForEventPage(self.driver)
+        EventReg.Make = "Toyota"
+        EventReg.Model = "Corolla"
+        EventReg.Color = "Black"
+        EventReg.VehReg = str(uuid.uuid4())[:8]
+        EventReg.Contact = str(uuid.uuid4())[:7]
+        EventReg.Notes = """Test to see if multilines will work
+        Line 2
+        Line 3"""
+        EventReg.button = ("Spring 1 2022",True)
+        EventReg.ClickRegister()
         
     def tearDown(self) -> None:
         # so that you can view the final page for a second before the page closes.

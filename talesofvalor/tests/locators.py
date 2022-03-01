@@ -1,4 +1,3 @@
-from typing import ClassVar
 from selenium.webdriver.common.by import By
 
 
@@ -46,3 +45,6 @@ class EventLocators(object):
 
 class AddEventLocators(object):
     submitbutton = (By.XPATH,"//input[@type='submit']")
+
+class RegForEventLocators(object):
+    RegisterButton = (By.XPATH,"//input[@value='Register']")
