@@ -1,14 +1,10 @@
 import time
 import unittest
-import uuid
-from logging import warn
 
 from mailosaur import MailosaurClient
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 
-import page
+import Pages.HomePage as HomePage
 from SimpleTests import TOVTests
 
 
@@ -36,7 +32,7 @@ class TOVDangerousTests(unittest.TestCase):
 
                 if "IntegrityError at /en/players/register/" not in self.driver.page_source:
                     print(self.username+":"+self.password)
-                    home = page.HomePage(self.driver)
+                    home = HomePage.HomePage(self.driver)
                     home.click_Logout()
                     create_user = True
                 else:

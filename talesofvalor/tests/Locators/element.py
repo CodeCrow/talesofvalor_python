@@ -48,7 +48,7 @@ class BaseCheckboxElement(object):
         return element.is_selected()
 
 
-class IframeElement(object):
+class IframeNotesElement(object):
     def __set__(self,obj, value:str)-> None:
         driver = obj.driver
         WebDriverWait(driver, 100).until(

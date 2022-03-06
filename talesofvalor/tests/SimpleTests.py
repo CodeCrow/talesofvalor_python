@@ -2,15 +2,21 @@ import sys
 import time
 import unittest
 import uuid
-import names
 from datetime import date
 
+import names
 from dateutil.relativedelta import relativedelta
 from mailosaur import MailosaurClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-import page
+import Pages.AddEventPage as AddEventPage
+import Pages.EventsPage as EventsPage
+import Pages.HomePage as HomePage
+import Pages.LoginPage as LoginPage
+import Pages.MainPage as MainPage
+import Pages.RegForEventPage as EventRegPage
+import Pages.RegisterPage as RegPage
 
 
 class TOVTests(unittest.TestCase):
@@ -29,11 +35,11 @@ class TOVTests(unittest.TestCase):
         return super().setUp()
 
     def test_Login(self, username="animefreak4242", password="4Tdi5d$?&yT$ELEQ"):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_login()
-        LIPage = page.LogInPage(self.driver)
+        LIPage = LoginPage.LogInPage(self.driver)
         LIPage.username = username
         LIPage.password = password
         LIPage.click_login_btn()
@@ -43,11 +49,11 @@ class TOVTests(unittest.TestCase):
         self.assertTrue(header.text == username)
 
     def test_Bad_Password(self):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_login()
-        LIPage = page.LogInPage(self.driver)
+        LIPage = LoginPage.LogInPage(self.driver)
         LIPage.username = "timtp"
         LIPage.password = "asti6464"
         LIPage.click_login_btn()
@@ -55,11 +61,11 @@ class TOVTests(unittest.TestCase):
             "Your username and password didn't match. Please try again." in self.driver.page_source)
 
     def test_Bad_Username(self):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_login()
-        LIPage = page.LogInPage(self.driver)
+        LIPage = LoginPage.LogInPage(self.driver)
         LIPage.username = "BadUser"
         LIPage.password = "Asti6464"
         LIPage.click_login_btn()
@@ -67,11 +73,11 @@ class TOVTests(unittest.TestCase):
             "Your username and password didn't match. Please try again." in self.driver.page_source)
 
     def test_duplicate_registration(self):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_register()
-        reg_page = page.RegisterPage(self.driver)
+        reg_page = RegPage.RegisterPage(self.driver)
         reg_page.firstname = "Tim"
         reg_page.lastName = "Plummer"
         reg_page.Pronouns = "he/him"
@@ -85,11 +91,11 @@ class TOVTests(unittest.TestCase):
         # TODO update this for when the error page for duplicate username/email is active
 
     def test_random_registration(self, username=str(uuid.uuid4())[:8], password=str(uuid.uuid4())[:15]):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_register()
-        reg_page = page.RegisterPage(self.driver)
+        reg_page = RegPage.RegisterPage(self.driver)
         reg_page.firstname = names.get_first_name()
         reg_page.lastName = names.get_last_name()
         self.email =  reg_page.firstname +reg_page.lastName +username+"@"+self.emailDomain
@@ -103,11 +109,11 @@ class TOVTests(unittest.TestCase):
         reg_page.click_save_changes_btn()
 
     def test_missingInfo_registration(self, username=str(uuid.uuid4())[:8], password=str(uuid.uuid4())[:15]):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_register()
-        reg_page = page.RegisterPage(self.driver)
+        reg_page = RegPage.RegisterPage(self.driver)
         reg_page.lastName = "McTester"
         reg_page.email = "tester.McTester@"+self.emailDomain
         reg_page.Pronouns = "they/them"
@@ -149,11 +155,11 @@ class TOVTests(unittest.TestCase):
             "<h1>Register as a new user.</h1>" in self.driver.page_source)
 
     def test_bademail_registration(self, username=str(uuid.uuid4())[:8], password=str(uuid.uuid4())[:15]):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_register()
-        reg_page = page.RegisterPage(self.driver)
+        reg_page = RegPage.RegisterPage(self.driver)
         reg_page.firstname = "Tester"
         reg_page.lastName = "McTester"
         reg_page.email = "tester.McTester"
@@ -182,11 +188,11 @@ class TOVTests(unittest.TestCase):
             "Enter a valid email address." in self.driver.page_source)
 
     def test_badpassword_registration(self, username=str(uuid.uuid4())[:8], password=str(uuid.uuid4())[:15]):
-        main_page = page.MainPage(self.driver)
+        main_page = MainPage.MainPage(self.driver)
         self.assertTrue(main_page.is_title_matches(
             "Tales of Valor : Fellowship"))
         main_page.click_register()
-        reg_page = page.RegisterPage(self.driver)
+        reg_page = RegPage.RegisterPage(self.driver)
         reg_page.firstname = "Tester"
         reg_page.lastName = "McTester"
         self.email = "tester.McTester@"+self.emailDomain
@@ -205,67 +211,67 @@ class TOVTests(unittest.TestCase):
 
     def test_login_admin(self):
         self.test_Login(username="timtp2", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
 
     def test_click_register(self):
         self.test_Login(username="timtp", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_Registration()
         self.assertTrue(
             ("<h1>Register for events</h1>" in self.driver.page_source) | ("<h1>No scheduled events at this time.</h1>" in self.driver.page_source))
 
     def test_click_EventList(self):
         self.test_Login(username="timtp", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_EventList()
         self.assertTrue("<h1>Events</h1>" in self.driver.page_source)
 
     def test_click_BasicInfo_Backgrounds(self):
         self.test_Login(username="timtp", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_BasicInfo_Backgrounds()
         self.assertTrue("<h1>Origins</h1>" in self.driver.page_source)
 
     def test_click_BasicInfo_Headers(self):
         self.test_Login(username="timtp", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_BasicInfo_Headers()
         self.assertTrue("<h1>Headers</h1>" in self.driver.page_source)
 
     def test_click_BasicInfo_Skills(self):
         self.test_Login(username="timtp", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_BasicInfo_Skills()
         self.assertTrue("<h1>Skills</h1>" in self.driver.page_source)
 
     def test_click_BasicInfo_SkillsRules(self):
         self.test_Login(username="timtp2", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_BasicInfo_SkillRules()
         self.assertTrue("<h1>Rules</h1>" in self.driver.page_source)
 
     def test_click_PELS(self):
         self.test_Login(username="timtp2", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_StaffInfo_PELS()
         self.assertTrue("<h1>PELs</h1>" in self.driver.page_source)
 
     def test_click_BGS(self):
         self.test_Login(username="timtp2", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_StaffInfo_BGS()
         self.assertTrue(
             "<h1>Between Game Skills</h1>" in self.driver.page_source)
 
     def test_addEvent(self):
         self.test_Login(username="timtp2", password="Asti6464")
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_EventList()
         self.assertTrue("<h1>Events</h1>" in self.driver.page_source)
-        events = page.EventsPage(self.driver)
+        events = EventsPage.EventsPage(self.driver)
         nextEvent = events.get_nextEvent()
         events.click_addOne()
-        addEvent = page.AddEventPage(self.driver)
+        addEvent = AddEventPage.AddEventPage(self.driver)
         addEvent.eventName = nextEvent
         eventdate = date.today()+relativedelta(months=2)
         pelDate = date.today()+relativedelta(months=2, days=14)
@@ -282,11 +288,11 @@ class TOVTests(unittest.TestCase):
 
     def test_registerForNextEvent(self):
         self.test_random_registration()
-        home = page.HomePage(self.driver)
+        home = HomePage.HomePage(self.driver)
         home.click_Registration()
         self.assertTrue(
             ("<h1>Register for events</h1>" in self.driver.page_source))
-        EventReg = page.RegForEventPage(self.driver)
+        EventReg = EventRegPage.RegForEventPage(self.driver)
         EventReg.Make = "Toyota"
         EventReg.Model = "Corolla"
         EventReg.Color = "Black"
@@ -297,11 +303,13 @@ class TOVTests(unittest.TestCase):
         Line 3"""
         EventReg.button = ("Spring 1 2022",True)
         EventReg.ClickRegister()
+
         
     def tearDown(self) -> None:
         # so that you can view the final page for a second before the page closes.
         time.sleep(0.5)
         self.driver.close()
+        self.driver.quit()
         return super().tearDown()
 
 
