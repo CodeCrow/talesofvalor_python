@@ -20,9 +20,10 @@ class Event(models.Model):
         help_text=_("For reference, such as \"Spring 2, 2010\""),
         max_length=255
     )
-    event_date = models.DateField(default=date.today)
-    pel_due_date = models.DateField(default=date.today)
-    bgs_due_date = models.DateField(default=date.today)
+    d = date.today().strftime("%m/%d/%Y")
+    event_date = models.DateField(default=d)
+    pel_due_date = models.DateField(default=d)
+    bgs_due_date = models.DateField(default=d)
     oog_p = models.BooleanField(_("Out of game event"), default=False)
     bgs_p = models.BooleanField(_("Allow Between Game Skills"), default=True)
     notes = HTMLField(blank=True, default='')
@@ -30,9 +31,9 @@ class Event(models.Model):
 
     def __str__(self):
         return "{} - {}".format(
-                self.name,
-                self.event_date.strftime("%m-%d-%Y")
-            )
+            self.name,
+            self.event_date.strftime("%m-%d-%Y")
+        )
 
     @classmethod
     def previous_event(cls):
@@ -109,13 +110,11 @@ class EventRegistrationItem(models.Model):
         for an EventRegistrationItem.
         """
         return reverse('events:eventregistrationitem_detail', kwargs={'pk': self.pk})
-    
+
     def __str__(self):
         return "{}".format(
-                self.name
-            )
+            self.name
+        )
 
     class Meta:
         ordering = ['order']
-
-

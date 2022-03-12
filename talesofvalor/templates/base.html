@@ -29,11 +29,13 @@
                     </div>
                 </div>
             </header>
-            <nav class="nav row">page menu
+            <nav class="nav row">
                 {% comment %}
+                page menu
                     This is the menu for the current django cms page.
                 {% endcomment %}
                 {% show_menu 0 100 100 100 %}
+                
             </nav>
             <div class="row">
                 <div id="action_menu" class="col-sm-2 sidebar">
@@ -52,7 +54,9 @@
             </div>
             <footer class="row">
                 <div class="col-sm-12">
+                    {% comment %}
                     FOOTER
+                    {% endcomment %}
                 </div>
             </footer>
         </div>
