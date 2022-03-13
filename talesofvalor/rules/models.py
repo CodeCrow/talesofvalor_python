@@ -157,21 +157,18 @@ class Prerequisite(models.Model):
         related_name="additional_headers"
     )
 
-    @property
-    def type(self):
-        """
-        figure out the "type" of a prerequisite based on the fields
-        that are filled out.
-
-        Origin: has an "origin" that is not null
-        Skill: as a skill that is required before it can be puchased.  Maybe
-        more than one purpose
-        Points:  Has a number of points that must be spent in a header before
-        this can be purchased.
-
-        Any of these can be attached to any object.
-        """
-
+    def __str__(self):
+        """General display of model."""
+        if self.origin:
+            return f"{self.id}: Requires {self.origin}"
+        if self.number_of_purchases:
+            return f"{self.id}: Requires {self.number_of_purchases} of {self.skill}"
+        if self.number_of_different_skills:
+            return f"{self.id}: Requires {self.points} point in {self.number_of_different_skills} in {self.header}"
+        if self.additional_header:
+            return f"{self.id}: Requires additional header, {self.additional_header}"
+        if self.skill:
+            return f"{self.id}: Requires {self.skill}"
 
 class PrerequisiteGroup(models.Model):
     """

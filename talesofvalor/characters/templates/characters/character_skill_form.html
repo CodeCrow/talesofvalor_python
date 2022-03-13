@@ -12,8 +12,10 @@ Player: {{ object.player }}
     {% for header in skills %}
     {% with skill_hash|dict_key:header.id as header_costs %}
     <div class="header-group group">
-        <h2><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>&nbsp;{% if 'cost' in header_costs %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a></h2>
-        {% include "characters/includes/character_skill_item.html" %}
+        <h2 class="header-label"><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>{% if not header_costs.purchased and not header.open_flag %}&nbsp;{% if 'cost' in header_costs %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a>{% endif %}</h2>
+        {% if header_costs.purchased or header.open_flag %}
+            {% include "characters/includes/character_skill_item.html" %}
+        {% endif %}
     </div>
     {% endwith %}
     {% endfor %}
@@ -69,6 +71,7 @@ Player: {{ object.player }}
             let header_id = $(event.currentTarget).data('header-id');
             let character_id = {{ object.id }};
             let submit_url = $(event.currentTarget).attr('href');
+            let header_group = $(event.currentTarget).parent().parent();
             // get the current cp:
             let cp_available = parseInt($('#character_point_display').html());
             $.post(submit_url, {
@@ -80,6 +83,7 @@ Player: {{ object.player }}
                 // We care getting the change in points back, so update the available points
                 cp_available = parseInt($('#character_point_display').html());
                 $('#character_point_display').html(cp_available + data.success);
+                console.log(header_group);
             })
             .fail((data) => {
                 console.log(data);
