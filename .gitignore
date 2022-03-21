@@ -19,3 +19,5 @@ poetry.lock
 Pipfile.lock
 testing.out
 chromedriver.exe
+.idea/
+.idea/*
