@@ -33,10 +33,10 @@ Player: {{ object.player }}
 
         var updateSkill = (submit_url, skill_id, header_id, character_id, vector, original_purchased) => {
             // get the current cp:
-            const cp_available_display = $('#character_point_display');
-            const cp_available = parseInt(cp_available_display.html());
-            const purchased_display = $('#' + header_id + "_" + skill_id + "_display");
-            const purchased = parseInt(purchased_display.html());
+            const $cp_available_display = $('#character_point_display');
+            const cp_available = parseInt($cp_available_display.html());
+            const $purchased_display = $('#' + header_id + "_" + skill_id + "_display");
+            const purchased = parseInt($purchased_display.html());
             if (purchased + vector >= original_purchased) {
                 // update the skill points for a character
                 $.post(submit_url, { 
@@ -49,14 +49,14 @@ Player: {{ object.player }}
                 .done((data) => {
                     console.log(data);
                     // We care getting the change in points back, so update the available points
-                    cp_available_display.html(cp_available + data.success);
-                    purchased_display.html(purchased + vector);
+                    $cp_available_display.html(cp_available + data.success);
+                    $purchased_display.html(purchased + vector);
                     // see if we need to turn on or off the reduce button
-                    const reduce = purchased_display.siblings('.update-skill[data-skill-vector="-1"]');
+                    const $reduce = $purchased_display.siblings('.update-skill[data-skill-vector="-1"]');
                     if (purchased + vector <= original_purchased) {
-                        reduce.addClass('invisible');
+                        $reduce.addClass('invisible');
                     } else {
-                        reduce.removeClass('invisible');
+                        $reduce.removeClass('invisible');
                     }
                 })
                 .fail((data) => {
@@ -64,14 +64,22 @@ Player: {{ object.player }}
                 });
             }
 
-        }
+        };
+        var updateInputSkill = (submit_url, skill_id, header_id, character_id, vector, original_purchased) => {
+            // get the current cp:
+            const $cp_available_display = $('#character_point_display');
+            const cp_available = parseInt($cp_available_display.html());
+            const $checkbox = $('#id_header_' + header_id + "_skill_" + skill_id);
+            const purchased = $checkbox.is(':checked');
+            console.log("CHECKED:" + purchased);
 
+        };
         $('.add-header').click((event) => {
             event.preventDefault();
             let header_id = $(event.currentTarget).data('header-id');
             let character_id = {{ object.id }};
             let submit_url = $(event.currentTarget).attr('href');
-            let header_group = $(event.currentTarget).parent().parent();
+            let $header_group = $(event.currentTarget).parent().parent();
             // get the current cp:
             let cp_available = parseInt($('#character_point_display').html());
             $.post(submit_url, {
@@ -83,7 +91,7 @@ Player: {{ object.player }}
                 // We care getting the change in points back, so update the available points
                 cp_available = parseInt($('#character_point_display').html());
                 $('#character_point_display').html(cp_available + data.success);
-                console.log(header_group);
+                $header_group.append('PUT THE SKILLS HERE');
             })
             .fail((data) => {
                 console.log(data);
@@ -92,14 +100,26 @@ Player: {{ object.player }}
         });
         $('.update-skill').click((event) => {
             event.preventDefault();
-            updateSkill(
-                $(event.currentTarget).attr('href'),
-                $(event.currentTarget).data('skill-id'),
-                $(event.currentTarget).data('header-id'),
-                {{ object.id }},
-                $(event.currentTarget).data('skill-vector'),
-                $(event.currentTarget).data('original-purchased'),
-            );
+            console.log("type:" + $(event.currentTarget).prop('nodeName'));
+            if ($(event.currentTarget).prop('nodeName') == 'A') {
+                updateSkill(
+                    $(event.currentTarget).attr('href'),
+                    $(event.currentTarget).data('skill-id'),
+                    $(event.currentTarget).data('header-id'),
+                    {{ object.id }},
+                    $(event.currentTarget).data('skill-vector'),
+                    $(event.currentTarget).data('original-purchased'),
+                );
+            } else {
+                updateInputSkill(
+                    $(event.currentTarget).attr('href'),
+                    $(event.currentTarget).data('skill-id'),
+                    $(event.currentTarget).data('header-id'),
+                    {{ object.id }},
+                    $(event.currentTarget).data('skill-vector'),
+                    $(event.currentTarget).data('original-purchased'),
+                );
+            }
         });
     </script>
 {% endblock %}
