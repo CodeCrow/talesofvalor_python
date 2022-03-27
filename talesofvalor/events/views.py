@@ -122,6 +122,7 @@ class PlayerRegistrationView(
         registration_request = RegistrationRequest.objects.create(
             event_registration_item=cleaned_data['event_registration_item'],
             mealplan_flag=cleaned_data['mealplan_flag'],
+            food_allergies=cleaned_data['food_allergies'],
             vehicle_make=cleaned_data['vehicle_make'],
             vehicle_model=cleaned_data['vehicle_model'],
             vehicle_color=cleaned_data['vehicle_color'],

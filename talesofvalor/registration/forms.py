@@ -10,6 +10,7 @@ class EventRegistrationForm(forms.ModelForm):
         fields = [
             'event_registration_item',
             'mealplan_flag',
+            'food_allergies',
             'vehicle_make',
             'vehicle_model',
             'vehicle_color',

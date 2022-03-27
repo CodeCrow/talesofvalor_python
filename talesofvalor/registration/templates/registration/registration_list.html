@@ -13,6 +13,7 @@
           <th>Event</th>
           <th>&nbsp;</th>
           <th>Mealplan?</th>
+          <th>Food allergies</th>
           <th>cabin</th>
           <th>notes</th>
         </tr>
@@ -22,6 +23,7 @@
 	            <td><a href="{% url 'events:event_detail' pk=registration.event.id %}">{{ registration.event }}</a></td>
 	            <td><a href="{% url 'registration:detail' pk=registration.id %}">detail</a></td>
 	            <td>{% if registration.mealplan_flag %}&check;{% endif %}</td>
+	            <td>{{ registration.food_allergies }}</td>
 	            <td>{{ registration.cabin }}</td>
 	            <td>{{ registration.notes }}</td>
 	        </tr>

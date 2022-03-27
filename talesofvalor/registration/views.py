@@ -133,7 +133,6 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
 
 class RegistrationDetailView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         DetailView
         ):
@@ -142,16 +141,7 @@ class RegistrationDetailView(
     """
     template_name = "registration/registration_detail.html"
     model = Registration
-    permission_required = ('registration.add_registration', )
 
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        try:
-            return (self.object.player.user == self.request.user)
-        except Player.DoesNotExist:
-            return False
-        return False
 
 class RegistrationUpdateView(
         LoginRequiredMixin,
@@ -189,8 +179,6 @@ class RegistrationUpdateView(
 
 class RegistrationListView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
         ListView
         ):
     """
@@ -198,16 +186,7 @@ class RegistrationListView(
     """
     template_name = "registration/registration_list.html"
     model = Registration
-    permission_required = ('registration.add_registration', )
-
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        try:
-            return (self.object.player.user == self.request.user)
-        except Player.DoesNotExist:
-            return False
-        return False
+    # permission_required = ('registration.add_registration', )
 
     def get_queryset(self):
         """
@@ -220,8 +199,6 @@ class RegistrationListView(
 
 class RegistrationRequestDetailView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
         DetailView
         ):
     """
@@ -229,16 +206,6 @@ class RegistrationRequestDetailView(
     """
     template_name = "registration/registrationrequest_detail.html"
     model = RegistrationRequest
-    permission_required = ('registration.add_registration', )
-
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        try:
-            return (self.object.player.user == self.request.user)
-        except Player.DoesNotExist:
-            return False
-        return False
 
 
 class RegistrationRequestDeleteView(PermissionRequiredMixin, DeleteView):

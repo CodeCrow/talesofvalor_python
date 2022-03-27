@@ -131,6 +131,7 @@ class RegistrationRequest(models.Model):
     )
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     mealplan_flag = models.BooleanField(default=False)
+    food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
@@ -201,6 +202,7 @@ class Registration(models.Model):
         default=False,
         help_text=_("Has the player signed up for a meal plan?")
     )
+    food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
@@ -288,4 +290,3 @@ class PEL(models.Model):
     )
     what_did_you_do = HTMLField('What did you do during this event?',
                      blank=True, default='')
-

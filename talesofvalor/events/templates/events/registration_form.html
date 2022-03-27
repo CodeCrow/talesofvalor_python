@@ -28,6 +28,10 @@
 </table>
 <table id="event_registration_second_half" class="data event-registration">
 <tr>
+	<td> {{ form.food_allergies.label_tag }} </td>
+	<td> {{ form.food_allergies }} </td>
+</tr>
+<tr>
 	<td colspan="2"><h2>Vehicle Information</h2></td>
 </tr>
 {% if form.vehicle_make.errors %}
