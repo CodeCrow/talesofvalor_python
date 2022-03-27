@@ -58,7 +58,7 @@ class PlayerForm(forms.ModelForm):
 class RegistrationForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
-    player_pronouns = forms.CharField()
+    player_pronouns = forms.CharField(max_length=25)
 
     email = forms.EmailField()
     username = forms.CharField()

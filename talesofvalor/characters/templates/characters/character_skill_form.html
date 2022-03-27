@@ -91,7 +91,31 @@ Player: {{ object.player }}
                 // We care getting the change in points back, so update the available points
                 cp_available = parseInt($('#character_point_display').html());
                 $('#character_point_display').html(cp_available + data.success);
-                $header_group.append('PUT THE SKILLS HERE');
+                $header_group.append(data.skills);
+            })
+            .fail((data) => {
+                console.log(data);
+            });
+            return false;
+        });
+        $('.remove-header').click((event) => {
+            event.preventDefault();
+            let header_id = $(event.currentTarget).data('header-id');
+            let character_id = {{ object.id }};
+            let submit_url = $(event.currentTarget).attr('href');
+            let $header_group = $(event.currentTarget).parent().parent();
+            // get the current cp:
+            let cp_available = parseInt($('#character_point_display').html());
+            $.post(submit_url, {
+                header_id: header_id,
+                character_id: character_id,
+                cp_available: cp_available,
+            })
+            .done((data) => {
+                // We care getting the change in points back, so update the available points
+                cp_available = parseInt($('#character_point_display').html());
+                $('#character_point_display').html(cp_available + data.success);
+                $header_group.append(data.skills);
             })
             .fail((data) => {
                 console.log(data);
