@@ -215,7 +215,7 @@ class CharacterSkillUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
 
-        # remoev skills not in the hash.
+        # remove skills not in the hash.
         available_skills = self.object.skillhash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills, self.skills)
 
@@ -291,14 +291,16 @@ class CharacterAddHeaderView(APIView):
                 character.save()
                 print("SKILLS:{}".format(header.skills.all()))
                 content = {
-                    'success': header.cost * -1
+                    'success': header.cost * -1,
+                    'skills': "THESE ARE THE ADDDED SKILLS"
                 }
             else: 
                 content = {
                     'error': "not enough points"
                 }
                 status = HTTP_412_PRECONDITION_FAILED
-
+        else:
+            status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
 
 
