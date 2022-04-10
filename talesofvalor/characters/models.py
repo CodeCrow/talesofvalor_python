@@ -133,7 +133,14 @@ class Character(models.Model):
         people_rules = self.people.rules.all()
         print(f"TRADITION RULES:{tradition_rules}")
         print(f"PEOPLE RULES:{people_rules}")
-
+        skill_grants = self.skill_grants()
+        header_grants = self.header_grants()
+        print(f"SKILL GRANTS:{skill_grants}")
+        print(f"HEADER GRANTS:{header_grants}")
+        # go through each of the types of rules and u
+        # - update the costs for for the skills
+        # - add any granted headers
+        # - add any granted skills without the headers.
         available_skills = {}
         for h, skills in skillhash.items():
             # if the header is open, or if the user bought it.
@@ -161,7 +168,9 @@ class Character(models.Model):
         headers granted by a specific character grant or as a result of
         of character backgrounds.
         """
-
+        tradition_rules = self.tradition.rules.filter()
+        people_rules = self.people.rules.all()
+        # skill_rules = self.skills.rules.all()
 
     def skill_grants(self):
         """
@@ -169,6 +178,16 @@ class Character(models.Model):
         of character backgrounds or headers granting skills without the need
         for the player to spend points.
         """
+        people_grants = self.people.rules.filter(
+            free=True,
+            skill__isnull=False
+        ).values_list('skill', flat=True)
+        tradition_grants = self.tradition.rules.filter(
+            free=True,
+            skill__isnull=False
+        ).values_list('skill', flat=True)
+        skill_grants = list(tradition_grants) + list(people_grants)
+        return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def check_header_prerequisites(self, header):
         """

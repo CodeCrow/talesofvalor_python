@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import F
 from django.http import HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
@@ -229,6 +230,8 @@ class CharacterSkillUpdateView(
             context['skill_hash'] = self.object.skillhash
         '''
         context['skill_hash'] = self.object.skillhash
+        # add the bare skills granted by the rules
+        context['granted_skills'] = self.object.skill_grants()  
         return context
 
     def post(self, request, *args, **kwargs):
@@ -290,9 +293,17 @@ class CharacterAddHeaderView(APIView):
                 print("CHARACTER:{}".format(character.__dict__))
                 character.save()
                 print("SKILLS:{}".format(header.skills.all()))
+                skill_item_template_string = render_to_string(
+                    "characters/includes/character_skill_item.html",
+                    {
+                        'header': header,
+                        'header_costs': character.skillhash[header.id]
+                    },
+                    request
+                )
                 content = {
                     'success': header.cost * -1,
-                    'skills': "THESE ARE THE ADDDED SKILLS"
+                    'skills': skill_item_template_string
                 }
             else: 
                 content = {
@@ -346,7 +357,7 @@ class CharacterAddSkillView(APIView):
                 (character_skill, created) = character.characterskills_set.get_or_create(
                     skill=header_skill
                 )
-                if character_skill.count + vector < 0:
+                if character_skill.count and (character_skill.count + vector < 0):
                     content = {
                         'error': f"You don't have any points in {header_skill.skill}"
                     }
