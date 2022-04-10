@@ -285,8 +285,10 @@ class PEL(models.Model):
     learned = models.TextField('Did your character learn new skills or spells during game?  If so, list them here.',
                                blank=True, default='')
     heavy_armor_worn_flag = models.BooleanField(
-    	_('Character wore heavy armor this event (cheaper Health pre-req)?'),
-    	default=False
+        _('Character wore heavy armor this event (cheaper Health pre-req)?'),
+        default=False
     )
-    what_did_you_do = HTMLField('What did you do during this event?',
-                     blank=True, default='')
+    what_did_you_do = HTMLField(
+        'What did you do during this event?',
+        blank=True, default=''
+    )

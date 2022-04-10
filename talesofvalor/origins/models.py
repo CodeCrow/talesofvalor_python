@@ -18,6 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+
 class Origin(models.Model):
     """
     Backgrounds and Races and such.
