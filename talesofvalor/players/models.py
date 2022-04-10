@@ -44,6 +44,7 @@ class Player(models.Model):
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
     player_pronouns = models.CharField(max_length=25, default='')
+    food_allergies = models.TextField(default='')
 
 
     def __str__(self):
@@ -51,7 +52,8 @@ class Player(models.Model):
         return "{} {} {}".format(
             self.user.first_name,
             self.user.last_name,
-            self.player_pronouns
+            self.player_pronouns,
+            self.food_allergies
         )
 
     @property
