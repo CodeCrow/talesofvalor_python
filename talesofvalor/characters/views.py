@@ -230,6 +230,8 @@ class CharacterSkillUpdateView(
             context['skill_hash'] = self.object.skillhash
         '''
         context['skill_hash'] = self.object.skillhash
+        # add the bare skills granted by the rules
+        context['granted_skills'] = self.object.skill_grants()  
         return context
 
     def post(self, request, *args, **kwargs):
