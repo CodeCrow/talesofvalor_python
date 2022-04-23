@@ -137,7 +137,7 @@ class Character(models.Model):
         header_grants = self.header_grants()
         print(f"SKILL GRANTS:{skill_grants}")
         print(f"HEADER GRANTS:{header_grants}")
-        # go through each of the types of rules and u
+        # go through each of the types of rules
         # - update the costs for for the skills
         # - add any granted headers
         # - add any granted skills without the headers.
@@ -170,7 +170,6 @@ class Character(models.Model):
         """
         tradition_rules = self.tradition.rules.filter()
         people_rules = self.people.rules.all()
-        # skill_rules = self.skills.rules.all()
 
     def skill_grants(self):
         """

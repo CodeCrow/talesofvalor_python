@@ -18,6 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+
 class Skill(models.Model):
     """
     Skill representing things that characters can do.
@@ -140,7 +141,7 @@ class Header(models.Model):
         default=False
     )
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
-    # done like the to prevent circular imports
+    # done like this to prevent circular imports
     prerequisites = GenericRelation('rules.Prerequisite')
     prerequisite_groups = GenericRelation('rules.PrerequisiteGroup')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
@@ -180,11 +181,11 @@ class HeaderSkill(models.Model):
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
     magic_flag = models.BooleanField(
-    	_("Is this magical?"),
-    	help_text=_("""
+        _("Is this magical?"),
+        help_text=_("""
             Indicates that this skill is magical.
             """),
-    	default=False
+        default=False
     )
     capstone_flag = models.BooleanField(
         _("Is this a capstone?"),

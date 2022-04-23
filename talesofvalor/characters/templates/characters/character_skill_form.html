@@ -14,11 +14,18 @@ Player: {{ object.player }}
     <div class="header-group group">
         <h2 class="header-label"><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>{% if not header_costs.purchased and not header.open_flag %}&nbsp;{% if 'cost' in header_costs %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a>{% endif %}</h2>
         {% if header_costs.purchased or header.open_flag %}
-            {% include "characters/includes/character_skill_item.html" %}
+            {% include "characters/includes/character_skill_update_item.html" %}
         {% endif %}
     </div>
     {% endwith %}
     {% endfor %}
+    {% if granted_skills %}
+    <h2>Grants</h2>
+    {% for skill in granted_skills %}
+        <h2 class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>:</h2> 
+        {% include "characters/includes/character_skill_item.html" with skill=skill.skill %}</br>
+    {% endfor %}
+    {% endif %}
         <tr>
             <td colspan="2" class="text-right">
                 <input type="submit" value="Update" />
