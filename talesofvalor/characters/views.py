@@ -351,7 +351,7 @@ class CharacterAddSkillView(APIView):
             # since vector is the direction, we want to reverse it when
             # dealing with what we want to change for the available points
             # see if the character has enough points to add the header
-            cost = header_skill.cost * vector
+            cost = character.skill_cost(header_skill) * vector
             if (cp_available - cost) >= 0:
                 # when this is returned, change the available costs
                 (character_skill, created) = character.characterskills_set.get_or_create(

@@ -20,7 +20,7 @@ Player: {{ object.player }}
     {% endwith %}
     {% endfor %}
     {% if granted_skills %}
-    <h2>Grants</h2>
+    <h1>Grants</h1>
     {% for skill in granted_skills %}
         <h2 class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>:</h2> 
         {% include "characters/includes/character_skill_item.html" with skill=skill.skill %}</br>

@@ -40,6 +40,9 @@ class Skill(models.Model):
         default=False
     )
     bgs_flag = models.BooleanField(default=False)
+
+    rules = GenericRelation('rules.Rule', related_query_name='rules')
+    
     created = models.DateTimeField(
         'date published',
         auto_now_add=True,
@@ -141,6 +144,8 @@ class Header(models.Model):
         default=False
     )
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
+
+    rules = GenericRelation('rules.Rule', related_query_name='rules')
     # done like this to prevent circular imports
     prerequisites = GenericRelation('rules.Prerequisite')
     prerequisite_groups = GenericRelation('rules.PrerequisiteGroup')

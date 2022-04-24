@@ -153,15 +153,54 @@ class Character(models.Model):
                 # what skills have we bought?
                 for skill_id in available_skills[h]['skills']:
                     try:
-                        available_skills[h]['skills'][skill_id]['purchased'] = self.characterskills_set.get(
+                        character_skill = self.characterskills_set.get(
                             skill_id=skill_id
-                        ).count
+                        )
+                        available_skills[h]['skills'][skill_id]['purchased'] = character_skill.count
                     except CharacterSkills.DoesNotExist:
                         # if it doesn't exist, we can leave purchased as default.   
                         pass
 
+                    header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
+                    available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
+
         # skillhash = filter(lambda x: x % 2 != 0, skillhash)
         return available_skills
+
+    def skill_cost(self, header_skill):
+        """
+        Figure out what this skill should cost for this character, based
+        on the Rules model
+        """
+        # see if there is an updated cost for the skill
+        skill_cost_query = Rule.objects.filter(
+            skill=header_skill,
+            new_cost__gt=0
+        )
+        if not skill_cost_query.exists():
+            return header_skill.cost
+
+        # there are cost updates for that skill.  See if the current
+        # character has any of them.
+        # just get the new costs and put them in the list and get the lowest.
+        people_grants = self.people.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        tradition_grants = self.tradition.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        skill_grants = header_skill.skill.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        header_grants = header_skill.header.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        found_rules = list(tradition_grants) + list(people_grants) + list(skill_grants) + list(header_grants)
+        if not found_rules:
+            return header_skill.cost
+        print(f"FOUND RULES:{found_rules}")
+        return min(found_rules)
+
 
     def header_grants(self):
         """
