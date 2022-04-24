@@ -37,7 +37,7 @@ class BetweenGameSkill(models.Model):
     assigned_to = models.ForeignKey(
         Player,
         null=True,
-        limit_choices_to={'is_staff': True},
+        limit_choices_to={"user__is_staff": True},
         on_delete=models.SET_NULL
     )
     submit_date = models.DateTimeField(
@@ -47,5 +47,9 @@ class BetweenGameSkill(models.Model):
     )
     answer_date = models.DateTimeField(
         _('answered'),
-        editable=False
+        editable=False,
+        null=True
     )
+
+    def __str__(self):
+        return f"{self.character} -> {self.event}"

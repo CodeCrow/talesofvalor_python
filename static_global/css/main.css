@@ -149,6 +149,8 @@ input[type=checkbox] {
 
 .portrait {
   float: right;
+  width: 100%;
+  max-width: 400px;
 }
 
 .alternating-container > *:nth-of-type(even) {
