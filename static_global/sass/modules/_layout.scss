@@ -35,3 +35,13 @@ li.heading {
 .content-align-right {
     text-align:right;
 }
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.header-group {
+    width:45%;
+}

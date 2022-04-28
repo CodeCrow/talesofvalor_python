@@ -198,7 +198,6 @@ class Character(models.Model):
         found_rules = list(tradition_grants) + list(people_grants) + list(skill_grants) + list(header_grants)
         if not found_rules:
             return header_skill.cost
-        print(f"FOUND RULES:{found_rules}")
         return min(found_rules)
 
 

@@ -44,4 +44,11 @@ $(".alert").click((e) => {
     $(e.currentTarget).hide(500);
 });
 
+window.showError = function(title, message) {
+    $('#error_modal_label').html(title);
+    $('#error_modal_body').html(message);
+    $('#error_modal').modal('show');
+}
+
+
 require('./jquery.selection_save.js');

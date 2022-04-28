@@ -48,8 +48,7 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         """
         The form has been successful.
 
-        Now, we want to create the success url, using the origin that was
-        editted.
+        Now, we want to create the success url
         """
         return reverse('registration:request_detail', kwargs={
             'pk': self.kwargs.get('registration_request_id')

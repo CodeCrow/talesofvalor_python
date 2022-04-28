@@ -9,6 +9,7 @@ Player: {{ object.player }}
 <form id="charcterskill_form" action="" method="post">{% csrf_token %}
     {% include "characters/includes/character_stats.html" with object=object %}
     <h2>Available Character Points: <span id="character_point_display">{{ object.cp_available }}</span></h2>
+    <div class="flex-container">
     {% for header in skills %}
     {% with skill_hash|dict_key:header.id as header_costs %}
     <div class="header-group group">
@@ -19,6 +20,7 @@ Player: {{ object.player }}
     </div>
     {% endwith %}
     {% endfor %}
+    </div>
     {% if granted_skills %}
     <h1>Grants</h1>
     {% for skill in granted_skills %}
@@ -67,6 +69,7 @@ Player: {{ object.player }}
                     }
                 })
                 .fail((data) => {
+                    showError("Error Adding Skill", data.responseJSON.error);
                     console.log(data);
                 });
             }
@@ -97,6 +100,7 @@ Player: {{ object.player }}
                     $checkbox.prop('checked', (vector < 0 ? false : true));
                 })
                 .fail((data) => {
+                    showError("Error Adding Skill", data.responseJSON.error);
                     console.log(data);
                 });
             }
@@ -123,6 +127,7 @@ Player: {{ object.player }}
                 $(event.currentTarget).remove();
             })
             .fail((data) => {
+                    showError("Error Adding Skill", data.responseJSON.error);
                 console.log(data);
             });
             return false;

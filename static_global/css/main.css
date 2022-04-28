@@ -49,6 +49,16 @@ li.heading {
   text-align: right;
 }
 
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.header-group {
+  width: 45%;
+}
+
 input[type=checkbox] {
   margin: 0 0.5rem;
 }

@@ -307,7 +307,7 @@ class CharacterAddHeaderView(APIView):
                 }
             else: 
                 content = {
-                    'error': "not enough points"
+                    'error': "You don't have enough points available for this character to add this header."
                 }
                 status = HTTP_412_PRECONDITION_FAILED
         else:
@@ -373,7 +373,7 @@ class CharacterAddSkillView(APIView):
                     character.save()
             else: 
                 content = {
-                    'error': "not enough points"
+                    'error': "You don't have enough points available to purchase this skill . . ."
                 }
                 status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
