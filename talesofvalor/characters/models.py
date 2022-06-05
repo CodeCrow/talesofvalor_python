@@ -126,17 +126,7 @@ class Character(models.Model):
         # update skillhash with skills the character has.
         # go through the headers and figure out what headers have had the
         # prerequisites met . . .
-        bought_headers = self.headers.all().values_list('id', flat=True)
-        print(f"BOUGHT HEADERS:{bought_headers}")
-        # get the updates from the rules that affect the character skills.
-        tradition_rules = self.tradition.rules.all()
-        people_rules = self.people.rules.all()
-        print(f"TRADITION RULES:{tradition_rules}")
-        print(f"PEOPLE RULES:{people_rules}")
-        skill_grants = self.skill_grants()
-        header_grants = self.header_grants()
-        print(f"SKILL GRANTS:{skill_grants}")
-        print(f"HEADER GRANTS:{header_grants}")
+        bought_headers = list(self.headers.all().values_list('id', flat=True)) + ['dabble']
         # go through each of the types of rules
         # - update the costs for for the skills
         # - add any granted headers
@@ -144,7 +134,8 @@ class Character(models.Model):
         available_skills = {}
         for h, skills in skillhash.items():
             # if the header is open, or if the user bought it.
-            header = Header.objects.get(pk=h)
+            if h != 'dabble':
+                header = Header.objects.get(pk=h)
             if h in bought_headers or header.open_flag or not header.hidden_flag:
                 available_skills[h] = skills
                 # update the has with what has been purchased
@@ -160,11 +151,9 @@ class Character(models.Model):
                     except CharacterSkills.DoesNotExist:
                         # if it doesn't exist, we can leave purchased as default.   
                         pass
-
-                    header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
-                    available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
-
-        # skillhash = filter(lambda x: x % 2 != 0, skillhash)
+                    if h != 'dabble':
+                        header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
+                        available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
         return available_skills
 
     def skill_cost(self, header_skill):
@@ -201,13 +190,6 @@ class Character(models.Model):
         return min(found_rules)
 
 
-    def header_grants(self):
-        """
-        headers granted by a specific character grant or as a result of
-        of character backgrounds.
-        """
-        tradition_rules = self.tradition.rules.filter()
-        people_rules = self.people.rules.all()
 
     def skill_grants(self):
         """

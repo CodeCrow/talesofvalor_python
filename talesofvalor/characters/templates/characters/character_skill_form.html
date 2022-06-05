@@ -15,12 +15,18 @@ Player: {{ object.player }}
     <div class="header-group group">
         <h2 class="header-label"><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>{% if not header_costs.purchased and not header.open_flag %}&nbsp;{% if 'cost' in header_costs %}({{ header_costs.cost }} CPs){% endif %}&nbsp;<a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a>{% endif %}</h2>
         {% if header_costs.purchased or header.open_flag %}
-            {% include "characters/includes/character_skill_update_item.html" %}
+            {% include "characters/includes/character_skill_update_item.html" with header_skills=header.skills.all %}
         {% endif %}
     </div>
     {% endwith %}
     {% endfor %}
     </div>
+    {% if dabbled_skills %}
+        <h1>Dabble</h1>
+        <div class="header-group group">
+            {% include "characters/includes/character_skill_update_item.html" with header_skills=dabbled_skills header_costs=skill_hash.dabble %}
+        </div>
+    {% endif %}
     {% if granted_skills %}
     <h1>Grants</h1>
     {% for skill in granted_skills %}
@@ -40,11 +46,17 @@ Player: {{ object.player }}
     {{ block.super }}
     <script type="text/javascript">
 
-        var updateSkill = (submit_url, skill_id, header_id, character_id, vector, original_purchased) => {
+        var updateSkill = (eventTarget, character_id) => {
+            // get the information
+            const submit_url = $(eventTarget).attr('href')
+            const skill_id = $(eventTarget).data('skill-id')
+            const header_id = $(eventTarget).data('header-id')
+            const vector = $(eventTarget).data('skill-vector')
+            const original_purchased = $(eventTarget).data('original-purchased')
             // get the current cp:
             const $cp_available_display = $('#character_point_display');
             const cp_available = parseInt($cp_available_display.html());
-            const $purchased_display = $('#' + header_id + "_" + skill_id + "_display");
+            const $purchased_display = $(eventTarget).siblings('#' + header_id + "_" + skill_id + "_display");
             const purchased = parseInt($purchased_display.html());
             if (purchased + vector >= original_purchased) {
                 // update the skill points for a character
@@ -94,7 +106,6 @@ Player: {{ object.player }}
                     cp_available: cp_available,
                  })
                 .done((data) => {
-                    console.log(data);
                     // We care getting the change in points back, so update the available points
                     $cp_available_display.html(cp_available + data.success);
                     $checkbox.prop('checked', (vector < 0 ? false : true));
@@ -137,12 +148,8 @@ Player: {{ object.player }}
             event.preventDefault();
             if ($(event.currentTarget).prop('nodeName') == 'A') {
                 updateSkill(
-                    $(event.currentTarget).attr('href'),
-                    $(event.currentTarget).data('skill-id'),
-                    $(event.currentTarget).data('header-id'),
-                    {{ object.id }},
-                    $(event.currentTarget).data('skill-vector'),
-                    $(event.currentTarget).data('original-purchased'),
+                    event.currentTarget,
+                    {{ object.id }}
                 );
             } else {
                 updateInputSkill(

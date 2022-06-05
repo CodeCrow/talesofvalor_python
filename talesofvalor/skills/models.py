@@ -18,6 +18,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+# how much extra dabble skills cost.
+DABBLE_ADDITIONAL_COST = 1
+
 
 class Skill(models.Model):
     """
@@ -117,6 +120,18 @@ class Skill(models.Model):
         }
         for h in headers:
             skill_hash[h.id]['cost'] = h.cost
+
+        # get the dabble skills
+        skill_hash['dabble'] = {
+            'skills':  {
+                s.skill_id: {
+                    'cost': s.cost + DABBLE_ADDITIONAL_COST,
+                    'purchased': 0
+                }
+                for s in HeaderSkill.objects.filter(dabble_flag=True)
+            }
+        }
+
         return skill_hash
 
 
