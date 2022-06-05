@@ -12,7 +12,7 @@
 <p><a href="{% url 'registration:edit' pk=object.pk %}">edit</a></p>
 <p><strong>Cabin:</strong> {{ object.cabin }}</p>
 <p><strong>On-site Contact:</strong> {{ object.local_contact }}</p>
-<p><strong>Mealplan?</strong> {% if object.mealplan %}&check;{% endif %}</p>
+<p><strong>Mealplan?</strong> {% if object.mealplan_flag %}&#x2714;{% else %}&#x2717;{% endif %}</p>
 <p><strong>Food allergies:</strong> {{ object.food_allergies }}</p>
 
 <h3>Vehicle Info:<h3><br />
