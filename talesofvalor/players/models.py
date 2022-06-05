@@ -172,6 +172,7 @@ class RegistrationRequest(models.Model):
         Figure out the cost of this request based on field values.
         """
         mealplan_price = 0
+        print(f"MEALPLAN FLAG: {self.mealplan_flag}")
         if self.mealplan_flag:
             mealplan_price = self.event_registration_item.events.count() * EVENT_MEALPLAN_PRICE
         return self.event_registration_item.price + mealplan_price

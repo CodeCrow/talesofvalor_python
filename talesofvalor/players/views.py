@@ -33,7 +33,6 @@ from .forms import UserForm, PlayerViewable_UserForm, PlayerForm, PlayerViewable
 from .models import Player, Registration, PEL
 
 
-
 class PlayerUpdateView(
         LoginRequiredMixin,
         UserPassesTestMixin,
@@ -548,7 +547,6 @@ class PELListView(PermissionRequiredMixin, ListView):
 
         for pel in queryset:
             print(f'\npel: player={pel.player}, pel.event={pel.event}, pel.event.id={pel.event.id}\n')
-
 
         attended = self.request.GET.get('attended', None)
         print(f'**************** attended {attended}')

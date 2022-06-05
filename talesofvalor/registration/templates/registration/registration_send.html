@@ -32,7 +32,7 @@
 			return actions.order.create({
 				purchase_units: [{
 					amount: {
-						value: {{ request.event_registration_item.total }}
+						value: {{ request.cost }}
 					},
 					description: "{{ request.event_registration_item.name }}",
 					custom_id: {{ request.id }}

@@ -99,9 +99,6 @@ class EventRegistrationItem(models.Model):
     )
     price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
-    def total(self):
-        return self.price + EVENT_MEALPLAN_PRICE
-
     def get_absolute_url(self):
         """
         Return the absolute URL.

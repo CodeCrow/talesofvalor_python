@@ -88,7 +88,9 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
                 vehicle_color=event_reg_request.vehicle_color,
                 vehicle_registration=event_reg_request.vehicle_registration,
                 local_contact=event_reg_request.local_contact,
-                registration_request=event_reg_request
+                registration_request=event_reg_request,
+                mealplan_flag=event_reg_request.mealplan_flag,
+                food_allergies=event_reg_request.food_allergies
                 )
             registration.save()
             # send an email to staff with a link to the registration
