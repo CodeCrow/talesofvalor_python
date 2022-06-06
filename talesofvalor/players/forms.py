@@ -58,7 +58,6 @@ class PlayerViewable_UserForm(UserForm):
         ]
 
 
-
 class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player

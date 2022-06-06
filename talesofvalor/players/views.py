@@ -58,17 +58,27 @@ class PlayerUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['user_form'] = UserForm(
-                instance=self.object.user,
-                data=self.request.POST
-            )
-            context['player_form'] = PlayerForm(
-                instance=self.object,
-                data=self.request.POST
-            )
+            if self.request.user.has_perm('player.change_any_player'):
+                context['user_form'] = UserForm(
+                    instance=self.object.user,
+                    data=self.request.POST
+                )
+                context['player_form'] = PlayerForm(
+                    instance=self.object,
+                    data=self.request.POST
+                )
+            else:
+                context['player_form'] = PlayerViewable_PlayerForm(
+                    instance=self.object,
+                    data=self.request.POST
+                )
+                context['user_form'] = PlayerViewable_UserForm(
+                    instance=self.object.user,
+                    data=self.request.POST
+                )
         else:
             # adjust fields for different users
-            if self.object.user.has_perm('players.view_any_player'):
+            if self.request.user.has_perm('player.change_any_player'):
                 context['player_form'] = PlayerForm(instance=self.object)
                 context['user_form'] = UserForm(instance=self.object.user)
             else:
