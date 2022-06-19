@@ -296,9 +296,10 @@ class CharacterAddHeaderView(APIView):
                 character.save()
                 print("SKILLS:{}".format(header.skills.all()))
                 skill_item_template_string = render_to_string(
-                    "characters/includes/character_skill_item.html",
+                    "characters/includes/character_skill_update_item.html",
                     {
                         'header': header,
+                        'header_skills': header.skills.all(),
                         'header_costs': character.skillhash[header.id]
                     },
                     request

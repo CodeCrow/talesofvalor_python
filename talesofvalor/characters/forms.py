@@ -58,7 +58,6 @@ class CharacterForm(forms.ModelForm):
                 character.origins.add(self.cleaned_data[origin[0]])
         return character
 
-
     class Meta:
         model = Character
         exclude = [
