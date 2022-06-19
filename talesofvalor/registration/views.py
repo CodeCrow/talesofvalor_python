@@ -1,7 +1,9 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.core import mail
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import FormView, TemplateView, ListView, DeleteView
 from django.views.generic.detail import DetailView
@@ -17,6 +19,24 @@ from .forms import RegistrationCompleteForm
 
 class RegistrationSendView(PayPalClientMixin, TemplateView):
     template_name = "registration/registration_send.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure that the user hasn't already registered for this event.
+        """
+        existing_registration_request = RegistrationRequest.objects.filter(
+            player=request.user.player,
+            status=REQUESTED
+        ).exists()
+        if not existing_registration_request:
+
+            # If there are no more requests go back to list
+            messages.info(self.request, "No Registration Requests Left.  Please choose an event to register for.")
+            return HttpResponseRedirect(
+                reverse('events:event_list')
+            )
+        else:
+            return super().dispatch(request, args, kwargs)
 
     def get_context_data(self, **kwargs):
         """
@@ -213,7 +233,11 @@ class RegistrationRequestDetailView(
     model = RegistrationRequest
 
 
-class RegistrationRequestDeleteView(PermissionRequiredMixin, DeleteView):
+class RegistrationRequestDeleteView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        DeleteView
+        ):
     """
     Removes a request for registration that a user has.
 
@@ -221,5 +245,14 @@ class RegistrationRequestDeleteView(PermissionRequiredMixin, DeleteView):
     """
     template_name = "registration/registration_delete.html"
     model = RegistrationRequest
-    permission_required = ('registration.delete_registration', )
     success_url = reverse_lazy('registration:create')
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = RegistrationRequest.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except RegistrationRequest.DoesNotExist:
+            return False
+        return False
