@@ -11,8 +11,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
-from filer.fields.image import FilerImageField
-
 from talesofvalor.players.models import Player
 from talesofvalor.rules.models import Prerequisite, Rule
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
@@ -50,7 +48,7 @@ class Character(models.Model):
     pronouns = models.CharField('pronouns', max_length=25, default='')
     description = models.TextField(blank=True)
     history = models.TextField(blank=True)
-    picture = FilerImageField(blank=True, null=True, on_delete=models.CASCADE)
+    picture = models.ImageField(blank=True, null=True, upload_to="characters/")
     player_notes = models.TextField(blank=True)
     staff_notes_visible = models.TextField(blank=True)
     staff_notes_hidden = models.TextField(blank=True)
@@ -64,7 +62,7 @@ class Character(models.Model):
     headers = models.ManyToManyField(Header)
     skills = models.ManyToManyField(HeaderSkill, through='CharacterSkills')
     # origins.  Should only be as many as there are types.
-    origins = models.ManyToManyField(Origin)
+    origins = models.ManyToManyField(Origin, null=True)
 
     created = models.DateTimeField(
         _('date created'),

@@ -11,8 +11,9 @@ Player: {{ object.player }}
     <span style="font-size: large"> {{ object.pronouns }} </span>
     {% if object.active_flag %} (active){% endif %}
 </div> 
+{% if object.picture %}
 <img class="portrait" src="{{ object.picture.url }}" alt="{{ object.name }}" />
-
+{% endif %}
 <nav>
     <a href="{% url 'characters:character_update' pk=object.pk %}">Update</a>
     <a href="{% url 'characters:character_skill_update' pk=object.pk %}">Skills</a>
