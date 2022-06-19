@@ -59,7 +59,7 @@ class Character(models.Model):
     cp_available = models.PositiveIntegerField(default=STARTING_POINTS)
     cp_transferred = models.PositiveIntegerField(default=0)
     # The headers and skills that a character has.
-    headers = models.ManyToManyField(Header)
+    headers = models.ManyToManyField(Header, null=True)
     skills = models.ManyToManyField(HeaderSkill, through='CharacterSkills')
     # origins.  Should only be as many as there are types.
     origins = models.ManyToManyField(Origin, null=True)
