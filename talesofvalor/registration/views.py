@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.core import mail
-from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import FormView, TemplateView, ListView, DeleteView
 from django.views.generic.detail import DetailView
@@ -11,7 +10,7 @@ from paypalcheckoutsdk.orders import OrdersGetRequest
 
 from talesofvalor.mixins import PayPalClientMixin
 from talesofvalor.players.models import RegistrationRequest, Registration,\
-    Player, COMPLETE, REQUESTED
+    COMPLETE, REQUESTED
 
 from .forms import RegistrationCompleteForm
 
@@ -143,6 +142,16 @@ class RegistrationDetailView(
     template_name = "registration/registration_detail.html"
     model = Registration
 
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Registration.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Registration.DoesNotExist:
+            return False
+        return False
+
 
 class RegistrationUpdateView(
         LoginRequiredMixin,
@@ -160,11 +169,6 @@ class RegistrationUpdateView(
     template_name = "registration/registration_form.html"
     model = Registration
     permission_required = ('registration.change_registration', )
-
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        return False
 
     def get_success_url(self):
         """

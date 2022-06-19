@@ -1,6 +1,7 @@
 """These are views that are used for viewing and editing events."""
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
@@ -9,7 +10,8 @@ from django.views.generic.edit import CreateView, UpdateView,\
     FormMixin
 
 from talesofvalor.attendance.models import Attendance
-from talesofvalor.players.models import RegistrationRequest
+from talesofvalor.players.models import RegistrationRequest,\
+    Registration
 
 from .forms import EventForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
@@ -88,6 +90,19 @@ class PlayerRegistrationView(
     form_class = EventRegistrationForm
     success_url = reverse_lazy('registration:create')
     template_name = 'events/registration_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure that the user hasn't already registered for this event.
+        """
+        existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
+        if existing_registration:
+            # if you have already registered, go to edit the registration
+            return HttpResponseRedirect(
+                reverse('registration:detail', kwargs={'pk': existing_registration.id})
+            )
+        else:
+            return super().dispatch(request, args, kwargs)
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
