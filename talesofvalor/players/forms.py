@@ -1,8 +1,11 @@
 from django import forms
 from django.conf import settings
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from talesofvalor.characters.models import Character
@@ -90,6 +93,31 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
     password_confirm = forms.CharField(widget=forms.PasswordInput)
 
+    def clean_email(self):
+        """
+        Make sure the email is unique
+        """
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise ValidationError(mark_safe(f"This email address already exists.  Did you <a href=\"{reverse('password_reset')}\">forget your login?</a>"))
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return data
+
+    def clean_username(self):
+        """
+        The username should be unique
+        """
+        data = self.cleaned_data['username']
+        if User.objects.filter(username=data).exists():
+            raise ValidationError(mark_safe(f"This username already exists.  Did you <a href=\"{reverse('password_reset')}\">forget your login?</a>"))
+
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return data
+
     def clean(self):
         """
         Clean the full form data.
@@ -97,8 +125,8 @@ class RegistrationForm(forms.Form):
         We have a confirm password here, so we have to check that it matches
         the password when we clean it.
         """
-
         cleaned_data = super(RegistrationForm, self).clean()
+
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
         if password and password_confirm:
