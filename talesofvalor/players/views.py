@@ -93,9 +93,16 @@ class PlayerUpdateView(
             context['player_form'].save()
             context['user_form'].save() 
             messages.info(self.request, '{} Updated.'.format(self.object.user.username))
-            return HttpResponseRedirect(reverse('players:player_list'))
-        return self.render_to_response(context)  
-   
+            print(f"User:{self.request.user.player.id}|PLAYER:{self.object.id}")
+            if self.request.user.player == self.object:
+                return HttpResponseRedirect(reverse(
+                    'players:player_detail',
+                    kwargs={'username': self.object.user.username}
+                ))
+            else:
+                return HttpResponseRedirect(reverse('players:player_list'))
+        return self.render_to_response(context)
+
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
     """
