@@ -49,11 +49,10 @@ class Player(models.Model):
 
     def __str__(self):
         """General display of model."""
-        return "{} {} {}".format(
+        return "{} {} ({})".format(
             self.user.first_name,
             self.user.last_name,
-            self.player_pronouns,
-            self.food_allergies
+            self.player_pronouns
         )
 
     @property
