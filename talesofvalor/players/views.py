@@ -93,7 +93,6 @@ class PlayerUpdateView(
             context['player_form'].save()
             context['user_form'].save() 
             messages.info(self.request, '{} Updated.'.format(self.object.user.username))
-            print(f"User:{self.request.user.player.id}|PLAYER:{self.object.id}")
             if self.request.user.player == self.object:
                 return HttpResponseRedirect(reverse(
                     'players:player_detail',

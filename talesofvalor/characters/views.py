@@ -64,7 +64,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse(
-            'characters:character_detail',
+            'characters:character_skill_update',
             kwargs={'pk': self.object.pk}
         )
 
@@ -72,9 +72,19 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         """
         If this form is valid, then add the current player to the character
         if the current user is not an admin
+
+        If the user doesn't have any other active characters, set this one
+        to active.
         """
         if not self.request.user.has_perm('players.view_any_player'):
             form.instance.player = self.request.user.player
+
+        if not form.instance.player.character_set.filter(active_flag=True).exists():
+            form.instance.active_flag = True
+
+        messages.info(self.request, 'New Character, "{}" created.'.format(
+            form.instance.name
+        ))
         return super().form_valid(form)
 
 
