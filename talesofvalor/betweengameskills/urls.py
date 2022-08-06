@@ -14,6 +14,11 @@ urlpatterns = [
         name='betweengameskill_list'
     ),
     path(
+        '',
+        BetweenGameSkillListView.as_view(),
+        name='betweengameskill_list'
+    ),
+    path(
         'add/',
         BetweenGameSkillCreateView.as_view(),
         name='betweengameskill_create'
