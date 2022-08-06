@@ -2,6 +2,7 @@
 from django.urls import path
 
 from .views import EventCreateView, EventUpdateView, EventListView,\
+    EventPastListView,\
     EventDetailView, PlayerRegistrationRedirectView,\
     PlayerRegistrationNoEventView, PlayerRegistrationView,\
     EventRegistrationItemDetailView, EventRegistrationItemListView,\
@@ -44,6 +45,11 @@ urlpatterns = [
         '<int:pk>/register/',
         PlayerRegistrationView.as_view(),
         name='register'
+    ),  
+    path(
+        'past/',
+        EventPastListView.as_view(),
+        name='event_past_list'
     ),
     path(
         '',

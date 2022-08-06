@@ -1,4 +1,7 @@
 """These are views that are used for viewing and editing events."""
+
+from datetime import date
+
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
 from django.http import HttpResponseRedirect
@@ -40,14 +43,33 @@ class EventListView(ListView):
 
         We might only want events that a particular character attended.
         """
-        qs = self.model.objects.all()
+        qs = super().get_queryset()
         character_id = self.kwargs.get('character', None)
         if character_id:
             attendances = Attendance.objects\
                 .filter(character=self.kwargs['character'])\
                 .values_list('id', flat=True)
             qs = qs.filter(id__in=attendances)
+        # if there is a next event start the list there
+        next_event = Event.next_event()
+        if next_event:
+            qs = qs.filter(event_date__gte=next_event.event_date)
         return qs
+
+class EventPastListView(ListView):
+    model = Event
+    template_name = 'events/event_past_list.html'
+
+    def get_queryset(self):
+        """
+        Limit the events.
+
+        We might only want events that a particular character attended.
+        """
+        qs = super().get_queryset().filter(event_date__lte=date.today())\
+            .order_by('-event_date')
+        return qs
+
 
 
 class EventDetailView(DetailView):

@@ -124,8 +124,10 @@ class BetweenGameSkillListView(LoginRequiredMixin, ListView):
         user = None
         queryset = super().get_queryset()
         # filter by event
-        if self.request.GET.get('event', None):
-            queryset = queryset.filter(event=self.request.GET['event'])
+
+        event_id = self.kwargs.get('event_id', None)
+        if event_id:
+            queryset = queryset.filter(event__id=event_id)
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('player.view_any_player'):
             # if the username was sent, filter by that.
@@ -134,6 +136,6 @@ class BetweenGameSkillListView(LoginRequiredMixin, ListView):
         else:
             user = self.request.user
         if user:
-            characters = user.player.character_set()
+            characters = user.player.character_set.all()
             queryset = queryset.filter(character__in=characters)
         return queryset
