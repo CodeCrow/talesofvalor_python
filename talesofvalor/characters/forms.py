@@ -54,10 +54,9 @@ class CharacterForm(forms.ModelForm):
         # if we have both the types of origins, then update the origins here.
         for origin in Origin.ORIGIN_TYPES:
             if origin[0] in self.cleaned_data:
-                character.origins.filter(type=self.cleaned_data[origin[0]]).delete()
+                character.origins.remove(*character.origins.filter(type=origin[0]))
                 character.origins.add(self.cleaned_data[origin[0]])
         return character
-
 
     class Meta:
         model = Character

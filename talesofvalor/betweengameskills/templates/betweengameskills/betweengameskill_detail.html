@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}BGS - {{ object.character }}{% endblock bar_title %}
+{% block title %}BGS - {{ object.character }}{% endblock title %}
+
+{% block content %}
+
+<div class="attributes bgs_attributes">
+    <form action="" method="post">{% csrf_token %}
+        <table class="data">
+            <tbody>
+            <tr>
+                <td>Character:</td> <td>{{ object.character }}</td>
+            </tr>
+            <tr>
+                <td>Event:</td> <td>{{ object.event }}</td>
+            </tr>
+            <tr>
+                <td>Question:</td><td>{{ object.question }}</td>
+            </tr>
+            <tr>
+                <td>Submitted:</td><td>{{ object.submit_date }}</td>
+            </tr>
+            {% if object.answer %}
+            <tr>
+                <td>Answer:</td><td>{{ object.answer }}</td>
+            </tr>
+            <tr>
+                <td>Answered:</td><td>{{ object.answer_date }}</td>
+            </tr>
+            {% else %}
+            {% endif %}
+            <tr></tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+{% endblock content %}

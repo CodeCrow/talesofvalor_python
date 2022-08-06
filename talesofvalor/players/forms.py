@@ -1,8 +1,11 @@
 from django import forms
 from django.conf import settings
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from talesofvalor.characters.models import Character
@@ -12,7 +15,8 @@ from .models import Player, PEL
 
 
 class UserForm(forms.ModelForm):
-    """Handle main user form for the user model from django."""
+    """Handle main user form for the user model from django.
+    This also has access to groups, which players shouldn't have access to."""
     class Meta:
         model = User
         fields = [
@@ -21,6 +25,7 @@ class UserForm(forms.ModelForm):
             'email',
             'groups',
         ]
+
 
     def clean(self):
         """
@@ -44,6 +49,18 @@ class UserForm(forms.ModelForm):
         return cleaned_data
 
 
+class PlayerViewable_UserForm(UserForm):
+    """Handle main user form for the user model from django.
+    This is the base class intended for players."""
+    class Meta:
+        model = User
+        fields = [
+            'first_name',
+            'last_name',
+            'email',
+        ]
+
+
 class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
@@ -51,19 +68,55 @@ class PlayerForm(forms.ModelForm):
             'game_started',
             'cp_available',
             'staff_attention_flag',
-            'player_pronouns'
+            'player_pronouns',
+            'food_allergies'
+        ]
+
+
+class PlayerViewable_PlayerForm(forms.ModelForm):
+    class Meta:
+        model = Player
+        fields = [
+            'player_pronouns',
+            'food_allergies'
         ]
 
 
 class RegistrationForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
-    player_pronouns = forms.CharField()
+    player_pronouns = forms.CharField(max_length=25)
+    food_allergies = forms.CharField(widget=forms.Textarea)
 
     email = forms.EmailField()
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
     password_confirm = forms.CharField(widget=forms.PasswordInput)
+
+    def clean_email(self):
+        """
+        Make sure the email is unique
+        """
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise ValidationError(mark_safe(f"This email address already exists.  Did you <a href=\"{reverse('password_reset')}\">forget your login?</a>"))
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return data
+
+    def clean_username(self):
+        """
+        The username should be unique
+        """
+        data = self.cleaned_data['username']
+        if User.objects.filter(username=data).exists():
+            raise ValidationError(mark_safe(f"This username already exists.  Did you <a href=\"{reverse('password_reset')}\">forget your login?</a>"))
+
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return data
 
     def clean(self):
         """
@@ -72,8 +125,8 @@ class RegistrationForm(forms.Form):
         We have a confirm password here, so we have to check that it matches
         the password when we clean it.
         """
-
         cleaned_data = super(RegistrationForm, self).clean()
+
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
         if password and password_confirm:
@@ -208,6 +261,7 @@ class PELUpdateForm(forms.ModelForm):
     class Meta:
         model = PEL
         fields = '__all__'
+        events = ['event']
 
         # We want all fields to be 80 cols wide, but rows are either 3 or 5.
         widgets = {

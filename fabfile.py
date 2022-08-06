@@ -100,7 +100,7 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
                 # c.run('echo Updating pip')
                 # c.run('pip install --upgrade pip')
                 c.run('echo Updating requirements...')
-                c.run('pipenv sync')
+                c.run('pipenv install')
 
             if migrate is True:
                 c.run('echo Migrating database schema...')

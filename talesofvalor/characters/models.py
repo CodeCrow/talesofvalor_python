@@ -10,11 +10,10 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-
-from filer.fields.image import FilerImageField
+from djangocms_text_ckeditor.fields import HTMLField
 
 from talesofvalor.players.models import Player
-from talesofvalor.rules.models import Prerequisite
+from talesofvalor.rules.models import Prerequisite, Rule
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
 from talesofvalor.origins.models import Origin
 
@@ -49,8 +48,8 @@ class Character(models.Model):
     name = models.CharField(_("Character Name"), max_length=255)
     pronouns = models.CharField('pronouns', max_length=25, default='')
     description = models.TextField(blank=True)
-    history = models.TextField(blank=True)
-    picture = FilerImageField(blank=True, null=True, on_delete=models.CASCADE)
+    history = HTMLField(blank=True)
+    picture = models.ImageField(blank=True, null=True, upload_to="characters/")
     player_notes = models.TextField(blank=True)
     staff_notes_visible = models.TextField(blank=True)
     staff_notes_hidden = models.TextField(blank=True)
@@ -61,10 +60,10 @@ class Character(models.Model):
     cp_available = models.PositiveIntegerField(default=STARTING_POINTS)
     cp_transferred = models.PositiveIntegerField(default=0)
     # The headers and skills that a character has.
-    headers = models.ManyToManyField(Header)
+    headers = models.ManyToManyField(Header, null=True)
     skills = models.ManyToManyField(HeaderSkill, through='CharacterSkills')
     # origins.  Should only be as many as there are types.
-    origins = models.ManyToManyField(Origin)
+    origins = models.ManyToManyField(Origin, null=True)
 
     created = models.DateTimeField(
         _('date created'),
@@ -126,32 +125,87 @@ class Character(models.Model):
         # update skillhash with skills the character has.
         # go through the headers and figure out what headers have had the
         # prerequisites met . . .
-        bought_headers = self.headers.all().values_list('id', flat=True)
+        bought_headers = list(self.headers.all().values_list('id', flat=True)) + ['dabble']
+        # go through each of the types of rules
+        # - update the costs for for the skills
+        # - add any granted headers
+        # - add any granted skills without the headers.
         available_skills = {}
         for h, skills in skillhash.items():
             # if the header is open, or if the user bought it.
-            header = Header.objects.get(pk=h)
+            if h != 'dabble':
+                header = Header.objects.get(pk=h)
             if h in bought_headers or header.open_flag or not header.hidden_flag:
                 available_skills[h] = skills
                 # update the has with what has been purchased
+                # has the header been purchased?
+                available_skills[h]['purchased'] = (h in bought_headers)
+                # what skills have we bought?
                 for skill_id in available_skills[h]['skills']:
                     try:
-                        available_skills[h]['skills'][skill_id]['purchased'] = self.characterskills_set.get(
+                        character_skill = self.characterskills_set.get(
                             skill_id=skill_id
-                        ).count
+                        )
+                        available_skills[h]['skills'][skill_id]['purchased'] = character_skill.count
                     except CharacterSkills.DoesNotExist:
                         # if it doesn't exist, we can leave purchased as default.   
                         pass
-
-        # skillhash = filter(lambda x: x % 2 != 0, skillhash)
+                    if h != 'dabble':
+                        header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
+                        available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
         return available_skills
 
-    def grants(self):
+    def skill_cost(self, header_skill):
+        """
+        Figure out what this skill should cost for this character, based
+        on the Rules model
+        """
+        # see if there is an updated cost for the skill
+        skill_cost_query = Rule.objects.filter(
+            skill=header_skill,
+            new_cost__gt=0
+        )
+        if not skill_cost_query.exists():
+            return header_skill.cost
+
+        # there are cost updates for that skill.  See if the current
+        # character has any of them.
+        # just get the new costs and put them in the list and get the lowest.
+        people_grants = self.people.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        tradition_grants = self.tradition.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        skill_grants = header_skill.skill.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        header_grants = header_skill.header.rules.filter(
+            id__in=skill_cost_query
+        ).values_list('new_cost', flat=True)
+        found_rules = list(tradition_grants) + list(people_grants) + list(skill_grants) + list(header_grants)
+        if not found_rules:
+            return header_skill.cost
+        return min(found_rules)
+
+
+
+    def skill_grants(self):
         """
         skills granted by a specific character grant or as a result of
         of character backgrounds or headers granting skills without the need
         for the player to spend points.
         """
+        people_grants = self.people.rules.filter(
+            free=True,
+            skill__isnull=False
+        ).values_list('skill', flat=True)
+        tradition_grants = self.tradition.rules.filter(
+            free=True,
+            skill__isnull=False
+        ).values_list('skill', flat=True)
+        skill_grants = list(tradition_grants) + list(people_grants)
+        return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def check_header_prerequisites(self, header):
         """
@@ -165,24 +219,30 @@ class Character(models.Model):
                 object_id=header.id
             )
             # check for origin requirements
+            print(header_prerequisites.count())
+            # print(header_prerequisites)
             for prereq in header_prerequisites:
                 if prereq.origin: 
                     if prereq.origin not in self.origins:
                         return False
                 # check for header/skill requirements
+                print(f"PREREQ.HEADER{prereq.header}")
+                print(f"SELF HEADERS:{self.headers.all()}")
+                # did the user purchase the required header, or is the header open?
                 if prereq.header:
-                    for h in prereq.header:
-                        if h not in self.headers:
-                            return False            
+                    if (not prereq.header.open_flag and 
+                            prereq.header not in self.headers.all()):
+                        return False            
                     # check for the number of different skills in the header.
-                    purchased_skills = self.skills.filter(headerskill__header_id=prereq.header.id)
+                    purchased_skills = self.skills.filter(header_id=prereq.header.id)
                     print("PURCHASED SKILLS:{}".format(purchased_skills))
-                    if prereq.number_of_different_skills > self.skills.filter(headerskill__header_id=prereq.header.id).count(): 
+                    if prereq.number_of_different_skills > self.skills.filter(header_id=prereq.header.id).count(): 
                         return False
                     # figure out the total skill points
                     total = 0
                     for skill in purchased_skills:
-                        total += skill.headerskill.cost * skill
+                        print(f"SKILL:{skill.characterskills_set}")
+                        total += skill.header.cost * skill.characterskills_set.get(character=self).count
 
                 # check for skill requirements
             # if we made it this far, we can assume all prerequisites

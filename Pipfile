@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+django = "~=3.0"
 django-cms = "*"
 fabric = "*"
 wiki = "*"
@@ -19,10 +20,16 @@ django-taggit = "*"
 django-taggit-autosuggest = "*"
 djangocms-page-tags = "*"
 django-paypal = "*"
-mysqlclient = "*"
+# mysqlclient = "*"
+mysql-connector-python = "*"
 paypal-checkout-serversdk = "*"
+selenium = "*"
+mailosaur = "*"
+names = "*"
 
 [dev-packages]
+autopep8 = "*"
+black = "*"
 
 [requires]
 python_version = "3.9"

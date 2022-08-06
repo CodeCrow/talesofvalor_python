@@ -18,6 +18,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+# how much extra dabble skills cost.
+DABBLE_ADDITIONAL_COST = 1
+
+
 class Skill(models.Model):
     """
     Skill representing things that characters can do.
@@ -39,6 +43,9 @@ class Skill(models.Model):
         default=False
     )
     bgs_flag = models.BooleanField(default=False)
+
+    rules = GenericRelation('rules.Rule', related_query_name='rules')
+    
     created = models.DateTimeField(
         'date published',
         auto_now_add=True,
@@ -113,6 +120,18 @@ class Skill(models.Model):
         }
         for h in headers:
             skill_hash[h.id]['cost'] = h.cost
+
+        # get the dabble skills
+        skill_hash['dabble'] = {
+            'skills':  {
+                s.skill_id: {
+                    'cost': s.cost + DABBLE_ADDITIONAL_COST,
+                    'purchased': 0
+                }
+                for s in HeaderSkill.objects.filter(dabble_flag=True)
+            }
+        }
+
         return skill_hash
 
 
@@ -140,7 +159,9 @@ class Header(models.Model):
         default=False
     )
     skills = models.ManyToManyField(Skill, through='HeaderSkill')
-    # done like the to prevent circular imports
+
+    rules = GenericRelation('rules.Rule', related_query_name='rules')
+    # done like this to prevent circular imports
     prerequisites = GenericRelation('rules.Prerequisite')
     prerequisite_groups = GenericRelation('rules.PrerequisiteGroup')
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
@@ -180,11 +201,11 @@ class HeaderSkill(models.Model):
     cost = models.PositiveIntegerField(null=False, blank=False)
     dabble_flag = models.BooleanField(default=False)
     magic_flag = models.BooleanField(
-    	_("Is this magical?"),
-    	help_text=_("""
+        _("Is this magical?"),
+        help_text=_("""
             Indicates that this skill is magical.
             """),
-    	default=False
+        default=False
     )
     capstone_flag = models.BooleanField(
         _("Is this a capstone?"),

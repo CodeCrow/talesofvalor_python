@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.core import mail
@@ -11,13 +12,31 @@ from paypalcheckoutsdk.orders import OrdersGetRequest
 
 from talesofvalor.mixins import PayPalClientMixin
 from talesofvalor.players.models import RegistrationRequest, Registration,\
-    Player, COMPLETE, REQUESTED
+    COMPLETE, REQUESTED
 
 from .forms import RegistrationCompleteForm
 
 
 class RegistrationSendView(PayPalClientMixin, TemplateView):
     template_name = "registration/registration_send.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure that the user hasn't already registered for this event.
+        """
+        existing_registration_request = RegistrationRequest.objects.filter(
+            player=request.user.player,
+            status=REQUESTED
+        ).exists()
+        if not existing_registration_request:
+
+            # If there are no more requests go back to list
+            messages.info(self.request, "No Registration Requests Left.  Please choose an event to register for.")
+            return HttpResponseRedirect(
+                reverse('events:event_list')
+            )
+        else:
+            return super().dispatch(request, args, kwargs)
 
     def get_context_data(self, **kwargs):
         """
@@ -48,8 +67,7 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         """
         The form has been successful.
 
-        Now, we want to create the success url, using the origin that was
-        editted.
+        Now, we want to create the success url
         """
         return reverse('registration:request_detail', kwargs={
             'pk': self.kwargs.get('registration_request_id')
@@ -89,7 +107,9 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
                 vehicle_color=event_reg_request.vehicle_color,
                 vehicle_registration=event_reg_request.vehicle_registration,
                 local_contact=event_reg_request.local_contact,
-                registration_request=event_reg_request
+                registration_request=event_reg_request,
+                mealplan_flag=event_reg_request.mealplan_flag,
+                food_allergies=event_reg_request.food_allergies
                 )
             registration.save()
             # send an email to staff with a link to the registration
@@ -133,7 +153,6 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
 
 class RegistrationDetailView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         DetailView
         ):
@@ -142,16 +161,17 @@ class RegistrationDetailView(
     """
     template_name = "registration/registration_detail.html"
     model = Registration
-    permission_required = ('registration.add_registration', )
 
     def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
+        if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
-            return (self.object.player.user == self.request.user)
-        except Player.DoesNotExist:
+            player = Registration.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Registration.DoesNotExist:
             return False
         return False
+
 
 class RegistrationUpdateView(
         LoginRequiredMixin,
@@ -170,11 +190,6 @@ class RegistrationUpdateView(
     model = Registration
     permission_required = ('registration.change_registration', )
 
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        return False
-
     def get_success_url(self):
         """
         The form has been successful.
@@ -189,8 +204,6 @@ class RegistrationUpdateView(
 
 class RegistrationListView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
         ListView
         ):
     """
@@ -198,16 +211,7 @@ class RegistrationListView(
     """
     template_name = "registration/registration_list.html"
     model = Registration
-    permission_required = ('registration.add_registration', )
-
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        try:
-            return (self.object.player.user == self.request.user)
-        except Player.DoesNotExist:
-            return False
-        return False
+    # permission_required = ('registration.add_registration', )
 
     def get_queryset(self):
         """
@@ -220,8 +224,6 @@ class RegistrationListView(
 
 class RegistrationRequestDetailView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
         DetailView
         ):
     """
@@ -229,19 +231,13 @@ class RegistrationRequestDetailView(
     """
     template_name = "registration/registrationrequest_detail.html"
     model = RegistrationRequest
-    permission_required = ('registration.add_registration', )
-
-    def test_func(self):
-        if self.request.user.has_perm('players.change_any_player'):
-            return True
-        try:
-            return (self.object.player.user == self.request.user)
-        except Player.DoesNotExist:
-            return False
-        return False
 
 
-class RegistrationRequestDeleteView(PermissionRequiredMixin, DeleteView):
+class RegistrationRequestDeleteView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        DeleteView
+        ):
     """
     Removes a request for registration that a user has.
 
@@ -249,5 +245,14 @@ class RegistrationRequestDeleteView(PermissionRequiredMixin, DeleteView):
     """
     template_name = "registration/registration_delete.html"
     model = RegistrationRequest
-    permission_required = ('registration.delete_registration', )
     success_url = reverse_lazy('registration:create')
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = RegistrationRequest.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except RegistrationRequest.DoesNotExist:
+            return False
+        return False

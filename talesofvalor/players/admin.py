@@ -3,7 +3,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from talesofvalor.players.models import Player, Registration, PEL
+from talesofvalor.players.models import Player, Registration,\
+    RegistrationRequest, PEL
 
 
 # Define an inline admin descriptor for Player model
@@ -26,4 +27,5 @@ class PlayerAdmin(BaseUserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, PlayerAdmin)
 admin.site.register(Registration)
+admin.site.register(RegistrationRequest)
 admin.site.register(PEL)

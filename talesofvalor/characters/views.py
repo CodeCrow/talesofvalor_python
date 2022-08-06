@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import F
 from django.http import HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
@@ -63,7 +64,7 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse(
-            'characters:character_detail',
+            'characters:character_skill_update',
             kwargs={'pk': self.object.pk}
         )
 
@@ -71,9 +72,19 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         """
         If this form is valid, then add the current player to the character
         if the current user is not an admin
+
+        If the user doesn't have any other active characters, set this one
+        to active.
         """
         if not self.request.user.has_perm('players.view_any_player'):
             form.instance.player = self.request.user.player
+
+        if not form.instance.player.character_set.filter(active_flag=True).exists():
+            form.instance.active_flag = True
+
+        messages.info(self.request, 'New Character, "{}" created.'.format(
+            form.instance.name
+        ))
         return super().form_valid(form)
 
 
@@ -215,17 +226,9 @@ class CharacterSkillUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
 
-        # remoev skills not in the hash.
+        # remove skills not in the hash.
         available_skills = self.object.skillhash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills, self.skills)
-
-        # context['skills'] = self.skills
-        """
-        skills granted by a specific character grant or as a result of
-        of character backgrounds or headers granting skills without the need
-        for the player to spend points.
-        """
-        context['grants'] = self.object.grants
 
         # if this is a user who can see all skills, just return the skill hash.
         '''
@@ -237,6 +240,10 @@ class CharacterSkillUpdateView(
             context['skill_hash'] = self.object.skillhash
         '''
         context['skill_hash'] = self.object.skillhash
+        # add the bare skills granted by the rules
+        context['granted_skills'] = self.object.skill_grants()
+        # full list of dabbled skills to pick from 
+        context['dabbled_skills'] = HeaderSkill.objects.filter(dabble_flag=True)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -291,22 +298,30 @@ class CharacterAddHeaderView(APIView):
         if character.check_header_prerequisites(header):
             # see if the character has enough points to add the header
             if (cp_available - header.cost) > 0:
-                print("HEADER:{}".format(header.__dict__))
                 character.cp_available -= header.cost
                 character.cp_spent += header.cost
                 character.headers.add(header)
-                print("CHARACTER:{}".format(character.__dict__))
                 character.save()
-                print("SKILLS:{}".format(header.skills.all()))
+                skill_item_template_string = render_to_string(
+                    "characters/includes/character_skill_update_item.html",
+                    {
+                        'header': header,
+                        'header_skills': header.skills.all(),
+                        'header_costs': character.skillhash[header.id]
+                    },
+                    request
+                )
                 content = {
-                    'success': header.cost * -1
+                    'success': header.cost * -1,
+                    'skills': skill_item_template_string
                 }
             else: 
                 content = {
-                    'error': "not enough points"
+                    'error': "You don't have enough points available for this character to add this header."
                 }
                 status = HTTP_412_PRECONDITION_FAILED
-
+        else:
+            status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
 
 
@@ -346,23 +361,29 @@ class CharacterAddSkillView(APIView):
             # since vector is the direction, we want to reverse it when
             # dealing with what we want to change for the available points
             # see if the character has enough points to add the header
-            cost = header_skill.cost * vector
+            cost = character.skill_cost(header_skill) * vector
             if (cp_available - cost) >= 0:
                 # when this is returned, change the available costs
-                content = {
-                    'success': cost * -1
-                }
                 (character_skill, created) = character.characterskills_set.get_or_create(
                     skill=header_skill
                 )
-                character_skill.count = F('count') + 1
-                character_skill.save()
-                character.cp_spent = F('cp_spent') + cost
-                character.cp_available = F('cp_available') - cost
-                character.save()
+                if character_skill.count and (character_skill.count + vector < 0):
+                    content = {
+                        'error': f"You don't have any points in {header_skill.skill}"
+                    }
+                    status = HTTP_412_PRECONDITION_FAILED
+                else:                
+                    content = {
+                        'success': cost * -1
+                    }
+                    character_skill.count = F('count') + vector
+                    character_skill.save()
+                    character.cp_spent = F('cp_spent') + cost
+                    character.cp_available = F('cp_available') - cost
+                    character.save()
             else: 
                 content = {
-                    'error': "not enough points"
+                    'error': "You don't have enough points available to purchase this skill . . ."
                 }
                 status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)

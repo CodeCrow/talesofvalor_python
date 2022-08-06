@@ -27,19 +27,14 @@ from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
-from talesofvalor.events.models import Event
-
-from .forms import UserForm, PlayerForm, RegistrationForm,\
-    MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
+from .forms import UserForm, PlayerViewable_UserForm, PlayerForm, PlayerViewable_PlayerForm, \
+    RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm
 from .models import Player, Registration, PEL
 
 
-
-
 class PlayerUpdateView(
         LoginRequiredMixin,
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         DetailView
         ):
@@ -63,17 +58,32 @@ class PlayerUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['player_form'] = PlayerForm(
-                instance=self.object,
-                data=self.request.POST
-            )
-            context['user_form'] = UserForm(
-                instance=self.object.user,
-                data=self.request.POST
-            )
+            if self.request.user.has_perm('player.change_any_player'):
+                context['user_form'] = UserForm(
+                    instance=self.object.user,
+                    data=self.request.POST
+                )
+                context['player_form'] = PlayerForm(
+                    instance=self.object,
+                    data=self.request.POST
+                )
+            else:
+                context['player_form'] = PlayerViewable_PlayerForm(
+                    instance=self.object,
+                    data=self.request.POST
+                )
+                context['user_form'] = PlayerViewable_UserForm(
+                    instance=self.object.user,
+                    data=self.request.POST
+                )
         else:
-            context['player_form'] = PlayerForm(instance=self.object)
-            context['user_form'] = UserForm(instance=self.object.user)
+            # adjust fields for different users
+            if self.request.user.has_perm('player.change_any_player'):
+                context['player_form'] = PlayerForm(instance=self.object)
+                context['user_form'] = UserForm(instance=self.object.user)
+            else:
+                context['player_form'] = PlayerViewable_PlayerForm(instance=self.object)
+                context['user_form'] = PlayerViewable_UserForm(instance=self.object.user)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -83,9 +93,14 @@ class PlayerUpdateView(
             context['player_form'].save()
             context['user_form'].save() 
             messages.info(self.request, '{} Updated.'.format(self.object.user.username))
-            return HttpResponseRedirect(reverse('players:player_list'))
-        return self.render_to_response(context)  
-   
+            if self.request.user.player == self.object:
+                return HttpResponseRedirect(reverse(
+                    'players:player_detail',
+                    kwargs={'username': self.object.user.username}
+                ))
+            else:
+                return HttpResponseRedirect(reverse('players:player_list'))
+        return self.render_to_response(context)
 
 
 class PlayerDeleteView(PermissionRequiredMixin, DeleteView):
@@ -272,6 +287,7 @@ class RegistrationView(FormView):
         # This is where other custom player fields (not included in a django User)
         # gets updated.
         self.instance.player_pronouns = form.cleaned_data['player_pronouns']
+        self.instance.food_allergies = form.cleaned_data['food_allergies']
         # Don't forget to save!
         self.instance.save()
         user = authenticate(
@@ -382,7 +398,7 @@ class PlayerListView(LoginRequiredMixin, ListView):
         if (name.strip()):
             entry_query = get_query(
                 name,
-                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'user__player_pronouns']
+                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'user__player_pronouns', 'user__food_allergies']
             )
             queryset = queryset.filter(entry_query)
         selected = self.request.GET.get('selected', False)
@@ -528,6 +544,54 @@ class PELListView(PermissionRequiredMixin, ListView):
     permission_required = ('players.view_any_player', )
     model = PEL
     paginate_by = 25  # if pagination is desired
+
+    def get_queryset(self):
+        queryset = super(PELListView, self).get_queryset()
+        groups = self.request.GET.get('group', None)
+        if groups:
+            queryset = queryset.filter(user__groups__name__in=[groups])
+        name = self.request.GET.get('name', '')
+        if (name.strip()):
+            entry_query = get_query(
+                name,
+                ['player__user__username', 'player__user__first_name', 'player__user__last_name', 'player__user__email', 'player__player_pronouns']
+            )
+            queryset = queryset.filter(entry_query)
+        selected = self.request.GET.get('selected', False)
+        if selected:
+            queryset = queryset.filter(id__in=self.request.session.get('player_select', []))
+
+        for pel in queryset:
+            print(f'\npel: player={pel.player}, pel.event={pel.event}, pel.event.id={pel.event.id}\n')
+
+        attended = self.request.GET.get('attended', None)
+        print(f'**************** attended {attended}')
+        if attended:
+            # attended_players = Attendance.objects.filter(event__id=attended).values_list('player__id', flat=True)
+            attended_players = Attendance.objects.filter(event__id=attended)
+            print('foo')
+            print(f'attendance: {Attendance.objects.all()}\n')
+            print('bar')
+            queryset = queryset.filter(id__in=attended_players)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        '''
+        Put data into the view.
+
+        We want to create list of events to pick selections from.
+        '''
+        # get the context data to add to.
+        context_data = super(PELListView, self).get_context_data(**kwargs)
+        context_data.update(**self.request.GET)
+        # get the list of events so we can pick from them to filter the lists.
+        context_data['event_list'] = Event.objects.all()
+        # set up the forms that appear in the list
+        context_data['registration_form'] = MassRegistrationForm()
+        context_data['attendance_form'] = MassAttendanceForm()
+        # return the resulting context
+        return context_data
 
 
 class PELDetailView(UserPassesTestMixin, DetailView):

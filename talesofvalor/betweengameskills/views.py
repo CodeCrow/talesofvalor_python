@@ -4,10 +4,10 @@ These are views that are used for viewing and editing Between game skills.
 BGS are written by players and .
 """
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin,\
+from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView,\
+from django.views.generic.edit import CreateView, UpdateView, \
     DeleteView
 from django.views.generic import DetailView, ListView
 
@@ -21,16 +21,21 @@ class BetweenGameSkillCreateView(LoginRequiredMixin, CreateView):
     Allows the Creation of an Between Game Skill
     """
     model = BetweenGameSkill
-    fields = "__all__"
+    fields = ("character",
+              "event",
+              "skill",
+              "count",
+              "question",)
+
     success_url = reverse_lazy('betweengameskills:betweengameskill_list')
 
 
 class BetweenGameSkillCharacterEventView(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
-        DetailView
-        ):
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UserPassesTestMixin,
+    DetailView
+):
     """
     Show the BGS detail page for a character event.
     """
@@ -39,17 +44,18 @@ class BetweenGameSkillCharacterEventView(
 
 
 class BetweenGameSkillUpdateView(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
-        UpdateView
-        ):
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UserPassesTestMixin,
+    UpdateView
+):
     """
     Edits a Between Game skill that has already been created
     """
 
     model = BetweenGameSkill
     fields = "__all__"
+    permission_required = ('player.can_update_any_player',)
     success_url = reverse_lazy('betweengameskills:betweengameskills_list')
 
     def test_func(self):
@@ -64,11 +70,11 @@ class BetweenGameSkillUpdateView(
 
 
 class BetweenGameSkillDeleteView(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        UserPassesTestMixin,
-        DeleteView
-        ):
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UserPassesTestMixin,
+    DeleteView
+):
     """
     Removes a between game skill permanantly.
     """
@@ -118,8 +124,10 @@ class BetweenGameSkillListView(LoginRequiredMixin, ListView):
         user = None
         queryset = super().get_queryset()
         # filter by event
-        if self.request.GET.get('event', None):
-            queryset = queryset.filter(event=self.request.GET['event'])
+
+        event_id = self.kwargs.get('event_id', None)
+        if event_id:
+            queryset = queryset.filter(event__id=event_id)
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('player.view_any_player'):
             # if the username was sent, filter by that.
@@ -128,6 +136,6 @@ class BetweenGameSkillListView(LoginRequiredMixin, ListView):
         else:
             user = self.request.user
         if user:
-            characters = user.player.character_set()
+            characters = user.player.character_set.all()
             queryset = queryset.filter(character__in=characters)
         return queryset

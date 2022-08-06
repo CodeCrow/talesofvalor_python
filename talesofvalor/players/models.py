@@ -44,11 +44,12 @@ class Player(models.Model):
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
     player_pronouns = models.CharField(max_length=25, default='')
+    food_allergies = models.TextField(default='', blank=True)
 
 
     def __str__(self):
         """General display of model."""
-        return "{} {} {}".format(
+        return "{} {} ({})".format(
             self.user.first_name,
             self.user.last_name,
             self.player_pronouns
@@ -131,6 +132,7 @@ class RegistrationRequest(models.Model):
     )
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     mealplan_flag = models.BooleanField(default=False)
+    food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
@@ -201,6 +203,7 @@ class Registration(models.Model):
         default=False,
         help_text=_("Has the player signed up for a meal plan?")
     )
+    food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
@@ -283,9 +286,10 @@ class PEL(models.Model):
     learned = models.TextField('Did your character learn new skills or spells during game?  If so, list them here.',
                                blank=True, default='')
     heavy_armor_worn_flag = models.BooleanField(
-    	_('Character wore heavy armor this event (cheaper Health pre-req)?'),
-    	default=False
+        _('Character wore heavy armor this event (cheaper Health pre-req)?'),
+        default=False
     )
-    what_did_you_do = HTMLField('What did you do during this event?',
-                     blank=True, default='')
-
+    what_did_you_do = HTMLField(
+        'What did you do during this event?',
+        blank=True, default=''
+    )

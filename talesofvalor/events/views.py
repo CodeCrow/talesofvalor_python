@@ -1,6 +1,10 @@
 """These are views that are used for viewing and editing events."""
+
+from datetime import date
+
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
@@ -9,7 +13,8 @@ from django.views.generic.edit import CreateView, UpdateView,\
     FormMixin
 
 from talesofvalor.attendance.models import Attendance
-from talesofvalor.players.models import RegistrationRequest
+from talesofvalor.players.models import RegistrationRequest,\
+    Registration
 
 from .forms import EventForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
@@ -38,14 +43,33 @@ class EventListView(ListView):
 
         We might only want events that a particular character attended.
         """
-        qs = self.model.objects.all()
+        qs = super().get_queryset()
         character_id = self.kwargs.get('character', None)
         if character_id:
             attendances = Attendance.objects\
                 .filter(character=self.kwargs['character'])\
                 .values_list('id', flat=True)
             qs = qs.filter(id__in=attendances)
+        # if there is a next event start the list there
+        next_event = Event.next_event()
+        if next_event:
+            qs = qs.filter(event_date__gte=next_event.event_date)
         return qs
+
+class EventPastListView(ListView):
+    model = Event
+    template_name = 'events/event_past_list.html'
+
+    def get_queryset(self):
+        """
+        Limit the events.
+
+        We might only want events that a particular character attended.
+        """
+        qs = super().get_queryset().filter(event_date__lte=date.today())\
+            .order_by('-event_date')
+        return qs
+
 
 
 class EventDetailView(DetailView):
@@ -89,6 +113,19 @@ class PlayerRegistrationView(
     success_url = reverse_lazy('registration:create')
     template_name = 'events/registration_form.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure that the user hasn't already registered for this event.
+        """
+        existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
+        if existing_registration:
+            # if you have already registered, go to edit the registration
+            return HttpResponseRedirect(
+                reverse('registration:detail', kwargs={'pk': existing_registration.id})
+            )
+        else:
+            return super().dispatch(request, args, kwargs)
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
@@ -122,6 +159,7 @@ class PlayerRegistrationView(
         registration_request = RegistrationRequest.objects.create(
             event_registration_item=cleaned_data['event_registration_item'],
             mealplan_flag=cleaned_data['mealplan_flag'],
+            food_allergies=cleaned_data['food_allergies'],
             vehicle_make=cleaned_data['vehicle_make'],
             vehicle_model=cleaned_data['vehicle_model'],
             vehicle_color=cleaned_data['vehicle_color'],
