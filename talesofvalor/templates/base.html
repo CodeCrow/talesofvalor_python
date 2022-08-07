@@ -16,7 +16,7 @@
         {% cms_toolbar %}
         <div class="container">
 
-            <header class="row">
+            <header class="row no-print">
                 <div class="col-sm-8">
                     <h1>{% block title %}This is my new project home page{% endblock title %}</h1>
                     {% if request.current_page %}
@@ -29,7 +29,7 @@
                     </div>
                 </div>
             </header>
-            <nav class="nav row">
+            <nav class="nav row no-print">
                 {% comment %}
                 page menu
                     This is the menu for the current django cms page.
@@ -38,7 +38,7 @@
                 
             </nav>
             <div class="row">
-                <div id="action_menu" class="col-sm-2 sidebar">
+                <div id="action_menu" class="col-sm-2 sidebar no-print">
                     {% include "includes/navigation/actions.html" %}
                 </div>
                 <div id="main_content" class="col-sm-10 main-content">
@@ -52,7 +52,7 @@
                     {% block content %}{% endblock content %}
                 </div>
             </div>
-            <footer class="row">
+            <footer class="row no-print">
                 <div class="col-sm-12">
                     {% comment %}
                     FOOTER

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Characters{% endblock bar_title %}
+{% block title %}Characters{% endblock title %}
+
+{% block content %}
+
+
+<div class="row">
+    <div id="character_list_filter" class="col-sm-7">
+        <div class="box">
+            
+        </div>
+    </div>
+    <div id="character_list_actions" class="col-sm-5">
+        <div class="box">
+            
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        {% include "characters/includes/character_list.html" with objects=object_list id="character_list" caption="" %}
+    </div>
+</div>
+
+{% include "includes/pagination.html" %}
+
+
+{% endblock content %}

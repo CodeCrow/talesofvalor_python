@@ -13,6 +13,7 @@ from django.views.generic.edit import CreateView, UpdateView,\
     FormMixin
 
 from talesofvalor.attendance.models import Attendance
+from talesofvalor.characters.models import Character
 from talesofvalor.players.models import RegistrationRequest,\
     Registration
 
@@ -56,6 +57,7 @@ class EventListView(ListView):
             qs = qs.filter(event_date__gte=next_event.event_date)
         return qs
 
+
 class EventPastListView(ListView):
     model = Event
     template_name = 'events/event_past_list.html'
@@ -71,9 +73,19 @@ class EventPastListView(ListView):
         return qs
 
 
-
 class EventDetailView(DetailView):
     model = Event
+
+
+class EventCharacterPrintListView(PermissionRequiredMixin, ListView):
+    """
+    Show the list of characters for an event.
+
+    """
+
+    model = Character
+    permission_required = ('player.can_update_any_player',)
+    template_name = "events/event)character_print.html"
 
 
 class PlayerRegistrationRedirectView(LoginRequiredMixin, RedirectView):

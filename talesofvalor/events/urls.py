@@ -2,7 +2,7 @@
 from django.urls import path
 
 from .views import EventCreateView, EventUpdateView, EventListView,\
-    EventPastListView,\
+    EventPastListView, EventCharacterPrintListView,\
     EventDetailView, PlayerRegistrationRedirectView,\
     PlayerRegistrationNoEventView, PlayerRegistrationView,\
     EventRegistrationItemDetailView, EventRegistrationItemListView,\
@@ -25,6 +25,11 @@ urlpatterns = [
         '<int:pk>/',
         EventDetailView.as_view(),
         name='event_detail'
+    ),
+    path(
+        '<int:pk>/print/',
+        EventCharacterPrintListView.as_view(),
+        name='event_character_print'
     ),
     path(
         'char/<int:character>/',

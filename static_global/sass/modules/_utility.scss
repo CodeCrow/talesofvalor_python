@@ -1,3 +1,9 @@
 .alternating-container > *:nth-of-type(even) {
 	background: #e0e0e0;
 }
+
+@media print {
+	.no-print {
+		display: none !important;
+	}
+}

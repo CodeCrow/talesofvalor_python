@@ -14,7 +14,7 @@ Player: {{ object.player }}
 {% if object.picture %}
 <img class="portrait" src="{{ object.picture.url }}" alt="{{ object.name }}" />
 {% endif %}
-<nav>
+<nav class="no-print">
     <a href="{% url 'characters:character_update' pk=object.pk %}">Update</a>
     <a href="{% url 'characters:character_skill_update' pk=object.pk %}">Skills</a>
     {% if object != object.player.active_character %}
