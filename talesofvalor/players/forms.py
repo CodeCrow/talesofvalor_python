@@ -86,7 +86,7 @@ class RegistrationForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
     player_pronouns = forms.CharField(max_length=25)
-    food_allergies = forms.CharField(widget=forms.Textarea)
+    food_allergies = forms.CharField(widget=forms.Textarea, required=False)
 
     email = forms.EmailField()
     username = forms.CharField()
