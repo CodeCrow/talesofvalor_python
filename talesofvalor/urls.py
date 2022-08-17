@@ -46,6 +46,12 @@ urlpatterns += i18n_patterns(
             'talesofvalor.events.urls'
         )
     ),
+    path(  # router for the reports application.
+        'reports/',
+        include(
+            'talesofvalor.reports.urls'
+        )
+    ),
     path(  # router for the event application.
         'registration/',
         include(

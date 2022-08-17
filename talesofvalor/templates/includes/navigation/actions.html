@@ -31,6 +31,10 @@
     <li class="heading">Registration Items</li>
     <li><a href="{% url 'events:eventregistrationitem_create' %}">New</a></li>
     <li><a href="{% url 'events:eventregistrationitem_list' %}">List</a></li>
+    
+    <li class="heading">Printouts/Reports</li>
+    <li><a href="{% url 'reports:registration' %}">Registrations</a></li>
+    <li><a href="{% url 'reports:dining' %}">Dining Report</a></li>
 
 </ul>
 {% endif %}

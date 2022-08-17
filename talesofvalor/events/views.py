@@ -82,7 +82,6 @@ class EventCharacterPrintListView(PermissionRequiredMixin, ListView):
     Show the list of characters for an event.
 
     """
-
     model = Character
     permission_required = ('player.can_update_any_player',)
     template_name = "events/event)character_print.html"

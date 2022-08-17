@@ -175,6 +175,7 @@ INSTALLED_APPS = (
     'talesofvalor.comments',
     'talesofvalor.rules',
     'talesofvalor.registration',
+    'talesofvalor.reports',
     # Django admin
     'django.contrib.admin',
 )

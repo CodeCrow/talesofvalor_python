@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Report{% endblock title %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-sm-12">
+		<table id="registration_report" class="list list-players">
+        <tr>
+          <th>Player</th>
+          <th>Active Character</th>
+          <th>Allergies</th>
+          <th>License Plate</th>
+          <th>Payment Type</th>
+        </tr>
+		    {% for registration in object_list %}
+        <tr>
+            <td><a href="{% url 'players:player_detail' username=registration.player.user.username %}">{{ registration.player }}</td>
+            <td>
+              {% if player.active_character %}
+                <a href="{% url 'characters:character_detail' pk=registration.player.active_character.id %}">{{ registration.player.active_character }}</a>
+              {% endif %}
+            </td>
+            <td>{{ registration.food_allergies }}</td>
+            <td>{{ registration.vehicle_registration }}</td>
+            <td>{{ registration.payment_type }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No Registered Players Yet.</td></tr>
+		    {% endfor %}
+		</table>
+	</div>
+</div>
+
+{% endblock content %}

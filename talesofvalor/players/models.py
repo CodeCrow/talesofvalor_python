@@ -137,6 +137,7 @@ class RegistrationRequest(models.Model):
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
     vehicle_registration = models.CharField(
+        _('License Plate'),
         max_length=10,
         blank=True,
         default=''
@@ -208,6 +209,7 @@ class Registration(models.Model):
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
     vehicle_registration = models.CharField(
+        _('License Plate'),
         max_length=10,
         blank=True,
         default=''
@@ -241,6 +243,13 @@ class Registration(models.Model):
                 self.cabin = previous_registration.cabin
 
         super(Registration, self).save(*args, **kwargs)
+
+    @property
+    def payment_type(self):
+        """
+        Indicate how the event was paid for
+        """
+        return "Paypal (TB IMPLEMENTED)"
 
 
 class PEL(models.Model):
