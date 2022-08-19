@@ -17,12 +17,12 @@ urlpatterns = [
         name='dining'
     ),
     path(
-        'registration/',
+        'registration/<int:event_id>/',
         RegistrationReportListView.as_view(),
         name='registration'
     ),
     path(
-        'registration/<int:event_id>/',
+        'registration/',
         RegistrationReportListView.as_view(),
         name='registration'
     )

@@ -19,11 +19,17 @@ class ReportListView(ListView):
         If it isn't get the latest event id
         """        
         queryset = super().get_queryset()
+        for r in queryset:
+            print(f"REGISTRATION:{r.event.id}")
         # filter by event
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
             event_id = Event.next_event().id
-        queryset.filter(event__id=event_id)
+        print(f"EVENT ID:{event_id}")
+        queryset = queryset.filter(event__id=event_id)
+        for r in queryset:
+            print(f"REGISTRATION:{r.event.id}")
+        print(f"REPORT QUERYSET:{queryset}")
 
         return queryset
 
@@ -40,7 +46,10 @@ class DiningReportListView(ReportListView, PermissionRequiredMixin):
         We only want to display registrations that are on the meal plan.
         """
         queryset = super().get_queryset()
-        queryset.filter(mealplan_flag=True)
+
+        for r in queryset:
+            print(f"REGISTRATION:{r.event.id}")
+        queryset = queryset.filter(mealplan_flag=True)
         return queryset
 
 

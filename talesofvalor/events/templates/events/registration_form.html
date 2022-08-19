@@ -32,6 +32,14 @@
 	<td> {{ form.food_allergies }} </td>
 </tr>
 <tr>
+	<td> {{ form.vegetarian_flag }} </td>
+	<td> <label for="id_vegetarian_flag">Vegetarian Meal Requested</label></td>
+</tr>
+<tr>
+	<td> {{ form.vegan_flag }} </td>
+	<td> <label for="id_vegan_flag">Vegan Meal Requested</label></td>
+</tr>
+<tr>
 	<td colspan="2"><h2>Vehicle Information</h2></td>
 </tr>
 {% if form.vehicle_make.errors %}

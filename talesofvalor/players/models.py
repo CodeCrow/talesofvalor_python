@@ -132,6 +132,14 @@ class RegistrationRequest(models.Model):
     )
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     mealplan_flag = models.BooleanField(default=False)
+    vegan_flag = models.BooleanField(
+        _('Vegan Meal Requested'),
+        default=False
+    )
+    vegetarian_flag = models.BooleanField(
+        _('Vegetarian Meal Requested'),
+        default=False
+    )
     food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
@@ -203,6 +211,14 @@ class Registration(models.Model):
     mealplan_flag = models.BooleanField(
         default=False,
         help_text=_("Has the player signed up for a meal plan?")
+    )
+    vegan_flag = models.BooleanField(
+        _('Vegan Meal Requested'),
+        default=False
+    )
+    vegetarian_flag = models.BooleanField(
+        _('Vegetarian Meal Requested'),
+        default=False
     )
     food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')

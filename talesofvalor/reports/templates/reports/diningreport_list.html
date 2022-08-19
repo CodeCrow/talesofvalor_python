@@ -11,6 +11,8 @@
           <th>Player</th>
           <th>Active Character</th>
           <th>Allergies</th>
+          <th>Vegetarian?</th>
+          <th>Vegan?</th>
         </tr>
 		    {% for registration in object_list %}
         <tr>
@@ -21,6 +23,8 @@
               {% endif %}
             </td>
             <td>{{ registration.food_allergies }}</td>
+             <td>{% if registration.vegetarian_flag %}&#x2714;{% endif %}</td>
+             <td>{% if registration.vegan_flag %}&#x2714;{% endif %}</td>
         </tr>
         {% empty %}
         <tr><td colspan="2">No Registered Players Yet.</td></tr>

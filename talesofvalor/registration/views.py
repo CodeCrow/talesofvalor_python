@@ -109,7 +109,9 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
                 local_contact=event_reg_request.local_contact,
                 registration_request=event_reg_request,
                 mealplan_flag=event_reg_request.mealplan_flag,
-                food_allergies=event_reg_request.food_allergies
+                food_allergies=event_reg_request.food_allergies,
+                vegetarian_flag=event_reg_request.vegetarian_flag,
+                vegan_flag=event_reg_request.vegan_flag
                 )
             registration.save()
             # send an email to staff with a link to the registration

@@ -11,6 +11,8 @@ class EventRegistrationForm(forms.ModelForm):
             'event_registration_item',
             'mealplan_flag',
             'food_allergies',
+            'vegetarian_flag',
+            'vegan_flag',
             'vehicle_make',
             'vehicle_model',
             'vehicle_color',
