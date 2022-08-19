@@ -9,7 +9,7 @@ from talesofvalor.events.models import Event
 from talesofvalor.players.models import Registration
 
 
-class ReportListView(ListView):
+class ReportListView(PermissionRequiredMixin, ListView):
     permission_required = ('players.view_any_player', )
     model = Registration
     
@@ -19,22 +19,16 @@ class ReportListView(ListView):
         If it isn't get the latest event id
         """        
         queryset = super().get_queryset()
-        for r in queryset:
-            print(f"REGISTRATION:{r.event.id}")
         # filter by event
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
             event_id = Event.next_event().id
-        print(f"EVENT ID:{event_id}")
         queryset = queryset.filter(event__id=event_id)
-        for r in queryset:
-            print(f"REGISTRATION:{r.event.id}")
-        print(f"REPORT QUERYSET:{queryset}")
 
         return queryset
 
 
-class DiningReportListView(ReportListView, PermissionRequiredMixin):
+class DiningReportListView(ReportListView):
     '''
     List information about players regarding food
     '''
@@ -46,14 +40,11 @@ class DiningReportListView(ReportListView, PermissionRequiredMixin):
         We only want to display registrations that are on the meal plan.
         """
         queryset = super().get_queryset()
-
-        for r in queryset:
-            print(f"REGISTRATION:{r.event.id}")
         queryset = queryset.filter(mealplan_flag=True)
         return queryset
 
 
-class RegistrationReportListView(ReportListView, PermissionRequiredMixin):
+class RegistrationReportListView(ReportListView):
     '''
     List generalized information about user who are coming to a game.
     '''
