@@ -18,7 +18,7 @@ from talesofvalor.skills.models import Header, HeaderSkill, Skill
 from talesofvalor.origins.models import Origin
 
 
-STARTING_POINTS = 30
+STARTING_POINTS = 25
 
 
 class Character(models.Model):
@@ -56,6 +56,10 @@ class Character(models.Model):
     staff_attention_flag = models.BooleanField(default=False)
     npc_flag = models.BooleanField(default=False)
     active_flag = models.BooleanField(default=False)
+    cp_initial = models.PositiveIntegerField(
+        default=STARTING_POINTS, 
+        help_text=_("Record of initial points in case a character has to be rebuilt.")
+    )
     cp_spent = models.PositiveIntegerField(default=0)
     cp_available = models.PositiveIntegerField(default=STARTING_POINTS)
     cp_transferred = models.PositiveIntegerField(default=0)

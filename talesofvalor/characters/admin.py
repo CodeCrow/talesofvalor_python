@@ -6,7 +6,7 @@ from talesofvalor.characters.models import Character, CharacterGrant
 
 class CharacterAdmin(admin.ModelAdmin):
     """Access the Character from the admin."""
-    pass
+    readonly_fields = ('cp_initial',)
 
 
 # Register the admin models
