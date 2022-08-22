@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from talesofvalor.characters.models import Character
+from talesofvalor.characters.models import POINT_CAP, Character
 from talesofvalor.events.models import Event
 
 from .models import Player, PEL
@@ -244,6 +244,25 @@ class TransferCPForm(forms.Form):
                 params={'value': transfer_cps},
                 )
         return transfer_cps
+
+    def clean(self):
+        """
+        Make sure the user isn't breaking their season cap
+
+        the cp_transfered must end up being less than the season cap.
+        """
+        cleaned_data = super().clean()
+        character_target = cleaned_data['character']
+        transfer_cps = cleaned_data.get('amount', int(self.data.get('amount', 0)))
+        if transfer_cps + character_target.cp_transferred > POINT_CAP:
+            raise forms.ValidationError(
+                _('Transfer %(value)s is more than available Point Cap %(cap)s.'),
+                code='invalid',
+                params={
+                    'value': transfer_cps,
+                    'cap': POINT_CAP
+                    },
+                )
 
 
 class PELUpdateForm(forms.ModelForm):

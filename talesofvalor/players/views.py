@@ -211,6 +211,9 @@ class PlayerDetailView(
             return self.form_invalid(form)
 
     def form_invalid(self, form):
+        print(f"{form.__dict__}")
+        for error in form.errors:
+            messages.error(self.request, form.errors[error])
         messages.warning(self.request, 'Error transferring points.')
         return super(PlayerDetailView, self).form_invalid(form)
 

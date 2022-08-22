@@ -19,6 +19,7 @@ from talesofvalor.origins.models import Origin
 
 
 STARTING_POINTS = 25
+POINT_CAP = 20
 
 
 class Character(models.Model):
