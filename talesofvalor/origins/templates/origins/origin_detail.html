@@ -17,8 +17,8 @@
 {{ object.description }}
 <h2>Skills</h2>
 <ul>
-    {% for originskill in object.originskill_set.all %}
-    <li><a href="{% url 'skills:skill_detail' pk=originskill.skill.id %}">{{ originskill.skill }}</a>&mdash;{{ originskill.count }}</li>
+    {% for rule in object.rules.all %}
+    <li><a href="{% url 'skills:skill_detail' pk=rule.skill.id %}">{{ rule.skill }}</a>&mdash;{{ rule.count }}</li>
     {% endfor %}
 </ul>
 {% endblock content %}
