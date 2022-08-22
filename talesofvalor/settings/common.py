@@ -44,9 +44,6 @@ SERVER_EMAIL = 'webmaster@talesofvalor.com'
 # default email sender for production.  This email address must exist.
 DEFAULT_FROM_EMAIL = 'characterupdate@talesofvalor.com'
 
-
-
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -72,12 +69,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_global'),
 )
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+FILE_UPLOAD_PERMISSIONS = 0o644
+
 SITE_ID = 1
 
 LOGIN_URL = 'login'
