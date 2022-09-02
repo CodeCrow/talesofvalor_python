@@ -72,6 +72,12 @@ class Rule(models.Model):
         blank=True,
         help_text=_("This is granted for free if the requirements are met.")
     )
+    # Universal.  Everybody gets this no matter what.
+    universal_flag = models.BooleanField(
+        _("Universal"),
+        default=False,
+        help_text=_("All characters get this.")
+    )
     # There are a limited number of times that the user can choose this skill
     # as a result of fulfilling
     # The requirement.  Defaults to infinite.

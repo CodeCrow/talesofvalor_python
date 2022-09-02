@@ -193,8 +193,6 @@ class Character(models.Model):
             return header_skill.cost
         return min(found_rules)
 
-
-
     def skill_grants(self):
         """
         skills granted by a specific character grant or as a result of
@@ -209,7 +207,10 @@ class Character(models.Model):
             free=True,
             skill__isnull=False
         ).values_list('skill', flat=True)
-        skill_grants = list(tradition_grants) + list(people_grants)
+        universal_grants = Rule.objects.filter(
+            universal_flag=True
+        ).values_list('skill', flat=True)
+        skill_grants = list(tradition_grants) + list(people_grants) + list(universal_grants)
         return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def check_header_prerequisites(self, header):
