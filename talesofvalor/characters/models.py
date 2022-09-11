@@ -130,7 +130,7 @@ class Character(models.Model):
         # update skillhash with skills the character has.
         # go through the headers and figure out what headers have had the
         # prerequisites met . . .
-        bought_headers = list(self.headers.all().values_list('id', flat=True)) + ['dabble']
+        bought_headers = list(self.headers.all().values_list('id', flat=True))
         # go through each of the types of rules
         # - update the costs for for the skills
         # - add any granted headers
@@ -138,8 +138,7 @@ class Character(models.Model):
         available_skills = {}
         for h, skills in skillhash.items():
             # if the header is open, or if the user bought it.
-            if h != 'dabble':
-                header = Header.objects.get(pk=h)
+            header = Header.objects.get(pk=h)
             if h in bought_headers or header.open_flag or not header.hidden_flag:
                 available_skills[h] = skills
                 # update the has with what has been purchased
@@ -155,9 +154,8 @@ class Character(models.Model):
                     except CharacterSkills.DoesNotExist:
                         # if it doesn't exist, we can leave purchased as default.   
                         pass
-                    if h != 'dabble':
-                        header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
-                        available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
+                    header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
+                    available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
         return available_skills
 
     def skill_cost(self, header_skill):

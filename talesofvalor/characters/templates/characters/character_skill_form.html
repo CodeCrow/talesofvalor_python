@@ -21,12 +21,6 @@ Player: {{ object.player }}
     {% endwith %}
     {% endfor %}
     </div>
-    {% if dabbled_skills %}
-        <h1>Dabble</h1>
-        <div class="header-group group">
-            {% include "characters/includes/character_skill_update_item.html" with header_skills=dabbled_skills header_costs=skill_hash.dabble %}
-        </div>
-    {% endif %}
     {% if granted_skills %}
     <h1>Grants</h1>
     {% for skill in granted_skills %}

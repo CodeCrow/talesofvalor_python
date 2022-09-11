@@ -11,9 +11,6 @@
 {% if perms.skills.change_skill %}
  <a class="btn btn-primary" href="{% url 'skills:skill_update' pk=object.id %}">edit</a>
 {% endif %}
-{% if not object.headerskill.dabble_flag %}
-<p>Cannot be dabbled</p>
-{% endif %}
 <h2>Description:</h2>
 {{ object.description }}
 <h2>Headers</h2>

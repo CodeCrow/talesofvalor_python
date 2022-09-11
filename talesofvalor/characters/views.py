@@ -242,8 +242,6 @@ class CharacterSkillUpdateView(
         context['skill_hash'] = self.object.skillhash
         # add the bare skills granted by the rules
         context['granted_skills'] = self.object.skill_grants()
-        # full list of dabbled skills to pick from 
-        context['dabbled_skills'] = HeaderSkill.objects.filter(dabble_flag=True)
         return context
 
     def post(self, request, *args, **kwargs):
