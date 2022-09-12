@@ -1,6 +1,4 @@
 {% load cms_tags utils %}
-<ul class="skill-group group">
-    <li>
-        <a href="{% url "skills:skill_detail" pk=skill.id %}">{{ skill.name }}</a>&nbsp;
-    </li>
-</ul>
+<li>
+    <a href="{% url "skills:skill_detail" pk=skill.skill.id %}">{{ skill.skill.name }}</a>{% if count %}&nbsp;({{ count }}){% endif %}
+</li>

@@ -48,6 +48,32 @@ Player: {{ object.player }}
 {% include "characters/includes/character_stats.html" with object=object %}
 <div class="character-body">
     <h2>Skills:</h2>
+    <div class="flex-container">
+    {% regroup skills by skill.header as header_list %}
+
+    <ul class="header-group group">
+    {% for header in header_list %}
+        <li class="header-label"><a href="{% url "skills:header_detail" pk=header.grouper.id %}">{{ header.grouper.name }}</a>    
+            <ul class="skill-group group">
+                {% for skill in header.list %}
+                    {% include "characters/includes/character_skill_item.html" with skill=skill.skill count=skill.count %}
+                {% endfor %}
+            </ul>
+        </li>
+
+    {% endfor %}
+    </ul>
+    </div>
+    {% if granted_skills %}
+    <h3>Granted Skills</h3>
+    {% for skill in granted_skills %}
+        <h3 class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>:</h3> 
+
+        <ul class="skill-group group">
+        {% include "characters/includes/character_skill_item.html" with skill=skill %}
+        </ul>
+    {% endfor %}
+    {% endif %}
     <h2>Description:</h2>
     {{ object.description }}
     <h2>History:</h2>
