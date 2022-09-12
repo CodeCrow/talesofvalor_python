@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import widgets
 
 from talesofvalor.origins.models import Origin
@@ -116,3 +117,21 @@ class CharacterSkillForm(forms.Form):
         the expected costs per skill.  This was how it was done previously.
         """
         return super(CharacterSkillForm, self).clean()
+
+
+class CharacterHistoryApproveForm(forms.Form):
+    """
+    Form indicating approval of a characters history
+    """
+    character_id = forms.IntegerField()
+
+    def clean(self):
+        """
+        Make sure the hisotry hasn't already been approved.
+        """
+        character_id = self.cleaned_data['character_id']
+        character = Character.objects.get(pk=character_id)
+        if character.history_approved_flag:
+            raise ValidationError(f"The history for {character} has already been approved.")
+        return super().clean()
+

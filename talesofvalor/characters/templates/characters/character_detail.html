@@ -65,18 +65,21 @@ Player: {{ object.player }}
     </ul>
     </div>
     {% if granted_skills %}
-    <h3>Granted Skills</h3>
+    <h2>Granted Skills</h2>
+    <ul class="header-group group">
     {% for skill in granted_skills %}
-        <h3 class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>:</h3> 
+        <li class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>: 
 
-        <ul class="skill-group group">
-        {% include "characters/includes/character_skill_item.html" with skill=skill %}
-        </ul>
+            <ul class="skill-group group">
+            {% include "characters/includes/character_skill_item.html" with skill=skill %}
+            </ul>
+        </li>
     {% endfor %}
+    </ul>
     {% endif %}
     <h2>Description:</h2>
     {{ object.description }}
-    <h2>History:</h2>
+    <h2>History {% if object.history_approved_flag %}(Approved){% else %}{% if perms.players.change_any_player %}<form id="character_history_approve" method="POST" action="{% url "characters:history_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_history_approve" class="btn btn-primary btn-submit" type="submit">Approve</button>{% endif %}{% endif %}:</h2>
     {{ object.history }}
     <h2>Player Notes:</h2>
     {{ object.player_notes }}

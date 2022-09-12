@@ -87,6 +87,10 @@ input[type=checkbox] {
   width: 4em;
 }
 
+#character_history_approve {
+  display: inline-block;
+}
+
 .tabs {
   position: relative;
   min-height: 100px;

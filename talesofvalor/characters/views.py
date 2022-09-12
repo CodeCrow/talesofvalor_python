@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
-from django.views.generic import DetailView, ListView, DeleteView
+from django.views.generic import DeleteView, DetailView, FormView, ListView
 
 from rest_framework.status import HTTP_412_PRECONDITION_FAILED
 from rest_framework.authentication import SessionAuthentication
@@ -17,10 +17,11 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from talesofvalor.skills.models import Header, Skill, HeaderSkill
+from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
-from .forms import CharacterForm, CharacterSkillForm
+from .forms import CharacterForm, CharacterSkillForm,\
+    CharacterHistoryApproveForm
 
 
 class OwnsCharacter(BasePermission):
@@ -257,7 +258,7 @@ class CharacterSkillUpdateView(
         Form is valid.   Save the skills to that character and remove the
         appropriate number of characters points.
         """
-        return super(CharacterSkillUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 '''
@@ -414,6 +415,40 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         # add the bare skills granted by the rules
         context['granted_skills'] = self.object.skill_grants()
         return context
+
+
+class CharacterHistoryApproveView(PermissionRequiredMixin, FormView):
+    """
+    Approve the history for a character.
+    Grant the CP for the character
+    Set the history approved flag.
+    """
+    permission_required = 'players.change_any_player'
+    form_class = CharacterHistoryApproveForm
+
+    def form_valid(self, form):
+        self.object = Character.objects.get(pk=form.cleaned_data['character_id'])
+        self.object.player.cp_available += 3
+        self.object.player.save(update_fields=['cp_available'])
+        self.object.history_approved_flag = True
+        self.object.save(update_fields=['history_approved_flag'])
+        messages.info(self.request, f"{self.object} history approved!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.object = Character.objects.get(pk=form.cleaned_data['character_id'])
+        for key, error in form.errors.items():
+            messages.error(self.request, error.as_text())
+        return HttpResponseRedirect(reverse(
+            'characters:character_detail',
+            kwargs={'pk': self.object.pk}
+        ))
+
+    def get_success_url(self):
+        return reverse(
+            'characters:character_detail',
+            kwargs={'pk': self.object.pk}
+        )   
 
 
 class CharacterListView(LoginRequiredMixin, ListView):

@@ -56,7 +56,8 @@ class Character(models.Model):
     staff_notes_hidden = models.TextField(blank=True)
     staff_attention_flag = models.BooleanField(default=False)
     npc_flag = models.BooleanField(default=False)
-    active_flag = models.BooleanField(default=False)
+    active_flag = models.BooleanField(_("Active"), default=False)
+    history_approved_flag = models.BooleanField(_("History Approved"), default=False)
     cp_initial = models.PositiveIntegerField(
         default=STARTING_POINTS, 
         help_text=_("Record of initial points in case a character has to be rebuilt.")
