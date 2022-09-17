@@ -324,6 +324,53 @@ class CharacterAddHeaderView(APIView):
         return Response(content, status)
 
 
+class CharacterDropHeaderView(APIView):
+    '''
+    Set of AJAX views for a Characters
+
+    This handles different API calls for character actions.
+    '''
+
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [OwnsCharacter]
+
+    def post(self, request, format=None):
+        header_id = int(request.POST.get('header_id', 0))
+        character_id = int(request.POST.get('character_id', 0))
+        # get the character and header
+        header = Header.objects.get(pk=header_id)
+        character = Character.objects.get(pk=character_id)
+        print(f'header to drop: {header}')
+        # Default to error.
+        content = {
+            'error': "Header is not already bought!"
+        }
+        status = None
+        # if the character has the header, drop it and refund the CP
+        content['header_list'] = []
+
+        if header in character.headers.all():
+            print(f'Header present!  Dropping and adding back in {header.cost} CP...')
+            character.cp_available += header.cost
+            character.cp_spent -= header.cost
+            character.headers.remove(header)
+            skill_item_template_string = render_to_string(
+                "characters/includes/character_skill_update_item.html",
+                {
+                    'header': header,
+                    'header_skills': header.skills.all(),
+                    'header_costs': character.skillhash[header.id]
+                },
+                request
+            )
+            content = {
+                'success': header.cost,
+            }
+        else:
+            status = HTTP_412_PRECONDITION_FAILED
+        return Response(content, status)
+
+
 class CharacterAddSkillView(APIView):
     '''
     Set of AJAX views for a Characters

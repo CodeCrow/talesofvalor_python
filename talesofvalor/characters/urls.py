@@ -5,7 +5,7 @@ from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterDetailView, CharacterDeleteView, CharacterListView,\
     CharacterSetActiveView, CharacterSkillUpdateView,\
     CharacterHistoryApproveView,\
-    CharacterAddHeaderView, CharacterAddSkillView
+    CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView
 
 app_name = 'characters'
 
@@ -55,6 +55,11 @@ urlpatterns = [
         'addheader/',
         CharacterAddHeaderView.as_view(),
         name='header_add'
+    ),
+    path(
+        'dropheader/',
+        CharacterDropHeaderView.as_view(),
+        name='header_drop'
     ),
     path(
         'addskill/',

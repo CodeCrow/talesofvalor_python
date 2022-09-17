@@ -15,10 +15,13 @@
 <p><strong>Type:</strong> {{ object.type }}
 <h2>Description:</h2>
 {{ object.description }}
+<!--
+-- Origins don't yet have skills, so commenting this out until it's needed later.
 <h2>Skills</h2>
 <ul>
     {% for rule in object.rules.all %}
     <li><a href="{% url 'skills:skill_detail' pk=rule.skill.id %}">{{ rule.skill }}</a>&mdash;{{ rule.count }}</li>
     {% endfor %}
 </ul>
+-->
 {% endblock content %}
