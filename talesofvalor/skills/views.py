@@ -9,11 +9,13 @@ from django.views.generic.edit import CreateView, UpdateView,\
     DeleteView
 from django.views.generic import DetailView, ListView
 
+from rest_framework.generics import ListAPIView
+
 from talesofvalor.rules.forms import PrerequisiteFormSet
 
-from .models import Header, Skill
 from .forms import SkillForm, HeaderSkillFormSet, RuleFormSet
-
+from .models import Header, Skill
+from .serializers import SkillSerializer
 
 INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "open_flag"]
 INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "attention_flag", "bgs_flag"]
@@ -279,6 +281,7 @@ class SkillListView(LoginRequiredMixin, ListView):
         queryset = self.model.objects.filter(**filter_args)
         return queryset
 
+
 class SkillTreeView(ListView):
     """
     Show Skills with Headers, Grouped by category
@@ -297,4 +300,16 @@ class SkillTreeView(ListView):
         return queryset
 
 
+'''
+API Endpoints for skills
+'''
 
+
+class SkillSearchView(ListAPIView):
+    serializer_class = SkillSerializer
+
+    def get_queryset(self):
+        criteria = self.kwargs.get('criteria', None)
+        if criteria:
+            return Skill.objects.filter(name__istartswith=criteria)
+        return None

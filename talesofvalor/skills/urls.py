@@ -4,7 +4,8 @@ from django.urls import path
 from .views import HeaderCreateView, HeaderUpdateView,\
     HeaderDetailView, HeaderListView, HeaderDeleteView,\
     SkillCreateView, SkillUpdateView, SkillTreeView,\
-    SkillDetailView, SkillListView, SkillDeleteView
+    SkillDetailView, SkillListView, SkillDeleteView,\
+    SkillSearchView
 
 app_name = "skills"
 
@@ -64,4 +65,9 @@ urlpatterns = [
         SkillDeleteView.as_view(),
         name='skill_delete'
     ),
+    path(
+        'api/<str:criteria>/',
+        SkillSearchView.as_view(),
+        name='skill_search'
+    )
 ]
