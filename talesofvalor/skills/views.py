@@ -309,7 +309,7 @@ class SkillSearchView(ListAPIView):
     serializer_class = SkillSerializer
 
     def get_queryset(self):
-        criteria = self.kwargs.get('criteria', None)
+        criteria = self.request.GET.get('criteria', None)
         if criteria:
             return Skill.objects.filter(name__istartswith=criteria)
         return None

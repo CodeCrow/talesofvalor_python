@@ -66,7 +66,7 @@ urlpatterns = [
         name='skill_delete'
     ),
     path(
-        'api/<str:criteria>/',
+        'api/',
         SkillSearchView.as_view(),
         name='skill_search'
     )
