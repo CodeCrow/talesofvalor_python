@@ -6,4 +6,7 @@
 	.no-print {
 		display: none !important;
 	}
+	 a[href]:after {
+    content: none !important;
+  }
 }

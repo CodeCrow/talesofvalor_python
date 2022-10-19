@@ -175,6 +175,10 @@ input[type=checkbox] {
   .no-print {
     display: none !important;
   }
+
+  a[href]:after {
+    content: none !important;
+  }
 }
 html {
   box-sizing: border-box;
