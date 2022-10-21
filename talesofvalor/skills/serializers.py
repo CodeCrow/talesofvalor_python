@@ -1,7 +1,7 @@
 """ Serializers for the skills and headers """
 from rest_framework.serializers import ModelSerializer
 
-from .models import Header, Skill
+from .models import Skill
 
 
 class SkillSerializer(ModelSerializer):

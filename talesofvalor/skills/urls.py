@@ -5,7 +5,7 @@ from .views import HeaderCreateView, HeaderUpdateView,\
     HeaderDetailView, HeaderListView, HeaderDeleteView,\
     SkillCreateView, SkillUpdateView, SkillTreeView,\
     SkillDetailView, SkillListView, SkillDeleteView,\
-    SkillSearchView
+    SkillSearchView, SkillNamesView
 
 app_name = "skills"
 
@@ -64,6 +64,11 @@ urlpatterns = [
         '<int:pk>/delete/',
         SkillDeleteView.as_view(),
         name='skill_delete'
+    ),
+    path(
+        'api/names/',
+        SkillNamesView.as_view(),
+        name='skill_names'
     ),
     path(
         'api/',

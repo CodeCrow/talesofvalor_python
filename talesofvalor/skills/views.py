@@ -3,11 +3,13 @@ These are views that are used for viewing and editing headers and skills.
 """
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView,\
     DeleteView
-from django.views.generic import DetailView, ListView
 
 from rest_framework.generics import ListAPIView
 
@@ -313,3 +315,12 @@ class SkillSearchView(ListAPIView):
         if criteria:
             return Skill.objects.filter(name__istartswith=criteria)
         return None
+
+
+class SkillNamesView(View):
+    """
+    Get the list of name in a flat JSON list.
+    """
+    def get(self, request, *args, **kwargs):
+        skill_names = list(Skill.objects.all().values_list('name', flat=True).order_by('name'))
+        return JsonResponse(skill_names, safe=False)
