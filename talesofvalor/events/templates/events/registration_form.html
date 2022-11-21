@@ -42,6 +42,10 @@
 <tr>
 	<td colspan="2"><h2>Vehicle Information</h2></td>
 </tr>
+<tr>
+	<td> {{ form.no_car_flag }} </td>
+	<td> <label for="id_no_car_flag">No car on site</label></td>
+</tr>
 {% if form.vehicle_make.errors %}
 <tr><td colspan="2">{{ form.vehicle_make.errors }}</td></tr>
 {% endif %}
@@ -76,6 +80,16 @@
     <td>{{ form.vehicle_registration.label_tag }}</td>
     <td>
 		{{ form.vehicle_registration }}{% if form.vehicle_registration.help_text %}<br />{{ form.vehicle_registration.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.site_transportation.errors %}
+<tr><td colspan="2">{{ form.site_transportation.errors }}</td></tr>
+{% endif %}
+<tr>
+	<td>{{ form.site_transportation.label_tag }}
+	</td>
+    <td>
+		{{ form.site_transportation }}{% if form.site_transportation.help_text %}<br />{{ form.site_transportation.help_text }}{% endif %}
 	</td>
 </tr>
 <tr>

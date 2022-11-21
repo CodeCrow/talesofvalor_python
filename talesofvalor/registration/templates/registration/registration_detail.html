@@ -16,12 +16,14 @@
 <p><strong>Food allergies:</strong> {{ object.food_allergies }}</p>
 
 <h3>Vehicle Info:<h3><br />
+<p><strong>No car on site?</strong> {% if object.no_car_flag %}&#x2714;{% else %}&#x2717;{% endif %}</p>
 <p>
 	<strong>Make:</strong>{{ object.vehicle_make }}<br />
 	<strong>Model:</strong>{{ object.vehicle_model }}<br />
 	<strong>Color:</strong>{{ object.vehicle_color }}<br />
 	<strong>License Plate:</strong>{{ object.vehicle_registration }}<br />
 </p>
+<p><strong>Other site transportation?</strong>{{ object.site_transportation }}</p>
 <h3><strong>Notes:</strong></h3>
 <p>{{ object.notes }}</p>
 {% endif %}

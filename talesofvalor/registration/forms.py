@@ -13,10 +13,12 @@ class EventRegistrationForm(forms.ModelForm):
             'food_allergies',
             'vegetarian_flag',
             'vegan_flag',
+            'no_car_flag',
             'vehicle_make',
             'vehicle_model',
             'vehicle_color',
             'vehicle_registration',
+            'site_transportation',
             'local_contact',
             'notes'
         ]

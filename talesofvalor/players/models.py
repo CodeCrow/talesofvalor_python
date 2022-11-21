@@ -139,8 +139,18 @@ class RegistrationRequest(models.Model):
     vegetarian_flag = models.BooleanField(
         _('Vegetarian Meal Requested'),
         default=False
+    ) 
+    food_allergies = models.CharField(max_length=200, blank=True, default='')  
+    no_car_flag = models.BooleanField(
+        _('No car on site.'),
+        default=False
+    )    
+    site_transportation = models.TextField(
+        _('Came to site with/by'),
+        blank=True,
+        default='',
+        help_text=_("The person or method you got to site with:  Uber, player name.  In case of emergencies.")
     )
-    food_allergies = models.CharField(max_length=200, blank=True, default='')
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
@@ -221,6 +231,16 @@ class Registration(models.Model):
         default=False
     )
     food_allergies = models.CharField(max_length=200, blank=True, default='')
+    no_car_flag = models.BooleanField(
+        _('No car on site.'),
+        default=False
+    )    
+    site_transportation = models.TextField(
+        _('Alternative Transportation'),
+        blank=True,
+        default='',
+        help_text=_("The person or method you got to site with:  Uber, player name.  In case of emergencies.")
+    )
     vehicle_make = models.CharField(max_length=10, blank=True, default='')
     vehicle_model = models.CharField(max_length=15, blank=True, default='')
     vehicle_color = models.CharField(max_length=10, blank=True, default='')
