@@ -4,6 +4,7 @@ from django.urls import path, re_path
 from .views import RegistrationSendView, RegistrationCompleteView,\
     RegistrationDetailView, RegistrationUpdateView,\
     RegistrationRequestDetailView, RegistrationListView,\
+    RegistrationRequestAlreadyPaidView, RegistrationRequestPayAtDoorView,\
     RegistrationRequestDeleteView
 
 app_name = 'registration'
@@ -38,6 +39,16 @@ urlpatterns = [
         'request/<int:pk>/',
         RegistrationRequestDetailView.as_view(),
         name='request_detail'
+    ),
+    path(
+        'request/<int:pk>/alreadypaid/',
+        RegistrationRequestAlreadyPaidView.as_view(),
+        name='request_already_paid'
+    ),
+    path(
+        'request/<int:pk>/payatdoor/',
+        RegistrationRequestPayAtDoorView.as_view(),
+        name='request_pay_at_door'
     ),
     path(
         'request/<int:pk>/delete/',

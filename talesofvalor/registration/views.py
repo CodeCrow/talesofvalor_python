@@ -237,6 +237,54 @@ class RegistrationRequestDetailView(
     model = RegistrationRequest
 
 
+class RegistrationRequestAlreadyPaidView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        DeleteView
+        ):
+    """
+    Someone is indicating that they have already paid
+    """
+    template_name = "registration/registration_delete.html"
+    model = RegistrationRequest
+    success_url = reverse_lazy('registration:create')
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = RegistrationRequest.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except RegistrationRequest.DoesNotExist:
+            return False
+        return False
+
+
+class RegistrationRequestPayAtDoorView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        DeleteView
+        ):
+    """
+    Removes a request for registration that a user has.
+
+    This is so someone can get rid of abandoned requests.
+    """
+    template_name = "registration/registration_delete.html"
+    model = RegistrationRequest
+    success_url = reverse_lazy('registration:create')
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = RegistrationRequest.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except RegistrationRequest.DoesNotExist:
+            return False
+        return False
+
+
 class RegistrationRequestDeleteView(
         LoginRequiredMixin,
         UserPassesTestMixin,
