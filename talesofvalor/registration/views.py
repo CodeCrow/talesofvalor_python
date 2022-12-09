@@ -5,7 +5,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
 from django.core import mail
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import FormView, TemplateView, ListView, DeleteView
+from django.views import View
+from django.views.generic import DeleteView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from paypalcheckoutsdk.orders import OrdersGetRequest
@@ -240,14 +241,20 @@ class RegistrationRequestDetailView(
 class RegistrationRequestAlreadyPaidView(
         LoginRequiredMixin,
         UserPassesTestMixin,
-        DeleteView
+        View
         ):
     """
-    Someone is indicating that they have already paid
+    Someone is indicating that they have already paid.
+
+    This should continue the sign up so that the player is registered.
+
+    Updates the registration request to add the already_paid_flag
+
+    Then moves the user on to completing the registration
     """
     template_name = "registration/registration_delete.html"
     model = RegistrationRequest
-    success_url = reverse_lazy('registration:create')
+    success_url = reverse_lazy('registration:complete')
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -258,21 +265,33 @@ class RegistrationRequestAlreadyPaidView(
         except RegistrationRequest.DoesNotExist:
             return False
         return False
+
+    def dispatch(self, request, *args, **kwargs):
+        # get the registration request id
+        registration_request = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
+        # and set the correct flag.
+        registration_request.already_paid_flag = True
+        registration_request.save(update_field=['already_paid_flag'])
+        return super().dispatch(request, *args, **kwargs)
 
 
 class RegistrationRequestPayAtDoorView(
         LoginRequiredMixin,
         UserPassesTestMixin,
-        DeleteView
+        View
         ):
     """
-    Removes a request for registration that a user has.
+    Someone is indicating that they will pay at the door.
 
-    This is so someone can get rid of abandoned requests.
+    This should continue the sign up so that the player is registered.
+
+    Updates the registration request to add the pay_at_door_flag
+
+    Then moves the user on to completing the registration
     """
     template_name = "registration/registration_delete.html"
     model = RegistrationRequest
-    success_url = reverse_lazy('registration:create')
+    success_url = reverse_lazy('registration:complete')
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -283,6 +302,14 @@ class RegistrationRequestPayAtDoorView(
         except RegistrationRequest.DoesNotExist:
             return False
         return False
+
+    def dispatch(self, request, *args, **kwargs):
+        # get the registration request id
+        registration_request = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
+        # and set the correct flag.
+        registration_request.already_paid_flag = True
+        registration_request.save(update_field=['already_paid_flag'])
+        return super().dispatch(request, *args, **kwargs)
 
 
 class RegistrationRequestDeleteView(

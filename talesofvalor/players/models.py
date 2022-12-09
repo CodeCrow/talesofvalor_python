@@ -177,7 +177,16 @@ class RegistrationRequest(models.Model):
         blank=True,
         default='',
         help_text=_("Order recieved from PayPal system.")
-    )   
+    )
+    # alternate payment types
+    pay_at_door_flag = models.BooleanField(
+        _('Payment brought to game'),
+        default=False
+    )
+    already_paid_flag = models.BooleanField(
+        _('Paid by another method.'),
+        default=False
+    ) 
     requested = models.DateTimeField(
         _('date created'),
         null=True,
@@ -257,6 +266,11 @@ class Registration(models.Model):
         help_text=_("On site contact, such as a cell phone.")
     )
     notes = models.TextField(blank=True, default='')
+    # alternate payment types that might require interaction
+    pay_at_door_flag = models.BooleanField(
+        _('Payment brought to game'),
+        default=False
+    )
 
     def save(self, *args, **kwargs):
         """
