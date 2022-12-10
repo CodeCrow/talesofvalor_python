@@ -4,11 +4,14 @@ Describes the player models.
 These models describe the player and its relationship to the
 django authentication user models.
 """
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -202,6 +205,75 @@ class RegistrationRequest(models.Model):
         if self.mealplan_flag:
             mealplan_price = self.event_registration_item.events.count() * EVENT_MEALPLAN_PRICE
         return self.event_registration_item.price + mealplan_price
+
+    @classmethod
+    def request_complete(cls, request_id, user, request):
+        """
+        Complate the request and make the registrations
+        """
+        print("REQUEST COMPLETE")   
+        event_reg_request = RegistrationRequest.objects.get(
+            pk=request_id
+        )
+        # Create the event registration for each of the events that the
+        # event_reg_request.eventregistrationitem is attached to.
+        # create an email message for each registration
+        email_connection = mail.get_connection()
+        # create the list of messages
+        email_messages = []
+        for event in event_reg_request.event_registration_item.events.all():
+            registration = Registration(
+                player=user.player,
+                event=event,
+                no_car_flag=event_reg_request.no_car_flag,
+                site_transportation=event_reg_request.site_transportation,
+                vehicle_make=event_reg_request.vehicle_make,
+                vehicle_model=event_reg_request.vehicle_model,
+                vehicle_color=event_reg_request.vehicle_color,
+                vehicle_registration=event_reg_request.vehicle_registration,
+                local_contact=event_reg_request.local_contact,
+                registration_request=event_reg_request,
+                mealplan_flag=event_reg_request.mealplan_flag,
+                food_allergies=event_reg_request.food_allergies,
+                vegetarian_flag=event_reg_request.vegetarian_flag,
+                vegan_flag=event_reg_request.vegan_flag
+                )
+            registration.save()
+            # send an email to staff with a link to the registration
+            # send email using the self.cleaned_data dictionary
+            message = """
+            Hello!
+
+            {} {} has a new registration for event {}.
+
+            See it here:
+            {}
+
+            --ToV MechCrow
+            """.format(
+                    user.first_name,
+                    user.last_name,
+                    event.name,
+                    request.build_absolute_uri(
+                        reverse("registration:detail", kwargs={
+                            'pk': registration.id
+                        })
+                    )
+                )
+            email_message = mail.EmailMessage(
+                "Registration for {} {}".format(
+                    user.first_name,
+                    user.last_name
+                ),
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com"]
+            )
+            email_messages.append(email_message)
+        # send an email to each of them.
+        email_connection.send_messages(email_messages)
+        # close the connection to the email server
+        email_connection.close()
 
 
 class Registration(models.Model):

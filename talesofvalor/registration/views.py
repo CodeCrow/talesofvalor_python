@@ -1,11 +1,9 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
-from django.core import mail
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views import View
+from django.views.generic.base import View, RedirectView
 from django.views.generic import DeleteView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
@@ -93,65 +91,12 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         event_reg_request.paypal_order_id = form.cleaned_data['order_id']
         event_reg_request.status = COMPLETE
         event_reg_request.save()
-        # Create the event registration for each of the events that the
-        # event_reg_request.eventregistrationitem is attached to.
-        # create an email message for each registration
-        email_connection = mail.get_connection()
-        # create the list of messages
-        email_messages = []
-        for event in event_reg_request.event_registration_item.events.all():
-            registration = Registration(
-                player=self.request.user.player,
-                event=event,
-                no_car_flag=event_reg_request.no_car_flag,
-                site_transportation=event_reg_request.site_transportation,
-                vehicle_make=event_reg_request.vehicle_make,
-                vehicle_model=event_reg_request.vehicle_model,
-                vehicle_color=event_reg_request.vehicle_color,
-                vehicle_registration=event_reg_request.vehicle_registration,
-                local_contact=event_reg_request.local_contact,
-                registration_request=event_reg_request,
-                mealplan_flag=event_reg_request.mealplan_flag,
-                food_allergies=event_reg_request.food_allergies,
-                vegetarian_flag=event_reg_request.vegetarian_flag,
-                vegan_flag=event_reg_request.vegan_flag
-                )
-            registration.save()
-            # send an email to staff with a link to the registration
-            # send email using the self.cleaned_data dictionary
-            message = """
-            Hello!
-
-            {} {} has a new registration for event {}.
-
-            See it here:
-            {}
-
-            --ToV MechCrow
-            """.format(
-                    self.request.user.first_name,
-                    self.request.user.last_name,
-                    event.name,
-                    self.request.build_absolute_uri(
-                        reverse("registration:detail", kwargs={
-                            'pk': registration.id
-                        })
-                    )
-                )
-            email_message = mail.EmailMessage(
-                "Registration for {} {}".format(
-                    self.request.user.first_name,
-                    self.request.user.last_name
-                ),
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com"]
-            )
-            email_messages.append(email_message)
-        # send an email to each of them.
-        email_connection.send_messages(email_messages)
-        # close the connection to the email server
-        email_connection.close()
+        
+        RegistrationRequest.request_complete(
+            event_reg_request.id,
+            request.user,
+            request
+        )
 
         return super().form_valid(form)
 
@@ -241,7 +186,7 @@ class RegistrationRequestDetailView(
 class RegistrationRequestAlreadyPaidView(
         LoginRequiredMixin,
         UserPassesTestMixin,
-        View
+        RedirectView
         ):
     """
     Someone is indicating that they have already paid.
@@ -253,7 +198,6 @@ class RegistrationRequestAlreadyPaidView(
     Then moves the user on to completing the registration
     """
     template_name = "registration/registration_delete.html"
-    model = RegistrationRequest
     success_url = reverse_lazy('registration:complete')
 
     def test_func(self):
@@ -266,19 +210,25 @@ class RegistrationRequestAlreadyPaidView(
             return False
         return False
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_redirect_url(self, *args, **kwargs):
         # get the registration request id
         registration_request = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
         # and set the correct flag.
         registration_request.already_paid_flag = True
-        registration_request.save(update_field=['already_paid_flag'])
-        return super().dispatch(request, *args, **kwargs)
+        registration_request.save(update_fields=['already_paid_flag'])
+        RegistrationRequest.request_complete(
+            self.kwargs['pk'],
+            self.request.user,
+            self.request
+        )
+        del kwargs['pk']
+        return super().get_redirect_url(*args, **kwargs)
 
 
 class RegistrationRequestPayAtDoorView(
         LoginRequiredMixin,
         UserPassesTestMixin,
-        View
+        RedirectView
         ):
     """
     Someone is indicating that they will pay at the door.
@@ -289,9 +239,7 @@ class RegistrationRequestPayAtDoorView(
 
     Then moves the user on to completing the registration
     """
-    template_name = "registration/registration_delete.html"
-    model = RegistrationRequest
-    success_url = reverse_lazy('registration:complete')
+    pattern_name = 'registration:complete'
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -303,13 +251,19 @@ class RegistrationRequestPayAtDoorView(
             return False
         return False
 
-    def dispatch(self, request, *args, **kwargs):
+    def get_redirect_url(self, *args, **kwargs):
         # get the registration request id
         registration_request = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
         # and set the correct flag.
         registration_request.already_paid_flag = True
-        registration_request.save(update_field=['already_paid_flag'])
-        return super().dispatch(request, *args, **kwargs)
+        registration_request.save(update_fields=['already_paid_flag'])
+        RegistrationRequest.request_complete(
+            self.kwargs['pk'],
+            self.request.user,
+            self.request
+        )
+        del kwargs['pk']
+        return super().get_redirect_url(*args, **kwargs)
 
 
 class RegistrationRequestDeleteView(

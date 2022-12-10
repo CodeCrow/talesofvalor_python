@@ -36,11 +36,6 @@ urlpatterns = [
         name='list'
     ),
     path(
-        'request/<int:pk>/',
-        RegistrationRequestDetailView.as_view(),
-        name='request_detail'
-    ),
-    path(
         'request/<int:pk>/alreadypaid/',
         RegistrationRequestAlreadyPaidView.as_view(),
         name='request_already_paid'
@@ -54,5 +49,10 @@ urlpatterns = [
         'request/<int:pk>/delete/',
         RegistrationRequestDeleteView.as_view(),
         name='request_delete'
+    ),   
+    path(
+        'request/<int:pk>/',
+        RegistrationRequestDetailView.as_view(),
+        name='request_detail'
     ),
 ]
