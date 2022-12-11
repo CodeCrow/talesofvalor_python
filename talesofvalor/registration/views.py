@@ -255,8 +255,8 @@ class RegistrationRequestPayAtDoorView(
         # get the registration request id
         registration_request = RegistrationRequest.objects.get(pk=self.kwargs['pk'])
         # and set the correct flag.
-        registration_request.already_paid_flag = True
-        registration_request.save(update_fields=['already_paid_flag'])
+        registration_request.pay_at_door_flag = True
+        registration_request.save(update_fields=['pay_at_door_flag'])
         RegistrationRequest.request_complete(
             self.kwargs['pk'],
             self.request.user,
