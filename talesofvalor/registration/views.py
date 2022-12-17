@@ -13,7 +13,7 @@ from talesofvalor.mixins import PayPalClientMixin
 from talesofvalor.players.models import RegistrationRequest, Registration,\
     COMPLETE, REQUESTED
 
-from .forms import RegistrationCompleteForm
+from .forms import RegistrationCompleteForm, RegistrationRequestApproveForm
 
 
 class RegistrationSendView(PayPalClientMixin, TemplateView):
@@ -177,9 +177,21 @@ class RegistrationRequestListView(PermissionRequiredMixin, ListView):
     List the PELs for staff memebers
     '''
     permission_required = ('players.view_any_player', )
-    model = RegistrationRequest
+    queryset = RegistrationRequest.objects.exclude(status=COMPLETE)
     template_name = "registration/registrationrequest_list.html"
     paginate_by = 25  # if pagination is desired
+
+    def get_context_data(self, **kwargs):
+        '''
+        Put the registration request form 
+        '''
+        # get the context data to add to.
+        context_data = super().get_context_data(**kwargs)
+        # set up the forms that appear in the list
+        context_data['registrationrequest_form'] = RegistrationRequestApproveForm()
+        # return the resulting context
+        return context_data
+
 
 class RegistrationRequestDetailView(
         LoginRequiredMixin,
@@ -232,6 +244,37 @@ class RegistrationRequestAlreadyPaidView(
         )
         del kwargs['pk']
         return super().get_redirect_url(*args, **kwargs)
+
+
+class RegistrationRequestApproveFormView(FormView):
+    form_class = RegistrationRequestApproveForm
+
+    def get_success_url(self):
+        """
+        The form has been successful.
+
+        Now, we want to create the success url
+        """
+        return reverse('registration:request_list')
+
+    def form_valid(self, form):
+        """
+        
+        """
+        # update the request status and add the order id
+        registration_request = RegistrationRequest.objects.get(
+            pk=self.kwargs.get('pk')
+        )
+        registration_request.status = COMPLETE
+        registration_request.save()
+        
+        RegistrationRequest.request_complete(
+            registration_request.id,
+            self.request.user,
+            self.request
+        )
+
+        return super().form_valid(form)
 
 
 class RegistrationRequestPayAtDoorView(

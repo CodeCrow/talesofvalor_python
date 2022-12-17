@@ -11,6 +11,8 @@
         <tr>
           <th>Request</th>
           <th>Events</th>
+          <th>Pay at Door</th>
+          <th>Already Paid</th>
           <th>&nbsp;</th>
         </tr>
 		    {% for request in object_list %}
@@ -18,10 +20,16 @@
             <td><a href="{% url 'registration:request_detail' pk=request.id %}">{{ request }}</td>
             <td>
               {% for event in request.event_registration_item.events.all %}
-                <a href="{% url 'events:event_detail' pk=event.id %}">{{ event }} test</a><br />
+                <a href="{% url 'events:event_detail' pk=event.id %}">{{ event }}</a><br />
               {% endfor %}
             </td>
-            <td><button type="button" class="btn btn-primary">register</button></td>
+            <td>{% if request.pay_at_door_flag %}&check;{% endif %}</td>
+            <td>{% if request.already_paid_flag %}&check;{% endif %}</td>
+            <td>
+              <form method="POST" action="{% url 'registration:request_approve' pk=request.id %}">{% csrf_token %}
+                <button id="event_request_register" class="btn btn-primary btn-submit" type="submit" name="register">Register</button>
+              </form>
+            </td>
         </tr>
         {% empty %}
         <tr><td colspan="3">No Requests Yet.</td></tr>

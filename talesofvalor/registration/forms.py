@@ -31,3 +31,13 @@ class RegistrationCompleteForm(forms.Form):
     Is should only ever be involved in reacting to a POST call.
     """
     order_id = forms.CharField()
+
+
+class RegistrationRequestApproveForm(forms.Form):
+    """
+    Handles the registration for an an individual request.
+
+    Is should only ever be involved in reacting to a POST call.
+
+    We only need this because the form view requires it.
+    """
