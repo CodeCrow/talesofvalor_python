@@ -219,7 +219,6 @@ class RegistrationRequest(models.Model):
         """
         Complate the request and make the registrations
         """
-        print("REQUEST COMPLETE")   
         event_reg_request = RegistrationRequest.objects.get(
             pk=request_id
         )
@@ -244,7 +243,9 @@ class RegistrationRequest(models.Model):
                 mealplan_flag=event_reg_request.mealplan_flag,
                 food_allergies=event_reg_request.food_allergies,
                 vegetarian_flag=event_reg_request.vegetarian_flag,
-                vegan_flag=event_reg_request.vegan_flag
+                vegan_flag=event_reg_request.vegan_flag,
+                pay_at_door_flag=event_reg_request.pay_at_door_flag,
+                already_paid_flag=event_reg_request.already_paid_flag,
                 )
             registration.save()
             # send an email to staff with a link to the registration
@@ -351,6 +352,10 @@ class Registration(models.Model):
         _('Payment brought to game'),
         default=False
     )
+    already_paid_flag = models.BooleanField(
+        _('Paid by another method.'),
+        default=False
+    ) 
 
     def save(self, *args, **kwargs):
         """

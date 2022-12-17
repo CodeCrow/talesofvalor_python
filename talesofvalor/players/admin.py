@@ -23,6 +23,7 @@ class PlayerAdmin(BaseUserAdmin):
 
     inlines = (PlayerInline, )
 
+
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, PlayerAdmin)
