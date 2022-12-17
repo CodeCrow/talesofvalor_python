@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -48,7 +49,6 @@ class Player(models.Model):
     staff_attention_flag = models.BooleanField(default=False)
     player_pronouns = models.CharField(max_length=25, default='')
     food_allergies = models.TextField(default='', blank=True)
-
 
     def __str__(self):
         """General display of model."""
@@ -196,6 +196,14 @@ class RegistrationRequest(models.Model):
         auto_now_add=True,
         editable=False
     )
+
+    def __str__(self):
+        """General display of model."""
+        return mark_safe("{} &ndash; {} {}".format(
+            self.event_registration_item,
+            self.player.user.first_name,
+            self.player.user.last_name
+        ))
 
     def cost(self):
         """

@@ -10,13 +10,21 @@
 		<table id="registrationrequest_list" class="list list-registrationrequest">
         <tr>
           <th>Request</th>
+          <th>Events</th>
+          <th>&nbsp;</th>
         </tr>
 		    {% for request in object_list %}
         <tr>
             <td><a href="{% url 'registration:request_detail' pk=request.id %}">{{ request }}</td>
+            <td>
+              {% for event in request.event_registration_item.events.all %}
+                <a href="{% url 'events:event_detail' pk=event.id %}">{{ event }} test</a><br />
+              {% endfor %}
+            </td>
+            <td><button type="button" class="btn btn-primary">register</button></td>
         </tr>
         {% empty %}
-        <tr><td colspan="2">No Requests Yet.</td></tr>
+        <tr><td colspan="3">No Requests Yet.</td></tr>
 		    {% endfor %}
 		</table>
 	</div>
