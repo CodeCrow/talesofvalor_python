@@ -172,6 +172,15 @@ class RegistrationListView(
         return self.model.objects.filter(event=self.kwargs['event'])
 
 
+class RegistrationRequestListView(PermissionRequiredMixin, ListView):
+    '''
+    List the PELs for staff memebers
+    '''
+    permission_required = ('players.view_any_player', )
+    model = RegistrationRequest
+    template_name = "registration/registrationrequest_list.html"
+    paginate_by = 25  # if pagination is desired
+
 class RegistrationRequestDetailView(
         LoginRequiredMixin,
         DetailView

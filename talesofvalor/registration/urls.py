@@ -3,6 +3,7 @@ from django.urls import path, re_path
 
 from .views import RegistrationSendView, RegistrationCompleteView,\
     RegistrationDetailView, RegistrationUpdateView,\
+    RegistrationRequestListView,\
     RegistrationRequestDetailView, RegistrationListView,\
     RegistrationRequestAlreadyPaidView, RegistrationRequestPayAtDoorView,\
     RegistrationRequestDeleteView
@@ -54,5 +55,10 @@ urlpatterns = [
         'request/<int:pk>/',
         RegistrationRequestDetailView.as_view(),
         name='request_detail'
+    ),
+    path(
+        'request/',
+        RegistrationRequestListView.as_view(),
+        name='request_list'
     ),
 ]

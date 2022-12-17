@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags add_query_params %}
+
+{% block title %}Registration Requests{% endblock title %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-sm-12">
+		<table id="registrationrequest_list" class="list list-registrationrequest">
+        <tr>
+          <th>Request</th>
+        </tr>
+		    {% for request in object_list %}
+        <tr>
+            <td><a href="{% url 'registration:request_detail' pk=request.id %}">{{ request }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No Requests Yet.</td></tr>
+		    {% endfor %}
+		</table>
+	</div>
+</div>
+
+{% include "includes/pagination.html" %}
+
+{% endblock content %}
