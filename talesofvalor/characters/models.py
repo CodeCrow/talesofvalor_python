@@ -57,6 +57,7 @@ class Character(models.Model):
     staff_attention_flag = models.BooleanField(default=False)
     npc_flag = models.BooleanField(default=False)
     active_flag = models.BooleanField(_("Active"), default=False)
+    concept_approved_flag = models.BooleanField(_("Concept Approved"), default=False)
     history_approved_flag = models.BooleanField(_("History Approved"), default=False)
     cp_initial = models.PositiveIntegerField(
         default=STARTING_POINTS, 

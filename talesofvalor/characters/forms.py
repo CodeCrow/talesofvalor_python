@@ -119,6 +119,23 @@ class CharacterSkillForm(forms.Form):
         return super(CharacterSkillForm, self).clean()
 
 
+class CharacterConceptApproveForm(forms.Form):
+    """
+    Form indicating approval of a characters history
+    """
+    character_id = forms.IntegerField()
+
+    def clean(self):
+        """
+        Make sure the hisotry hasn't already been approved.
+        """
+        character_id = self.cleaned_data['character_id']
+        character = Character.objects.get(pk=character_id)
+        if character.concept_approved_flag:
+            raise ValidationError(f"The concept for {character} has already been approved.")
+        return super().clean()
+
+
 class CharacterHistoryApproveForm(forms.Form):
     """
     Form indicating approval of a characters history
@@ -134,4 +151,6 @@ class CharacterHistoryApproveForm(forms.Form):
         if character.history_approved_flag:
             raise ValidationError(f"The history for {character} has already been approved.")
         return super().clean()
+
+
 

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django import forms
 
 from .models import Event
@@ -11,6 +13,15 @@ class EventForm(forms.ModelForm):
     by the generic view (in events/views.py) because we have to add
     the datepicker.
     """
+    def __init__(self, *args, **kwargs):
+        '''
+        set up how to return based on where you came from
+        '''
+        super().__init__(*args, **kwargs)
+        self.fields['event_date'].initial = date.today()
+        self.fields['pel_due_date'].initial = date.today()
+        self.fields['bgs_due_date'].initial = date.today()
+
     class Meta:
         """Set up the attributes for the event form."""
         model = Event

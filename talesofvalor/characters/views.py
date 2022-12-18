@@ -21,7 +21,7 @@ from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm,\
-    CharacterHistoryApproveForm
+    CharacterConceptApproveForm, CharacterHistoryApproveForm
 
 
 class OwnsCharacter(BasePermission):
@@ -464,6 +464,40 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return context
 
 
+class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
+    """
+    Approve the concept for a character.
+    Grant the CP for the character
+    Set the history approved flag.
+    """
+    permission_required = 'players.change_any_player'
+    form_class = CharacterConceptApproveForm
+
+    def form_valid(self, form):
+        self.object = Character.objects.get(pk=form.cleaned_data['character_id'])
+        self.object.player.cp_available += 3
+        self.object.player.save(update_fields=['cp_available'])
+        self.object.history_approved_flag = True
+        self.object.save(update_fields=['history_approved_flag'])
+        messages.info(self.request, f"{self.object} history approved!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        self.object = Character.objects.get(pk=form.cleaned_data['character_id'])
+        for key, error in form.errors.items():
+            messages.error(self.request, error.as_text())
+        return HttpResponseRedirect(reverse(
+            'characters:character_detail',
+            kwargs={'pk': self.object.pk}
+        ))
+
+    def get_success_url(self):
+        return reverse(
+            'characters:character_detail',
+            kwargs={'pk': self.object.pk}
+        )   
+
+
 class CharacterHistoryApproveView(PermissionRequiredMixin, FormView):
     """
     Approve the history for a character.
@@ -495,7 +529,7 @@ class CharacterHistoryApproveView(PermissionRequiredMixin, FormView):
         return reverse(
             'characters:character_detail',
             kwargs={'pk': self.object.pk}
-        )   
+        ) 
 
 
 class CharacterListView(LoginRequiredMixin, ListView):

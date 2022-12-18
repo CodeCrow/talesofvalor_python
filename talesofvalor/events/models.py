@@ -20,10 +20,9 @@ class Event(models.Model):
         help_text=_("For reference, such as \"Spring 2, 2010\""),
         max_length=255
     )
-    d = date.today().strftime("%m/%d/%Y")
-    event_date = models.DateField(default=d)
-    pel_due_date = models.DateField(default=d)
-    bgs_due_date = models.DateField(default=d)
+    event_date = models.DateField()
+    pel_due_date = models.DateField()
+    bgs_due_date = models.DateField()
     oog_p = models.BooleanField(_("Out of game event"), default=False)
     bgs_p = models.BooleanField(_("Allow Between Game Skills"), default=True)
     notes = HTMLField(blank=True, default='')

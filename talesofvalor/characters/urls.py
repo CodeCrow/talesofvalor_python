@@ -4,7 +4,7 @@ from django.urls import path
 from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterDetailView, CharacterDeleteView, CharacterListView,\
     CharacterSetActiveView, CharacterSkillUpdateView,\
-    CharacterHistoryApproveView,\
+    CharacterConceptApproveView, CharacterHistoryApproveView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView
 
 app_name = 'characters'
@@ -39,6 +39,11 @@ urlpatterns = [
         '<int:pk>/setactive/',
         CharacterSetActiveView.as_view(),
         name='character_set_active'
+    ),
+    path(
+        'approveconcept/',
+        CharacterConceptApproveView.as_view(),
+        name='concept_approve'
     ),
     path(
         'approvehistory/',
