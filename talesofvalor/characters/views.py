@@ -477,9 +477,9 @@ class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
         self.object = Character.objects.get(pk=form.cleaned_data['character_id'])
         self.object.player.cp_available += 3
         self.object.player.save(update_fields=['cp_available'])
-        self.object.history_approved_flag = True
-        self.object.save(update_fields=['history_approved_flag'])
-        messages.info(self.request, f"{self.object} history approved!")
+        self.object.concept_approved_flag = True
+        self.object.save(update_fields=['concept_approved_flag'])
+        messages.info(self.request, f"{self.object} concept approved!")
         return super().form_valid(form)
 
     def form_invalid(self, form):

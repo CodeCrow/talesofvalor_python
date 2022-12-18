@@ -79,7 +79,9 @@ Player: {{ object.player }}
     {% endif %}
     <h2>Description:</h2>
     {{ object.description }}
-    <h2>History {% if object.concept_approved_flag %}(Concept Approved){% else %}{% if perms.players.change_any_player %}<form id="character_concept_approve" method="POST" action="{% url "characters:concept_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_concept_approve" class="btn btn-primary btn-submit" type="submit">Approve Concept</button>{% endif %}{% endif %}{% if object.history_approved_flag %}(History Approved){% else %}{% if perms.players.change_any_player %}<form id="character_history_approve" method="POST" action="{% url "characters:history_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_history_approve" class="btn btn-primary btn-submit" type="submit">Approve History</button>{% endif %}{% endif %}:</h2>
+    <h2>Concept {% if object.concept_approved_flag %}(Concept Approved){% else %}{% if perms.players.change_any_player %}<form id="character_concept_approve" method="POST" action="{% url "characters:concept_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_concept_approve" class="btn btn-primary btn-submit" type="submit">Approve Concept</button>{% endif %}{% endif %}{% if object.history_approved_flag %}(History Approved){% else %}:</h2>
+    {{ object.history }}
+    <h2>History {% if object.history_approved_flag %}(History Approved){% else %}{% if perms.players.change_any_player %}<form id="character_history_approve" method="POST" action="{% url "characters:history_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_history_approve" class="btn btn-primary btn-submit" type="submit">Approve History</button>{% endif %}{% endif %}:</h2>
     {{ object.history }}
     <h2>Player Notes:</h2>
     {{ object.player_notes }}

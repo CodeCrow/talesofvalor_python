@@ -49,6 +49,7 @@ class Character(models.Model):
     name = models.CharField(_("Character Name"), max_length=255)
     pronouns = models.CharField('pronouns', max_length=25, default='')
     description = models.TextField(blank=True)
+    concept = HTMLField(blank=True)
     history = HTMLField(blank=True)
     picture = models.ImageField(blank=True, null=True, upload_to="characters/")
     player_notes = models.TextField(blank=True)
