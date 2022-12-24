@@ -151,6 +151,3 @@ class CharacterHistoryApproveForm(forms.Form):
         if character.history_approved_flag:
             raise ValidationError(f"The history for {character} has already been approved.")
         return super().clean()
-
-
-

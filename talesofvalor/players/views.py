@@ -27,7 +27,8 @@ from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
 
-from .forms import UserForm, PlayerViewable_UserForm, PlayerForm, PlayerViewable_PlayerForm, \
+from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
+    PlayerViewable_PlayerForm, \
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm
 from .models import Player, Registration, PEL

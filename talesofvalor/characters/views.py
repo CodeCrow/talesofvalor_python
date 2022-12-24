@@ -17,6 +17,8 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+
+from talesofvalor import get_query
 from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
@@ -541,3 +543,30 @@ class CharacterListView(LoginRequiredMixin, ListView):
 
     model = Character
     paginate_by = 25
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        criteria = self.request.GET.get('criteria', '')
+        if (criteria.strip()):
+            entry_query = get_query(
+                criteria,
+                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'user__player_pronouns', 'user__food_allergies']
+            )
+            queryset = queryset.filter(entry_query)
+        history_approved_flag = self.request.GET.get('history_approved_flag', False)
+        if history_approved_flag:
+            queryset = queryset.filter(history_approved_flag=True)
+        concept_approved_flag = self.request.GET.get('concept_approved_flag', False)
+        if concept_approved_flag:
+            queryset = queryset.filter(concept_approved_flag=True)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        '''
+        Add the form so we can filter the characters.
+        '''
+        # get the context data to add to.
+        context_data = super().get_context_data(**kwargs)
+        context_data.update(**self.request.GET)
+        # return the resulting context
+        return context_data
