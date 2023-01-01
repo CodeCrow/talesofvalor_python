@@ -10,6 +10,8 @@
         <tr>
           <th>Player</th>
           <th>Active Character</th>
+          <th>Concept<br />Approved</th>
+          <th>History<br />Approved</th>
           <th>Allergies</th>
           <th>License Plate</th>
           <th>Payment Type</th>
@@ -20,6 +22,16 @@
             <td>
               {% if registration.player.active_character %}
                 <a href="{% url 'characters:character_detail' pk=registration.player.active_character.id %}">{{ registration.player.active_character.name }}</a>
+              {% endif %}
+            </td>
+            <td>
+              {% if registration.player.active_character and registration.player.active_character.concept_approved %}
+                &#x2714;
+              {% endif %}
+            </td>
+            <td>
+              {% if registration.player.active_character and registration.player.active_character.history_approved%}
+                &#x2714;
               {% endif %}
             </td>
             <td>{{ registration.food_allergies }}</td>

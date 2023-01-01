@@ -12,20 +12,10 @@
     <div id="character_list_filter" class="col-sm-7">
         <div class="box">
             <form method="GET">
-            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
-            <p>Registered For:&nbsp;<select name="registered_for" id="registered_for">
-              <option value="{{ event.id }}"{% if not request.GET.registered_for %} selected{% endif %}>---</option>
-              {% for event in event_list %}
-                <option value="{{ event.id }}"{% if request.GET.registered_for == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
-              {% endfor %}
-            </select></p>
-            <p>Attended:&nbsp;<select name="attended" id="attended">
-              <option value="{{ event.id }}"{% if not request.GET.attended %} selected{% endif %}>---</option>
-              {% for event in event_list %}
-                <option value="{{ event.id }}"{% if request.GET.attended == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
-              {% endfor %}
-            </select></p>
-            <button id="player_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
+            <p>Search: <input name="criteria" type="text" value="{{ request.GET.criteria }}" /></p>
+            <p><input type="checkbox" name="concept_approved_flag" id="concept_approved_flag" autocomplete="off" value="1"{% if request.GET.concept_approved_flag == '1' %} checked{% endif %}><label>Concept Approved</label></p>
+            <p><input type="checkbox" name="history_approved_flag" id="history_approved_flag" autocomplete="off" value="1"{% if request.GET.history_approved_flag == '1' %} checked{% endif %}><label>History Approved</label></p>
+            <button id="character_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
             </form>
         </div>
     </div>

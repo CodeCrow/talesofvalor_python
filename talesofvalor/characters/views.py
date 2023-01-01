@@ -550,7 +550,7 @@ class CharacterListView(LoginRequiredMixin, ListView):
         if (criteria.strip()):
             entry_query = get_query(
                 criteria,
-                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'user__player_pronouns', 'user__food_allergies']
+                ['name', 'description', 'concept', 'history', 'player_notes']
             )
             queryset = queryset.filter(entry_query)
         history_approved_flag = self.request.GET.get('history_approved_flag', False)

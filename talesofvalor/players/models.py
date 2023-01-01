@@ -295,6 +295,11 @@ class Registration(models.Model):
     it is assumed that it might change on a per registration basis.
     """
 
+    PAYPAL = 'Paid (PayPal)'
+    PAID_OTHER = 'Paid (other)'
+    PAY_AT_DOOR = 'Pay at door'
+    UNPAID = 'No arrangements'
+
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     registration_request = models.ForeignKey(
@@ -384,7 +389,13 @@ class Registration(models.Model):
         """
         Indicate how the event was paid for
         """
-        return "Paypal (TB IMPLEMENTED)"
+        if self.registration_request.paypal_order_id:
+            return self.PAYPAL
+        if self.pay_at_door_flag:
+            return self.PAY_AT_DOOR
+        if self.already_paid_flag:
+            return self.PAID_OTHER
+        return self.UNPAID
 
 
 class PEL(models.Model):
