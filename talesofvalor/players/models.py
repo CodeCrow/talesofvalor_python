@@ -276,7 +276,7 @@ class RegistrationRequest(models.Model):
                 ),
                 message,
                 settings.DEFAULT_FROM_EMAIL,
-                ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com"]
+                ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
             )
             email_messages.append(email_message)
         # send an email to each of them.
