@@ -18,7 +18,7 @@
         </tr>
 		    {% for registration in object_list %}
         <tr>
-            <td><a href="{% url 'players:player_detail' username=registration.player.user.username %}">{{ registration.player }}</td>
+            <td><a href="{% url 'players:player_detail' username=registration.player.user.username %}">{{ registration.player }}::{{ registration.event }}</td>
             <td>
               {% if registration.player.active_character %}
                 <a href="{% url 'characters:character_detail' pk=registration.player.active_character.id %}">{{ registration.player.active_character.name }}</a>
