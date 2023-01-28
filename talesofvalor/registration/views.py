@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic.base import View, RedirectView
+from django.views.generic.base import RedirectView
 from django.views.generic import DeleteView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
@@ -94,8 +94,8 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
         
         RegistrationRequest.request_complete(
             event_reg_request.id,
-            request.user,
-            request
+            self.request.user,
+            self.request
         )
 
         return super().form_valid(form)
