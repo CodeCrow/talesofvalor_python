@@ -1,6 +1,6 @@
 """These are views that are used for viewing and editing events."""
 
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
@@ -105,11 +105,13 @@ class PlayerRegistrationRedirectView(LoginRequiredMixin, RedirectView):
             return reverse("events:event_no_next_event")
         return super().get_redirect_url(*args, **kwargs)
 
+
 class PlayerRegistrationNoEventView(TemplateView):
     """
     Redirect to the registration view of the next event.
     """
     template_name = 'events/registration_no_scheduled_event.html'
+
 
 class PlayerRegistrationView(
         LoginRequiredMixin,
@@ -145,6 +147,7 @@ class PlayerRegistrationView(
         # current year.
         context['event_items'] = EventRegistrationItem.objects.filter(
             events__event_date__year=self.object.event_date.year,
+            events__event_date__gte=datetime.now()
         ).distinct()
         # The price for the mealplan.
         # TODO: make this part of an event, with a default.
@@ -185,8 +188,10 @@ class PlayerRegistrationView(
 
         return super().form_valid(form)
 
+
 class EventRegistrationItemDetailView(DetailView):
     model = EventRegistrationItem
+
 
 class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
     model = EventRegistrationItem
@@ -203,4 +208,3 @@ class EventRegistrationItemUpdateView(PermissionRequiredMixin, UpdateView):
     model = EventRegistrationItem
     fields = '__all__'
     permission_required = ('events.change_eventregistrationitem', )
-
