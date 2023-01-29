@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Registration Report{% endblock title %}
+{% block title %}{{ event }} &ndash; Registration Report{% endblock title %}
 
 {% block content %}
 
@@ -13,12 +13,14 @@
           <th>Concept<br />Approved</th>
           <th>History<br />Approved</th>
           <th>Allergies</th>
+          <th>Cabin</th>
           <th>License Plate</th>
           <th>Payment Type</th>
+          <th class="no-print">Registration</th>
         </tr>
 		    {% for registration in object_list %}
         <tr>
-            <td><a href="{% url 'players:player_detail' username=registration.player.user.username %}">{{ registration.player }}::{{ registration.event }}::{{ registration }}</td>
+            <td><a href="{% url 'players:player_detail' username=registration.player.user.username %}">{{ registration.player }}</td>
             <td>
               {% if registration.player.active_character %}
                 <a href="{% url 'characters:character_detail' pk=registration.player.active_character.id %}">{{ registration.player.active_character.name }}</a>
@@ -35,8 +37,10 @@
               {% endif %}
             </td>
             <td>{{ registration.food_allergies }}</td>
+            <td>{{ registration.cabin }}</td>
             <td>{{ registration.vehicle_registration }}</td>
             <td>{{ registration.payment_type }}</td>
+            <td class="no-print"><a href="{% url 'registration:detail' pk=registration.id %}">registration</a></td>
         </tr>
         {% empty %}
         <tr><td colspan="2">No Registered Players Yet.</td></tr>
@@ -46,3 +50,11 @@
 </div>
 
 {% endblock content %}
+{% block css %}
+    {{ block.super }}
+    <style type="text/css" media="print">
+        @page { 
+            size: landscape;
+        }
+    </style>
+{% endblock css%}

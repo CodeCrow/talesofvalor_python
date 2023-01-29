@@ -195,12 +195,16 @@ input[type=checkbox] {
 }
 
 @media print {
-  .no-print {
-    display: none !important;
+  #cms-top {
+    display: none;
   }
 
   a[href]:after {
     content: none !important;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }
 html {

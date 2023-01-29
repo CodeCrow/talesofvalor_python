@@ -362,6 +362,14 @@ class Registration(models.Model):
         default=False
     ) 
 
+    def __str__(self):
+        """General display of model."""
+        return mark_safe("{} &ndash; {} {}".format(
+            self.event,
+            self.player.user.first_name,
+            self.player.user.last_name
+        ))
+
     def save(self, *args, **kwargs):
         """
         Save the registration.

@@ -27,6 +27,20 @@ class ReportListView(PermissionRequiredMixin, ListView):
 
         return queryset
 
+    def get_context_data(self, **kwargs):
+        '''
+        Grab the event for this list
+        '''
+        # get the context data to add to.
+        context_data = super().get_context_data(**kwargs)
+        # set up the forms that appear in the list 
+        event_id = self.kwargs.get('event_id', None)
+        if not event_id:
+            event_id = Event.next_event().id
+        context_data['event'] = Event.objects.get(pk=event_id)
+        # return the resulting context
+        return context_data
+
 
 class DiningReportListView(ReportListView):
     '''

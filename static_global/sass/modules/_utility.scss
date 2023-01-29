@@ -11,10 +11,13 @@
 }
 
 @media print {
+	#cms-top {
+		display: none;
+	}
+	a[href]:after {
+    	content: none !important;
+  	}
 	.no-print {
 		display: none !important;
 	}
-	 a[href]:after {
-    content: none !important;
-  }
 }
