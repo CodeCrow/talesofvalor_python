@@ -2,6 +2,14 @@
 	background: #e0e0e0;
 }
 
+// specifically for taking things out of the regular flow and making them 
+// disappear.
+// In some ways, it would be better to use the 'hidden' attribute in HTML 5
+// but that doesn't work with jQuery .hide() and .show()
+.hidden {
+	display: none !important;
+}
+
 @media print {
 	.no-print {
 		display: none !important;

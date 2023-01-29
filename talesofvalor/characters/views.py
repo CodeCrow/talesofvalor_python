@@ -460,7 +460,7 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
 
-        context['skills'] = self.object.characterskills_set.order_by("skill__header")
+        context['skills'] = self.object.characterskills_set.order_by('skill__header__category', 'skill__header')
         # add the bare skills granted by the rules
         context['granted_skills'] = self.object.skill_grants()
         return context

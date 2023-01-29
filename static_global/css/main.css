@@ -2,6 +2,10 @@ h2 {
   font-size: 1.5em;
 }
 
+h3 {
+  font-size: 1.2em;
+}
+
 .heading {
   font-size: 1.3em;
   font-weight: 600;
@@ -153,8 +157,23 @@ input[type=checkbox] {
   border-bottom: none;
 }
 
+.header-category {
+  width: 100%;
+}
+
 .rule {
   padding: 1em 0.5em;
+}
+
+.skill-point-display {
+  width: 1rem;
+}
+
+.update-skill {
+  text-decoration: none;
+  padding: 0.075rem 0.15rem;
+  margin: 0 0.15rem;
+  line-height: 100%;
 }
 
 .list-characters td:first-child {
@@ -169,6 +188,10 @@ input[type=checkbox] {
 
 .alternating-container > *:nth-of-type(even) {
   background: #e0e0e0;
+}
+
+.hidden {
+  display: none !important;
 }
 
 @media print {

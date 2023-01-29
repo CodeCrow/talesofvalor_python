@@ -8,22 +8,27 @@ Player: {{ object.player }}
 <h1>Pick skills for {{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
 <form id="charcterskill_form" action="" method="post">{% csrf_token %}
     {% include "characters/includes/character_stats.html" with object=object %}
+    <hr />
     <h2>Available Character Points: <span id="character_point_display">{{ object.cp_available }}</span></h2>
+    
+    <hr />
     <div class="flex-container">
     {% for header in skills %}
+
+    {% ifchanged header.category %}<h2 class="header-category"> {{ header.category }}</h2>{% endifchanged %}
     {% with skill_hash|dict_key:header.id as header_costs %}
     <div class="header-group group">
-      <h2 class="header-label">
+      <h3 class="header-label">
         <a href="{% url "skills:header_detail" pk=header.id %}">{{header.name }}</a>
         {% if not header_costs.purchased and not header.open_flag %}&nbsp;
           {% if 'cost' in header_costs %}({{header_costs.cost }} CPs){% endif %}&nbsp;
-          <a href="{% url "characters:header_add" %}" class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a>
-          <a href="{% url "characters:header_drop" %}" hidden class="drop-header" data-header-id="{{ header.id }}">drop&nbsp;header</a>
+          <a href="{% url "characters:header_add" %}" class="add-header btn btn-primary" data-header-id="{{ header.id }}">add&nbsp;header</a>
+          <a href="{% url "characters:header_drop" %}" class="drop-header btn btn-primary hidden" data-header-id="{{ header.id }}">drop&nbsp;header</a>
         {% else %}
-          <a href="{% url "characters:header_add" %}" hidden class="add-header" data-header-id="{{ header.id }}">add&nbsp;header</a>
-          <a href="{% url "characters:header_drop" %}" class="drop-header" data-header-id="{{ header.id }}">drop&nbsp;header</a>
+          <a href="{% url "characters:header_add" %}" class="add-header btn btn-primary hidden" data-header-id="{{ header.id }}">add&nbsp;header</a>
+          <a href="{% url "characters:header_drop" %}" class="drop-header btn btn-primary" data-header-id="{{ header.id }}">drop&nbsp;header</a>
         {% endif %}
-      </h2>
+      </h3>
         {% if header_costs.purchased or header.open_flag %}
             {% include "characters/includes/character_skill_update_item.html" with header_skills=header.skills.all %}
         {% endif %}
@@ -140,7 +145,7 @@ Player: {{ object.player }}
                 $('#character_point_display').html(cp_available + data.success);
                 $header_group.append(data.skills);
                 $(event.currentTarget).hide();
-                $(event.currentTarget).parent().find('.drop-header').show();
+                $(event.currentTarget).parent().find('.drop-header').show().removeClass('hidden');
             })
             .fail((data) => {
                     showError("Error Adding Skill", data.responseJSON.error);
@@ -170,7 +175,7 @@ Player: {{ object.player }}
                 $header_group.children().eq(1).remove();
 
                 $(event.currentTarget).hide();
-                $(event.currentTarget).parent().find('.add-header').show();
+                $(event.currentTarget).parent().find('.add-header').show().removeClass('hidden');
             })
             .fail((data) => {
                 showError("Error Dropping Skill", data.responseJSON.error);
