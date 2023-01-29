@@ -1,8 +1,8 @@
 {% if user.is_authenticated %}
 <ul id="navigation_action">
     <li class="heading">Events</li>
-    <li><a href="{% url 'events:redirect_register' %}">Registration</a></li>
-    <li><a href="{% url 'events:event_list' %}">List</a></li>
+    <li><a href="{% url 'events:redirect_register' %}">Register</a></li>
+    <li><a href="{% url 'events:event_list' %}">List Events</a></li>
     {% if perms.skills.view_any_player %}
         <li><a href="{% url 'registration:request_list' %}">Registration Requests</a></li>
     {% endif %}
