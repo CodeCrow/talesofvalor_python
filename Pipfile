@@ -7,7 +7,6 @@ name = "pypi"
 django = "~=3.0"
 django-cms = "*"
 fabric = "*"
-wiki = "*"
 djangocms-text-ckeditor = "*"
 djangocms-file = "*"
 djangocms-picture = "*"
@@ -26,6 +25,8 @@ paypal-checkout-serversdk = "*"
 selenium = "*"
 mailosaur = "*"
 names = "*"
+wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
+django-impersonate = "*"
 
 [dev-packages]
 autopep8 = "*"

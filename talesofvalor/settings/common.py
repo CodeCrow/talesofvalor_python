@@ -114,6 +114,7 @@ MIDDLEWARE = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'impersonate.middleware.ImpersonateMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -145,6 +146,8 @@ INSTALLED_APPS = (
     'djangocms_style',
     'djangocms_snippet',
     'djangocms_video',
+    # impersonating users
+    'impersonate',
     # The wiki
     'django.contrib.humanize.apps.HumanizeConfig',
     'django_nyt.apps.DjangoNytConfig',
