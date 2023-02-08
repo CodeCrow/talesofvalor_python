@@ -114,7 +114,7 @@ MIDDLEWARE = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'impersonate.middleware.ImpersonateMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -147,7 +147,7 @@ INSTALLED_APPS = (
     'djangocms_snippet',
     'djangocms_video',
     # impersonating users
-    'impersonate',
+    'hijack',
     # The wiki
     'django.contrib.humanize.apps.HumanizeConfig',
     'django_nyt.apps.DjangoNytConfig',
@@ -182,6 +182,7 @@ INSTALLED_APPS = (
     'talesofvalor.reports',
     # Django admin
     'django.contrib.admin',
+    'hijack.contrib.admin',
 )
 
 LANGUAGES = (
@@ -265,3 +266,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+'''
+Hijacking Permissions
+If we need more granular permissions
+https://django-hijack.readthedocs.io/en/stable/customization/#hijack-permission
+'''
+HIJACK_PERMISSION_CHECK = "hijack.permissions.superusers_and_staff"

@@ -30,7 +30,7 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),  # NOQA
-    path('impersonate/', include('impersonate.urls')),
+    path('hijack/', include('hijack.urls')),
     path('', include('django.contrib.auth.urls')),
     # For tags
     path('taggit_autosuggest/', include('taggit_autosuggest.urls')),

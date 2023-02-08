@@ -1,6 +1,6 @@
 <nav id="navigation_user" class="navigation-user">
 {% if user.is_authenticated %}
-<p>Player:&nbsp;<a class="indent" href="{% url 'players:player_detail' username=user.get_username %}">{{ user.player }}</a>&nbsp;<a class="indent" href="{% url 'players:player_update' username=user.get_username %}">(update)</a></p>
+<p>Player:<a class="indent" href="{% url 'players:player_detail' username=user.get_username %}">{{ user.player }}</a>&nbsp;<a class="indent" href="{% url 'players:player_update' username=user.get_username %}">(update)</a></p>
 {% if user.player.active_character %}
 <p>Character:&nbsp;<a class="indent" href="{% url 'characters:character_detail' pk=user.player.active_character.id %}">{{ user.player.active_character.name }}</a></p>
 {% else %}

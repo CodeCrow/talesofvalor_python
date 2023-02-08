@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags sekizai_tags add_query_params %}
+{% load cms_tags hijack sekizai_tags add_query_params %}
 
 {% block title %}Players{% endblock title %}
 
@@ -56,6 +56,7 @@
           <th>Type</th>
           <th>Edit</th>
           <th>Destroy</th>
+          <th>Impersonate</th>
           <th>Assign</th><!-- this should be moved to a character list -->
         </tr>
 		    {% for player in object_list %}
@@ -71,6 +72,15 @@
             <td>{% for group in player.user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
             <td><a href="{% url 'players:player_update' username=player.user.username %}">Edit</a></td>
             <td><a href="{% url 'players:player_delete' username=player.user.username %}">Destroy</a></td>
+            <td>{% if request.user|can_hijack:player.user %}
+              <form action="{% url 'hijack:acquire' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="user_pk" value="{{ player.user.pk }}">
+                <button class="btn btn-primary" type="submit">hijack</button>
+                <input type="hidden" name="next" value="{{ request.path }}">
+              </form>
+              {% endif %}
+            </td>
             <td>Assign{% comment %} <a href="{% url players:player_reassign username=player.user.username %}">Assign</a> {% endcomment %}</td><!-- this should be moved to a character list -->
         </tr>
         {% empty %}
