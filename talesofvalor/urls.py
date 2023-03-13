@@ -95,8 +95,6 @@ urlpatterns += i18n_patterns(
             'talesofvalor.rules.urls'
         )
     ),
-    # for paypal
-    path('paypal/', include('paypal.standard.ipn.urls')),
     path('notifications/', include('django_nyt.urls')),
     path('wiki/', include('wiki.urls')),
     # for the main cms

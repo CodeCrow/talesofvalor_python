@@ -164,8 +164,6 @@ INSTALLED_APPS = (
     'taggit',
     'taggit_autosuggest',
     'djangocms_page_tags',
-    # paypal for registration
-    'paypal.standard.ipn',
     # Main ToV code
     'talesofvalor',
     'talesofvalor.players',
@@ -235,11 +233,6 @@ MIGRATION_MODULES = {
 
 }
 
-'''
-Paypal integration with  django-paypal
-'''
-PAYPAL_TEST = DEBUG
-PAYPAL_RECEIVER_EMAIL = "replaceme@gmail.com"
 
 '''
 Paypal secrets

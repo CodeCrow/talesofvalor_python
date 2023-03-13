@@ -13,7 +13,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
 from django.db.models import F
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import DeleteView, UpdateView,\
@@ -617,12 +618,45 @@ class PELDetailView(UserPassesTestMixin, DetailView):
             return False
         return False
 
+    def get(self, request, *args, **kwargs):
+        '''
+        Try to go to view the PEL.  If it doesn't exist yet, 
+        present the form through the Generic editing view.
+        '''
+        print(f"KWARGS:{kwargs}")
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            return redirect(reverse('players:pel_update', kwargs={
+                'event_id': self.kwargs['event_id'],
+                'username': self.kwargs['username']
+            }))
+
+
+class PELRedirectView(RedirectView): 
+    pattern_name = 'players:pel_detail'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Figure out where the user should be redirected to if they want to
+        register for the next game.
+        """
+        try: 
+            event = Event.objects.get(pk=self.kwargs['event_id'])
+            player = Player.objects.get(user__username=self.kwargs['username'])
+            kwargs['pk'] = PEL.objects.get(event=event, player=player).id
+            del(kwargs['event_id'])
+            del(kwargs['username'])
+        except PEL.DoesNotExist:
+            return reverse("players:pel_update", kwargs=kwargs)
+        return super().get_redirect_url(*args, **kwargs)
+
 
 class PELUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PELUpdateForm
 
     return_url = None
-    
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
