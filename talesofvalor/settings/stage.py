@@ -23,3 +23,6 @@ DATABASES = {
 
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp_upload")
 STATIC_ROOT = BASE_DIR + '/public/static/'
+# Paypal integration
+PAYPAL_CLIENT_ID = "AdSDoBdlwwChtQlFIskDa4pDPelc8pkwYxwaOf_raUyq9ksXJblsgiUiwjbE0KzTftwp78OogAQbOHaj"
+PAYPAL_CLIENT_SECRET = "EIQPfieoZba7Z9RtX7QzkjDn6_6dTEwL_XDs57WgtWAt8TlGo-kV_6j4Y4zE-3LUU8_smxxWZGz6wu5a"
