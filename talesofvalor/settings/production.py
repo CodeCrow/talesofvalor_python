@@ -28,3 +28,6 @@ MEDIA_ROOT = BASE_DIR + '/public/media/'
 # Paypal integration
 PAYPAL_CLIENT_ID = "AQah38pnBKTKUrULYNTc-XyA6C5UxDQk4m9DiAihBZ3H3o_Uey2TbQaGAMw_zLi5SWJQxheJ_nmCKZWN"
 PAYPAL_CLIENT_SECRET = "EDSa1OH9G7mGo2wlC7LFpEvTpBqlJ2RtHFq_Mv4HReD5f4_ps0H2u3eIzrDQ7WtyAwOEK-jU75Zt3eT5"
+# remove this to make live
+PAYPAL_CLIENT_ID = "AdSDoBdlwwChtQlFIskDa4pDPelc8pkwYxwaOf_raUyq9ksXJblsgiUiwjbE0KzTftwp78OogAQbOHaj"
+PAYPAL_CLIENT_SECRET = "EIQPfieoZba7Z9RtX7QzkjDn6_6dTEwL_XDs57WgtWAt8TlGo-kV_6j4Y4zE-3LUU8_smxxWZGz6wu5a"
