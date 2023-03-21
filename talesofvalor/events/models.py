@@ -28,6 +28,9 @@ class Event(models.Model):
     notes = HTMLField(blank=True, default='')
     summary = HTMLField(blank=True, default='')
 
+    class Meta:
+        ordering = ['event_date']
+
     def __str__(self):
         return "{} - {}".format(
             self.name,

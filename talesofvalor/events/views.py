@@ -5,6 +5,7 @@ from datetime import date, datetime
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
 from django.http import HttpResponseRedirect
+from django.db.models import Max
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
@@ -196,6 +197,12 @@ class EventRegistrationItemDetailView(DetailView):
 class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
     model = EventRegistrationItem
     permission_required = ('events.change_eventregistrationitem', )
+    paginate_by = 10  # if pagination is desired
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset.annotate(max_date=Max('events')).order_by('max_date')
+        return queryset
 
 
 class EventRegistrationItemCreateView(PermissionRequiredMixin, CreateView):

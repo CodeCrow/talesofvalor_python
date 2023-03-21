@@ -25,5 +25,5 @@ FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp_upload")
 STATIC_ROOT = BASE_DIR + '/public/static/'
 
 # Paypal integration for test Tales of Valor account
-PAYPAL_CLIENT_ID = "AdSDoBdlwwChtQlFIskDa4pDPelc8pkwYxwaOf_raUyq9ksXJblsgiUiwjbE0KzTftwp78OogAQbOHaj"
-PAYPAL_CLIENT_SECRET = "EIQPfieoZba7Z9RtX7QzkjDn6_6dTEwL_XDs57WgtWAt8TlGo-kV_6j4Y4zE-3LUU8_smxxWZGz6wu5a"
+PAYPAL_CLIENT_ID = "AQcJGiNp_J8n2KU7hVoD8g4O52zT0x0zhMF_TLaooJjJsnexdUkDaHC8DtqE3vYtYfSqPKLZeJjUcItf"
+PAYPAL_CLIENT_SECRET = "EE_iU3H-8gfhyCfZcgTySn2aH1g0_PrcwdUN4TJd8IKh_xiBobv1brZpF5DbmyEp7dMYURNAtMe-o4mh"

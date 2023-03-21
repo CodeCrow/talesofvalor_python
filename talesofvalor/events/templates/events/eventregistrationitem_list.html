@@ -13,7 +13,7 @@
 	</tr>
 {% for item in object_list %}
     <tr>
-        <td><a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">{{ item.name }}</a></td>
+        <td><a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">{{ item.name }}:{{ item.max_date }}:</a></td>
         <td>{% for event in item.events.all %}<a href="{% url "events:event_detail" pk=event.id %}">{{ event }}{% if not forloop.last%}</a>, {% endif %}{% endfor%}</td>
         <td>{% if perms.events.change_eventregistrationitem %}<a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">edit</a>{% else %}&nbsp;{% endif %}</td>
     </tr>
@@ -22,5 +22,7 @@
     <tr><td colspan="2">No Events Yet.{% if perms.events.add_eventregistrationitem %}  <a href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
 {% endfor %}
 </table>
+
+{% include "includes/pagination.html" %}
 
 {% endblock content %}
