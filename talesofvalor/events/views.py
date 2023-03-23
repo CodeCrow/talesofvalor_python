@@ -145,8 +145,9 @@ class PlayerRegistrationView(
         context = super().get_context_data(**kwargs)
 
         # Get the Event Registration Items that have an event in the
-        # current year.
+        # current year, and that are still available
         context['event_items'] = EventRegistrationItem.objects.filter(
+            available=True,
             events__event_date__year=self.object.event_date.year,
             events__event_date__gte=datetime.now()
         ).distinct()
