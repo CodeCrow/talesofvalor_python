@@ -18,4 +18,9 @@
 <h2>Important Information</h2>
 {{ object.notes }}
 
+<h2>Registered Players</h2>
+{% for registration in object.registration_set.all %}
+{{ registration }}<br />
+{% endfor %}
+
 {% endblock content %}
