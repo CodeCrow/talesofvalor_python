@@ -403,7 +403,7 @@ class PlayerListView(LoginRequiredMixin, ListView):
         if (name.strip()):
             entry_query = get_query(
                 name,
-                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'user__player_pronouns', 'user__food_allergies']
+                ['user__username', 'user__first_name', 'user__last_name', 'user__email', 'food_allergies']
             )
             queryset = queryset.filter(entry_query)
         selected = self.request.GET.get('selected', False)
