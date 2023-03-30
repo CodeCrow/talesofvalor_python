@@ -52,11 +52,16 @@ class Player(models.Model):
 
     def __str__(self):
         """General display of model."""
-        return "{} {} ({})".format(
+        player_string = "{} {}".format(
             self.user.first_name,
-            self.user.last_name,
-            self.player_pronouns
+            self.user.last_name
         )
+        if self.player_pronouns:
+            player_string = "{} ({})".format(
+                player_string,
+                self.player_pronouns
+            )
+        return player_string
 
     @property
     def active_character(self):
