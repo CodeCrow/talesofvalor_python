@@ -47,7 +47,7 @@ class Player(models.Model):
     game_started = models.ForeignKey(Event, blank=True, null=True, on_delete=models.CASCADE)
     cp_available = models.PositiveIntegerField(default=0)
     staff_attention_flag = models.BooleanField(default=False)
-    player_pronouns = models.CharField(max_length=25, default='')
+    player_pronouns = models.CharField(max_length=25, blank=True, null=True)
     food_allergies = models.TextField(default='', blank=True)
 
     def __str__(self):
