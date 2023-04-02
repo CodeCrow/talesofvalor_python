@@ -23,12 +23,12 @@ from talesofvalor.events.models import Event, EventRegistrationItem,\
 REQUESTED = 'requested'
 PENDING = 'pending'
 COMPLETE = 'complete'
-REFUSED = 'refused'
+DENIED = 'denied'
 REQUEST_STATUS_CHOICES = (
     (REQUESTED, 'Requested'),
     (PENDING, 'Pending'),
     (COMPLETE, 'Complete'),
-    (REFUSED, 'Refused'),
+    (DENIED, 'Denied'),
 )
 
 

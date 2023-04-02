@@ -203,9 +203,7 @@ class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        print(self.request.GET)
         if self.request.GET.get('year'):
-            print("DOING THE YEAR THING")
             queryset = queryset.filter(events__event_date__year=self.request.GET.get('year'))
         queryset = queryset.annotate(max_date=Max('events__event_date')).order_by('-max_date')
         

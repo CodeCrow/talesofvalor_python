@@ -4,6 +4,7 @@ from django.urls import path, re_path
 from .views import RegistrationSendView, RegistrationCompleteView,\
     RegistrationDetailView, RegistrationUpdateView,\
     RegistrationRequestListView, RegistrationRequestApproveFormView,\
+    RegistrationRequestDenyFormView,\
     RegistrationRequestDetailView, RegistrationListView,\
     RegistrationRequestAlreadyPaidView, RegistrationRequestPayAtDoorView,\
     RegistrationRequestDeleteView
@@ -45,6 +46,11 @@ urlpatterns = [
         'request/<int:pk>/approve/',
         RegistrationRequestApproveFormView.as_view(),
         name='request_approve'
+    ),
+    path(
+        'request/<int:pk>/deny/',
+        RegistrationRequestDenyFormView.as_view(),
+        name='request_deny'
     ),
     path(
         'request/<int:pk>/payatdoor/',

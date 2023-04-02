@@ -14,6 +14,7 @@
           <th>Pay at Door</th>
           <th>Already Paid</th>
           <th>&nbsp;</th>
+          <th>&nbsp;</th>
         </tr>
 		    {% for request in object_list %}
         <tr>
@@ -28,6 +29,11 @@
             <td>
               <form method="POST" action="{% url 'registration:request_approve' pk=request.id %}">{% csrf_token %}
                 <button id="event_request_register" class="btn btn-primary btn-submit" type="submit" name="register">Register</button>
+              </form>
+            </td>
+            <td>
+              <form method="POST" action="{% url 'registration:request_deny' pk=request.id %}">{% csrf_token %}
+                <button id="event_request_deny" class="btn btn-danger btn-submit" type="submit" name="register">Deny</button>
               </form>
             </td>
         </tr>

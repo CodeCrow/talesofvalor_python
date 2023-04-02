@@ -11,9 +11,10 @@ from paypalcheckoutsdk.orders import OrdersGetRequest
 
 from talesofvalor.mixins import PayPalClientMixin
 from talesofvalor.players.models import RegistrationRequest, Registration,\
-    COMPLETE, REQUESTED
+    COMPLETE, DENIED, REQUESTED
 
-from .forms import RegistrationCompleteForm, RegistrationRequestApproveForm
+from .forms import RegistrationCompleteForm, RegistrationRequestApproveForm,\
+    RegistrationRequestDenyForm
 
 
 class RegistrationSendView(PayPalClientMixin, TemplateView):
@@ -177,20 +178,9 @@ class RegistrationRequestListView(PermissionRequiredMixin, ListView):
     List the PELs for staff memebers
     '''
     permission_required = ('players.view_any_player', )
-    queryset = RegistrationRequest.objects.exclude(status=COMPLETE)
+    queryset = RegistrationRequest.objects.exclude(status__in=[COMPLETE, DENIED,])
     template_name = "registration/registrationrequest_list.html"
     paginate_by = 25  # if pagination is desired
-
-    def get_context_data(self, **kwargs):
-        '''
-        Put the registration request form 
-        '''
-        # get the context data to add to.
-        context_data = super().get_context_data(**kwargs)
-        # set up the forms that appear in the list
-        context_data['registrationrequest_form'] = RegistrationRequestApproveForm()
-        # return the resulting context
-        return context_data
 
 
 class RegistrationRequestDetailView(
@@ -246,8 +236,13 @@ class RegistrationRequestAlreadyPaidView(
         return super().get_redirect_url(*args, **kwargs)
 
 
-class RegistrationRequestApproveFormView(FormView):
+class RegistrationRequestApproveFormView(
+        PermissionRequiredMixin,
+        FormView
+        ):
+
     form_class = RegistrationRequestApproveForm
+    permission_required = ('players.view_any_player')
 
     def get_success_url(self):
         """
@@ -274,6 +269,37 @@ class RegistrationRequestApproveFormView(FormView):
             self.request
         )
 
+        return super().form_valid(form)
+
+
+class RegistrationRequestDenyFormView(
+        PermissionRequiredMixin,
+        FormView
+        ):
+
+    form_class = RegistrationRequestDenyForm
+    permission_required = ('players.view_any_player')
+
+    def get_success_url(self):
+        """
+        The form has been successful.
+
+        Now, we want to create the success url
+        """
+        return reverse('registration:request_list')
+
+    def form_valid(self, form):
+        """
+        
+        """
+        # update the request status and add the order id
+        registration_request = RegistrationRequest.objects.get(
+            pk=self.kwargs.get('pk')
+        )
+        registration_request.status = DENIED
+        registration_request.save()
+
+        messages.info(self.request, f"Request Denied for {registration_request.player}")
         return super().form_valid(form)
 
 

@@ -41,3 +41,13 @@ class RegistrationRequestApproveForm(forms.Form):
 
     We only need this because the form view requires it.
     """
+
+
+class RegistrationRequestDenyForm(forms.Form):
+    """
+    Handles the DENYING the registration for an an individual request.
+
+    Is should only ever be involved in reacting to a POST call.
+
+    We only need this because the form view requires it.
+    """
