@@ -4,25 +4,47 @@
 {% block title %}Event Registration Item{% endblock title %}
 
 {% block content %}
-{% if perms.events.add_eventregistrationitem and object_list %}<a href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a>{% endif %}
-<table class="list">
-	<tr>
-		<th>Name</th>
-		<th>Events</th>
-		<th></th>
-	</tr>
-{% for item in object_list %}
-    <tr>
-        <td><a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">{{ item.name }}:{{ item.max_date }}:</a></td>
-        <td>{% for event in item.events.all %}<a href="{% url "events:event_detail" pk=event.id %}">{{ event }}{% if not forloop.last%}</a>, {% endif %}{% endfor%}</td>
-        <td>{% if perms.events.change_eventregistrationitem %}<a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">edit</a>{% else %}&nbsp;{% endif %}</td>
-    </tr>
-{% empty %}
+<div class="row">
+    <div id="eventregistrationitem_list_filter" class="col-sm-12">
+        <div class="box">
+        	<div class="event-year-list">
+        		<ul class="flat-list">
+        			<li><a href="{% url "events:eventregistrationitem_list" %}">All Years</a></li>
+	        		{% for year in years %}
+	        			<li><a href="{% url "events:eventregistrationitem_list" %}?year={{ year }}">{{ year }}</a></li>
+	        		{% endfor %}
+        		</ul>
 
-    <tr><td colspan="2">No Events Yet.{% if perms.events.add_eventregistrationitem %}  <a href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
-{% endfor %}
-</table>
+        	</div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+		<table class="list">
+			{% if perms.events.add_eventregistrationitem and object_list %}
+			<tr>
+				<td class="text-right" colspan="3"><a class="btn btn-primary" href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a></td>
+			</tr>
+			{% endif %}
+			<tr>
+				<th>Name</th>
+				<th>Events</th>
+				<th></th>
+			</tr>
+		{% for item in object_list %}
+		    <tr>
+		        <td><a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">{{ item.name }}</a></td>
+		        <td>{% for event in item.events.all %}<a href="{% url "events:event_detail" pk=event.id %}">{{ event }}{% if not forloop.last%}</a>, {% endif %}{% endfor%}</td>
+		        <td>{% if perms.events.change_eventregistrationitem %}<a href="{% url "events:eventregistrationitem_update" pk=item.pk %}">edit</a>{% else %}&nbsp;{% endif %}</td>
+		    </tr>
+		{% empty %}
 
-{% include "includes/pagination.html" %}
+		    <tr><td colspan="2">No Events Yet.{% if perms.events.add_eventregistrationitem %}  <a href="{% url "events:eventregistrationitem_create" %}">Add one&hellip;</a>{% endif %}</td></tr>
+		{% endfor %}
+		</table>
+		{% include "includes/pagination.html" %}
+    </div>
+</div>
 
 {% endblock content %}

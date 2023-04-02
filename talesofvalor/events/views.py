@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
 from django.http import HttpResponseRedirect
 from django.db.models import Max
+from django.db.models.functions import ExtractYear
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
@@ -202,8 +203,22 @@ class EventRegistrationItemListView(PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset.annotate(max_date=Max('events')).order_by('max_date')
+        print(self.request.GET)
+        if self.request.GET.get('year'):
+            print("DOING THE YEAR THING")
+            queryset = queryset.filter(events__event_date__year=self.request.GET.get('year'))
+        queryset = queryset.annotate(max_date=Max('events__event_date')).order_by('-max_date')
+        
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['years'] = set(
+            Event.objects
+            .annotate(year=ExtractYear('event_date'))
+            .values_list('year', flat=True)
+        )
+        return context_data
 
 
 class EventRegistrationItemCreateView(PermissionRequiredMixin, CreateView):
