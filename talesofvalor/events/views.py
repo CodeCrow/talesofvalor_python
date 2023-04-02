@@ -17,7 +17,8 @@ from django.views.generic.edit import CreateView, UpdateView,\
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.players.models import RegistrationRequest,\
-    Registration
+    Registration,\
+    DENIED
 
 from .forms import EventForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
@@ -133,10 +134,23 @@ class PlayerRegistrationView(
         Make sure that the user hasn't already registered for this event.
         """
         existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
+        existing_registration_request = RegistrationRequest.objects.filter(
+            event_registration_item__events__id=kwargs['pk'],
+            player=request.user.player,
+        ).exclude(
+            status=DENIED
+        ).last()
+        
         if existing_registration:
             # if you have already registered, go to edit the registration
             return HttpResponseRedirect(
                 reverse('registration:detail', kwargs={'pk': existing_registration.id})
+            )
+        elif existing_registration_request:
+            # if there is already a registration request,
+            # go to edit the registration request
+            return HttpResponseRedirect(
+                reverse('registration:request_detail', kwargs={'pk': existing_registration_request.id})
             )
         else:
             return super().dispatch(request, args, kwargs)
