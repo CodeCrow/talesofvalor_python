@@ -73,6 +73,16 @@ ul.flat-list li {
   width: 45%;
 }
 
+.page-item span {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  margin-left: -1px;
+  line-height: 1.25;
+  background-color: #fff;
+  border: 1px solid transparent;
+}
+
 input[type=checkbox] {
   margin: 0 0.5rem;
 }

@@ -18,9 +18,10 @@
 <h2>Important Information</h2>
 {{ object.notes }}
 
+{% if perms.players.view_any_player %}
 <h2>Registered Players</h2>
 {% for registration in object.registration_set.all %}
-{{ registration }}<br />
+<a href="{% url "registration:detail" pk=registration.pk %}">{{ registration }}</a><br />
 {% endfor %}
-
+{% endif %}
 {% endblock content %}
