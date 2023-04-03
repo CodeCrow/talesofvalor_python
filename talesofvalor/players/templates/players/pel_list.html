@@ -11,12 +11,6 @@
             <p>Filter:</p>
             <form method="GET">
             <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
-            <p>Registered For:&nbsp;<select name="registered_for" id="registered_for">
-              <option value="{{ event.id }}"{% if not request.GET.registered_for %} selected{% endif %}>---</option>
-              {% for event in event_list %}
-                <option value="{{ event.id }}"{% if request.GET.registered_for == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
-              {% endfor %}
-            </select></p>
             <p>Attended:&nbsp;<select name="attended" id="attended">
               <option value="{{ event.id }}"{% if not request.GET.attended %} selected{% endif %}>---</option>
               {% for event in event_list %}

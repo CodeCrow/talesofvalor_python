@@ -25,8 +25,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from talesofvalor import get_query
-from talesofvalor.events.models import Event
 from talesofvalor.attendance.models import Attendance
+from talesofvalor.comments.forms import CommentForm
+from talesofvalor.comments.models import Comment
+from talesofvalor.events.models import Event
 
 from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     PlayerViewable_PlayerForm, \
@@ -197,7 +199,7 @@ class PlayerDetailView(
         Add context: The event lists
         """
 
-        context = super(PlayerDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['future_event_list'] = Event.objects\
             .filter(event_date__gte=datetime.today())
         context['past_event_list'] = Event.objects\
@@ -217,7 +219,7 @@ class PlayerDetailView(
         for error in form.errors:
             messages.error(self.request, form.errors[error])
         messages.warning(self.request, 'Error transferring points.')
-        return super(PlayerDetailView, self).form_invalid(form)
+        return super().form_invalid(form)
 
     def form_valid(self, form):
         self.object.cp_available = self.object.cp_available - form.cleaned_data['amount']
@@ -225,12 +227,12 @@ class PlayerDetailView(
         form.cleaned_data['character'].cp_available = form.cleaned_data['character'].cp_available + form.cleaned_data['amount']
         form.cleaned_data['character'].save()
         self.object.save()
-        return super(PlayerDetailView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse(
             'players:player_detail',
-            kwargs={'username': self.object.user.username}
+            kwargs={'username': self.object.username}
         )
 
 
@@ -562,22 +564,10 @@ class PELListView(PermissionRequiredMixin, ListView):
                 ['player__user__username', 'player__user__first_name', 'player__user__last_name', 'player__user__email', 'player__player_pronouns']
             )
             queryset = queryset.filter(entry_query)
-        selected = self.request.GET.get('selected', False)
-        if selected:
-            queryset = queryset.filter(id__in=self.request.session.get('player_select', []))
-
-        for pel in queryset:
-            print(f'\npel: player={pel.player}, pel.event={pel.event}, pel.event.id={pel.event.id}\n')
 
         attended = self.request.GET.get('attended', None)
-        print(f'**************** attended {attended}')
         if attended:
-            # attended_players = Attendance.objects.filter(event__id=attended).values_list('player__id', flat=True)
-            attended_players = Attendance.objects.filter(event__id=attended)
-            print('foo')
-            print(f'attendance: {Attendance.objects.all()}\n')
-            print('bar')
-            queryset = queryset.filter(id__in=attended_players)
+            queryset = queryset.filter(event__id=attended)
 
         return queryset
 
@@ -599,14 +589,13 @@ class PELListView(PermissionRequiredMixin, ListView):
         return context_data
 
 
-class PELDetailView(UserPassesTestMixin, DetailView):
+class PELDetailView(UserPassesTestMixin, FormMixin, DetailView):
     '''
     Show a particular PEL
     '''
     model = PEL
+    form_class = CommentForm
     permission_required = ('pels.view_pel', )
-    show_staff_comments = True # self.request.user.has_perm('players.show_pel_staff_comments')
-    edit_staff_comments = True # self.request.user.has_perm('players.edit_pel_staff_comments')
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -623,7 +612,6 @@ class PELDetailView(UserPassesTestMixin, DetailView):
         Try to go to view the PEL.  If it doesn't exist yet, 
         present the form through the Generic editing view.
         '''
-        print(f"KWARGS:{kwargs}")
         try:
             return super().get(request, *args, **kwargs)
         except Http404:
@@ -632,6 +620,32 @@ class PELDetailView(UserPassesTestMixin, DetailView):
                 'username': self.kwargs['username']
             }))
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form(self.request.POST)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        print(f"{form.__dict__}")
+        for error in form.errors:
+            messages.error(self.request, form.errors[error])
+        messages.warning(self.request, 'Error transferring points.')
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        if not form.instance.created_by:
+            form.instance.created_by = self.request.user
+        form.instance.modified_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            'players:pel_detail',
+            kwargs={'pk': self.object.id}
+        )
 
 class PELRedirectView(RedirectView): 
     pattern_name = 'players:pel_detail'
