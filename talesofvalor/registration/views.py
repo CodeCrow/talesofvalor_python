@@ -265,7 +265,7 @@ class RegistrationRequestApproveFormView(
         
         RegistrationRequest.request_complete(
             registration_request.id,
-            self.request.user,
+            registration_request.player.user,
             self.request
         )
 
