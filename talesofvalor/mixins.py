@@ -4,7 +4,7 @@ mixins.py
 General use mixins for talesofvalor.
 """
 from django.conf import settings
-from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
+from paypalcheckoutsdk.core import PayPalHttpClient, LiveEnvironment
 
 import sys
 
@@ -22,8 +22,7 @@ class PayPalClientMixin(object):
         # credentials.
         # This sample uses SandboxEnvironment. In production, use
         # LiveEnvironment.
-        print("DEBUG:{}".format(settings.DEBUG))
-        self.environment = SandboxEnvironment(
+        self.environment = LiveEnvironment(
             client_id=self.client_id,
             client_secret=self.client_secret
         )
