@@ -85,7 +85,7 @@ class PlayerViewable_PlayerForm(forms.ModelForm):
 class RegistrationForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
-    player_pronouns = forms.CharField(max_length=25)
+    player_pronouns = forms.CharField(max_length=25, required=False)
     food_allergies = forms.CharField(widget=forms.Textarea, required=False)
 
     email = forms.EmailField()
