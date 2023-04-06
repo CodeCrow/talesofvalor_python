@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
+from django.db import transaction
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
@@ -141,6 +142,55 @@ class CharacterDeleteView(
         except Character.DoesNotExist:
             return False
         return False
+
+
+class CharacterResetView(
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        View
+        ):
+    """
+    Resets a characters skills to none and returns their points to them.
+    """
+
+    model = Character
+    permission_required = ('characters.change_character', )
+    success_url = reverse_lazy('characters:character_list')
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Character.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Character.DoesNotExist:
+            return False
+        return False
+
+    def get(self, request, *args, **kwargs):
+        """
+        Send the user back to the the originating page or back to the
+        character they are setting active
+        """
+
+        with transaction.atomic():
+            character = self.model.objects.get(pk=self.kwargs['pk'])
+            character.cp_available += character.cp_spent
+            character.cp_spent = 0
+            character.save(update_fields=['cp_available', 'cp_spent'])
+            character.characterskills_set.all().delete()
+        messages.info(self.request, 'Character skills reset for {}.'.format(
+            character.name
+        ))
+        return HttpResponseRedirect(
+            self.request.META.get(
+                'HTTP_REFERER',
+                reverse(
+                    'characters:character_detail',
+                    kwargs={'pk': self.kwargs['pk']}
+                )
+            )
+        )
 
 
 class CharacterSetActiveView(

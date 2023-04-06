@@ -97,7 +97,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'sekizai.context_processors.sekizai',
-                'cms.context_processors.cms_settings'
+                'cms.context_processors.cms_settings',
+                'talesofvalor.context_processors.character_settings'
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',

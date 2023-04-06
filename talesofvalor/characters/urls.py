@@ -2,7 +2,8 @@
 from django.urls import path
 
 from .views import CharacterCreateView, CharacterUpdateView,\
-    CharacterDetailView, CharacterDeleteView, CharacterListView,\
+    CharacterDetailView, CharacterDeleteView, CharacterResetView,\
+    CharacterListView,\
     CharacterSetActiveView, CharacterSkillUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView
@@ -19,6 +20,11 @@ urlpatterns = [
         '<int:pk>',
         CharacterDetailView.as_view(),
         name='character_detail'
+    ),
+    path(
+        '<int:pk>/reset/',
+        CharacterResetView.as_view(),
+        name='character_reset'
     ),
     path(
         '<int:pk>/delete/',
