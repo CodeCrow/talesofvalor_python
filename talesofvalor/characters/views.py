@@ -179,6 +179,7 @@ class CharacterResetView(
             character.cp_spent = 0
             character.save(update_fields=['cp_available', 'cp_spent'])
             character.characterskills_set.all().delete()
+            character.headers.clear()
         messages.info(self.request, 'Character skills reset for {}.'.format(
             character.name
         ))
