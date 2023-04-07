@@ -33,7 +33,7 @@
         <td>{{ event.event_date|date:'m-d-Y'}}</td>
         <td><!-- <a class="btn btn-danger" href="{% url "registration:unregister" pk=registration.pk %}">remove&nbsp;registration</a> --></td>
     </tr>
-% endfor %}
+{% endfor %}
 </table>
 
 {% endif %}
