@@ -31,7 +31,7 @@
     <tr>
         <td><a href="{% url "registration:detail" pk=registration.pk %}">{{ registration }}</a></td>
         <td>{{ event.event_date|date:'m-d-Y'}}</td>
-        <td><!-- <a class="btn btn-danger" href="{% url "registration:unregister" pk=registration.pk %}">remove&nbsp;registration</a> --></td>
+        <td>{% comment %}<a class="btn btn-danger" href="{% url "registration:unregister" pk=registration.pk %}">remove&nbsp;registration</a>{% endcomment %}</td>
     </tr>
 {% endfor %}
 </table>
