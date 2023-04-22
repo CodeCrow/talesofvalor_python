@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<h2><a href="{% url 'players:player_detail' username=object.player.user.username %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a> -- <a href="{% url 'events:event_detail' pk=object.event.id %}">{{ object.event }}</a></h2>
+<h2><a href="{% url 'players:player_detail' pk=object.player.user.pk %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a> -- <a href="{% url 'events:event_detail' pk=object.event.id %}">{{ object.event }}</a></h2>
 
 <p><strong>Event:</strong> {{ object.event }}</p>
 {% if perms.players.view_any_player or object.player.user is request.user %}

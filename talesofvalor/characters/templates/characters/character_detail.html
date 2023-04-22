@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container character">
-Player: <a href="{% url 'players:player_detail' username=object.player.user.username %}">{{ object.player }}</a>
+Player: <a href="{% url 'players:player_detail' pk=object.player.user.pk %}">{{ object.player }}</a>
 <div>
     <span class="h1"> {{ object.name }} </span>
     <span style="font-size: large"> {{ object.pronouns }} </span>

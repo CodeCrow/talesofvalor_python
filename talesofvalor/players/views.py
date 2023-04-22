@@ -48,14 +48,11 @@ class PlayerUpdateView(
         if self.request.user.has_perm('players.change_any_player'):
             return True
         try:
-            player = Player.objects.get(user__username=self.kwargs['username'])
+            player = Player.objects.get(user__id=self.kwargs['pk'])
             return (player.user == self.request.user)
         except Player.DoesNotExist:
             return False
         return False
-
-    def get_object(self):
-        return Player.objects.get(user__username=self.kwargs['username'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -98,7 +95,7 @@ class PlayerUpdateView(
             if self.request.user.player == self.object:
                 return HttpResponseRedirect(reverse(
                     'players:player_detail',
-                    kwargs={'username': self.object.user.username}
+                    kwargs={'pk': self.object.user.pk}
                 ))
             else:
                 return HttpResponseRedirect(reverse('players:player_list'))
@@ -148,10 +145,8 @@ class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
         User the user object that is in the request, redirect the
         browser to the correct player detail.
         """
-
-        player = self.request.user
-        kwargs['username'] = player.username
-        return super(PlayerRedirectDetailView, self).get_redirect_url(*args, **kwargs)
+        kwargs['pk'] = self.request.user.pk
+        return super().get_redirect_url(*args, **kwargs)
 
 
 class PlayerDetailView(
@@ -175,15 +170,11 @@ class PlayerDetailView(
         if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
-            player = Player.objects.get(user__username=self.kwargs['username'])
+            player = Player.objects.get(user__pk=self.kwargs['pk'])
             return (player.user == self.request.user)
         except Player.DoesNotExist:
             return False
         return False
-
-    def get_object(self):
-        # or request.POST
-        return Player.objects.get(user__username=self.kwargs['username'])
 
     def get_form_kwargs(self):
         kwargs = super(PlayerDetailView, self).get_form_kwargs()
@@ -230,7 +221,7 @@ class PlayerDetailView(
     def get_success_url(self):
         return reverse(
             'players:player_detail',
-            kwargs={'username': self.object.user.username}
+            kwargs={'pk': self.object.user.pk}
         )
 
 
@@ -306,7 +297,7 @@ class RegistrationView(FormView):
     def get_success_url(self):
         return reverse(
             'players:player_detail',
-            kwargs={'username': self.instance.user.username}
+            kwargs={'pk': self.instance.user.pk}
         )
 
 
@@ -623,13 +614,12 @@ class PELDetailView(UserPassesTestMixin, DetailView):
         Try to go to view the PEL.  If it doesn't exist yet, 
         present the form through the Generic editing view.
         '''
-        print(f"KWARGS:{kwargs}")
         try:
             return super().get(request, *args, **kwargs)
         except Http404:
             return redirect(reverse('players:pel_update', kwargs={
                 'event_id': self.kwargs['event_id'],
-                'username': self.kwargs['username']
+                'player_id': self.kwargs['player_id']
             }))
 
 
@@ -643,10 +633,10 @@ class PELRedirectView(RedirectView):
         """
         try: 
             event = Event.objects.get(pk=self.kwargs['event_id'])
-            player = Player.objects.get(user__username=self.kwargs['username'])
+            player = Player.objects.get(user__username=self.kwargs['player_id'])
             kwargs['pk'] = PEL.objects.get(event=event, player=player).id
             del(kwargs['event_id'])
-            del(kwargs['username'])
+            del(kwargs['player_id'])
         except PEL.DoesNotExist:
             return reverse("players:pel_update", kwargs=kwargs)
         return super().get_redirect_url(*args, **kwargs)
@@ -669,7 +659,7 @@ class PELUpdateView(LoginRequiredMixin, UpdateView):
         sent event.  If it does not exist, it is created.
         '''
         event = Event.objects.get(pk=self.kwargs['event_id'])
-        player = Player.objects.get(user__username=self.kwargs['username'])
+        player = Player.objects.get(user__pk=self.kwargs['pk'])
         pel_object, created = PEL.objects.get_or_create(event=event, player=player)
         return pel_object
 
