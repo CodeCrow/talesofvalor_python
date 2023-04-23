@@ -336,15 +336,11 @@ class CharacterAddHeaderView(APIView):
         # get the character and then see if the header is allowed
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
-        print("CHARACTER HEADERS:{}".format(character.headers.all()))
-        # check that the header is allowed.
-        print("HEADER CHECK:{}".format(character.check_header_prerequisites(header)))
         # Default to error.
         content = {
             'error': "prerequisites not met"
         }
         status = None
-        print("HEADER COST:{}".format(header.cost))
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
         if character.check_header_prerequisites(header):
