@@ -226,15 +226,12 @@ class Character(models.Model):
                 object_id=header.id
             )
             # check for origin requirements
-            print(header_prerequisites.count())
             # print(header_prerequisites)
             for prereq in header_prerequisites:
                 if prereq.origin: 
                     if prereq.origin not in self.origins:
                         return False
                 # check for header/skill requirements
-                print(f"PREREQ.HEADER{prereq.header}")
-                print(f"SELF HEADERS:{self.headers.all()}")
                 # did the user purchase the required header, or is the header open?
                 if prereq.header:
                     if (not prereq.header.open_flag and 
@@ -242,13 +239,11 @@ class Character(models.Model):
                         return False            
                     # check for the number of different skills in the header.
                     purchased_skills = self.skills.filter(header_id=prereq.header.id)
-                    print("PURCHASED SKILLS:{}".format(purchased_skills))
                     if prereq.number_of_different_skills > self.skills.filter(header_id=prereq.header.id).count(): 
                         return False
                     # figure out the total skill points
                     total = 0
                     for skill in purchased_skills:
-                        print(f"SKILL:{skill.characterskills_set}")
                         total += skill.header.cost * skill.characterskills_set.get(character=self).count
 
                 # check for skill requirements

@@ -134,6 +134,8 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.user.pk %}">{{ 
             let $header_group = $(event.currentTarget).parent().parent();
             // get the current cp:
             let cp_available = parseInt($('#character_point_display').html());
+            // turn on the overlay
+            $('#wait').show()
             $.post(submit_url, {
                 header_id: header_id,
                 character_id: character_id,
@@ -148,8 +150,11 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.user.pk %}">{{ 
                 $(event.currentTarget).parent().find('.drop-header').show().removeClass('hidden');
             })
             .fail((data) => {
-                    showError("Error Adding Skill", data.responseJSON.error);
+                showError("Error Adding Skill", data.responseJSON.error);
                 console.log(data);
+            })
+            .always(function() {
+                $('#wait').hide();
             });
             return false;
         });
