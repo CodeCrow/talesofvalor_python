@@ -11,7 +11,7 @@
             <td colspan="2">
             	<h3>to the following players</h3>
             	{% for player in player_select %}
-            		<p><a href="{% url 'players:player_detail' username=player.user.username %}">{{ player }}</a></p>
+            		<p><a href="{% url 'players:player_detail' pk=player.user.pk %}">{{ player }}</a></p>
             	{% endfor %}
             </td>
         </tr>

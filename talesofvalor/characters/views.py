@@ -389,7 +389,6 @@ class CharacterDropHeaderView(APIView):
         # get the character and header
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
-        print(f'header to drop: {header}')
         # Default to error.
         content = {
             'error': "Header is not already bought!"

@@ -107,6 +107,8 @@ class Skill(models.Model):
             h.id: {
                 'skills': {
                     s.skill_id: {
+                        'name': s.skill.name,
+                        'headerskill': s.id,
                         'cost': s.cost,
                         'purchased': 0
                     }

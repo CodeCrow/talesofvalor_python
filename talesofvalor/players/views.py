@@ -204,7 +204,6 @@ class PlayerDetailView(
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        print(f"{form.__dict__}")
         for error in form.errors:
             messages.error(self.request, form.errors[error])
         messages.warning(self.request, 'Error transferring points.')
@@ -510,7 +509,7 @@ class MassGrantCPView(FormView):
     success_url = reverse_lazy('players:player_list')
 
     def get_context_data(self, **kwargs):
-        context = super(MassGrantCPView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['player_select'] = Player.objects.filter(
             id__in=self.request.session.get('player_select', [])
         )

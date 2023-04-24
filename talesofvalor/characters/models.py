@@ -149,15 +149,15 @@ class Character(models.Model):
                 available_skills[h]['purchased'] = (h in bought_headers)
                 # what skills have we bought?
                 for skill_id in available_skills[h]['skills']:
+                    header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
                     try:
                         character_skill = self.characterskills_set.get(
-                            skill_id=skill_id
+                            skill_id=header_skill.id
                         )
                         available_skills[h]['skills'][skill_id]['purchased'] = character_skill.count
                     except CharacterSkills.DoesNotExist:
                         # if it doesn't exist, we can leave purchased as default.   
                         pass
-                    header_skill = HeaderSkill.objects.get(skill_id=skill_id, header_id=h)
                     available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
         return available_skills
 
