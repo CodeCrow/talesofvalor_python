@@ -12,10 +12,10 @@ PLAYER_ALLOWED_FIELDS = [
     'description',
     'history',
     'picture',
-    'player_notes'
+    'player_notes',
+    'tradition'
 ]
 NEW_PLAYER_FIELDS = [
-    'tradition',
     'people'
 ]
 
