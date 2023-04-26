@@ -167,29 +167,36 @@ class Character(models.Model):
         on the Rules model
         """
         # see if there is an updated cost for the skill
-        skill_cost_query = Rule.objects.filter(
+        # (find the skill it will effect)
+        rule_query = Rule.objects.filter(
             skill=header_skill,
             new_cost__gt=0
         )
-        if not skill_cost_query.exists():
+        if not rule_query.exists():
             return header_skill.cost
-
-        # there are cost updates for that skill.  See if the current
+        # there are cost updates that affect the sent skill.  See if the current
         # character has any of them.
         # just get the new costs and put them in the list and get the lowest.
         people_grants = self.people.rules.filter(
-            id__in=skill_cost_query
+            id__in=rule_query
         ).values_list('new_cost', flat=True)
         tradition_grants = self.tradition.rules.filter(
-            id__in=skill_cost_query
+            id__in=rule_query
         ).values_list('new_cost', flat=True)
-        skill_grants = header_skill.skill.rules.filter(
-            id__in=skill_cost_query
+        # Get the skills the character has that have rules 
+        # associated with them
+        skill_type = ContentType.objects.get_for_model(Skill)
+        skill_grants = Rule.objects.filter(
+            content_type=skill_type,
+            object_id__in=self.characterskills_set.values_list('skill__skill', flat=True)
         ).values_list('new_cost', flat=True)
-        header_grants = header_skill.header.rules.filter(
-            id__in=skill_cost_query
+        header_type = ContentType.objects.get_for_model(Header)
+        header_grants = Rule.objects.filter(
+            content_type=header_type,
+            object_id__in=self.headers.values_list('id', flat=True)
         ).values_list('new_cost', flat=True)
         found_rules = list(tradition_grants) + list(people_grants) + list(skill_grants) + list(header_grants)
+        # print(f"FOUND RULES:{found_rules}")
         if not found_rules:
             return header_skill.cost
         return min(found_rules)
