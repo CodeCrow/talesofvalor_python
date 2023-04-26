@@ -176,11 +176,21 @@ class SkillCreateView(PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         context = self.get_context_data()
-        formset = context['headerskill_formset']
-        if formset.is_valid():
+        header_formset = context['headerskill_formset']
+        rule_formset = context['rule_formset']
+        prerequisite_formset = context['prerequisite_formset']
+        if (
+                header_formset.is_valid() and
+                rule_formset.is_valid() and
+                prerequisite_formset.is_valid()
+        ):
             self.object = form.save()
-            formset.instance = self.object
-            formset.save()
+            header_formset.instance = self.object
+            header_formset.save()
+            rule_formset.instance = self.object
+            rule_formset.save()
+            prerequisite_formset.instance = self.object
+            prerequisite_formset.save()
             return redirect(self.success_url)
         else:
             return self.render_to_response(self.get_context_data(form=form))
