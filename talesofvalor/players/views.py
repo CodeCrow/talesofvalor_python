@@ -145,7 +145,7 @@ class PlayerRedirectDetailView(LoginRequiredMixin, RedirectView):
         User the user object that is in the request, redirect the
         browser to the correct player detail.
         """
-        kwargs['pk'] = self.request.user.pk
+        kwargs['pk'] = self.request.pk
         return super().get_redirect_url(*args, **kwargs)
 
 
