@@ -4,7 +4,7 @@
 {% block title %}{{ object.name }}{% endblock title %}
 
 {% block content %}
-Player: <a href="{% url 'players:player_detail' pk=object.player.user.pk %}">{{ object.player }}</a>
+Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ object.player }}</a>
 <h1>Pick skills for {{ object.name }}{% if object.active_flag %} (active){% endif %}</h1>
 <form id="charcterskill_form" action="" method="post">{% csrf_token %}
     {% include "characters/includes/character_stats.html" with object=object %}

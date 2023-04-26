@@ -170,7 +170,7 @@ class PlayerDetailView(
         if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
-            player = Player.objects.get(user__pk=self.kwargs['pk'])
+            player = Player.objects.get(pk=self.kwargs['pk'])
             return (player.user == self.request.user)
         except Player.DoesNotExist:
             return False

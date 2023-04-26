@@ -19,7 +19,7 @@
         </tr>
 		   	{% for registration in object_list %}
 	        <tr>
-	            <td><a href="{% url 'players:player_detail' pk=registration.player.user.pk %}">{{ registration.player }}</a></td>
+	            <td><a href="{% url 'players:player_detail' pk=registration.player.pk %}">{{ registration.player }}</a></td>
 	            <td><a href="{% url 'events:event_detail' pk=registration.event.id %}">{{ registration.event }}</a></td>
 	            <td><a href="{% url 'registration:detail' pk=registration.id %}">detail</a></td>
 	            <td>{% if registration.mealplan_flag %}&check;{% endif %}</td>

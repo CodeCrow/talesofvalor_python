@@ -45,7 +45,7 @@
         </tr>
         {% for pel in event.list%}
           <tr>
-              <td><a href="{% url 'players:player_detail' pk=pel.player.user.pk %}">{{ pel.player }}</a></td>
+              <td><a href="{% url 'players:player_detail' pk=pel.player.pk %}">{{ pel.player }}</a></td>
               <td><a href="{% url 'players:pel_detail' pk=pel.id %}">View</a></td>
           </tr>
         {% endfor %}

@@ -62,7 +62,7 @@
 		    {% for player in object_list %}
         <tr>
             <td><input type="checkbox" class="save-select" name="player_select" data-id="{{ player.id }}" value="{{ player.id }}"{% if player.id in request.session.player_select %} checked{% endif %}></td>
-            <td><a href="{% url 'players:player_detail' pk=player.user.pk %}">{{ player }}</td>
+            <td><a href="{% url 'players:player_detail' pk=player.pk %}">{{ player }}</td>
             <td>
               {% if player.active_character %}
                 <a href="{% url 'characters:character_detail' pk=player.active_character.id %}">{{ player.active_character }}</a>
@@ -70,8 +70,8 @@
             </td>
             <td>{{ player.user.username }}</td>
             <td>{% for group in player.user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-            <td><a href="{% url 'players:player_update' pk=player.user.pk %}">Edit</a></td>
-            <td><a href="{% url 'players:player_delete' pk=player.user.pk %}">Destroy</a></td>
+            <td><a href="{% url 'players:player_update' pk=player.pk %}">Edit</a></td>
+            <td><a href="{% url 'players:player_delete' pk=player.pk %}">Destroy</a></td>
             <td>{% if request.user|can_hijack:player.user %}
               <form action="{% url 'hijack:acquire' %}" method="POST">
                 {% csrf_token %}
@@ -81,7 +81,7 @@
               </form>
               {% endif %}
             </td>
-            <td>Assign{% comment %} <a href="{% url players:player_reassign pk=player.user.pk %}">Assign</a> {% endcomment %}</td><!-- this should be moved to a character list -->
+            <td>Assign{% comment %} <a href="{% url players:player_reassign pk=player.pk %}">Assign</a> {% endcomment %}</td><!-- this should be moved to a character list -->
         </tr>
         {% empty %}
         <tr><td colspan="2">No Players Yet.</td></tr>
