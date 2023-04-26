@@ -95,7 +95,7 @@ class PlayerUpdateView(
             if self.request.user.player == self.object:
                 return HttpResponseRedirect(reverse(
                     'players:player_detail',
-                    kwargs={'pk': self.object.user.pk}
+                    kwargs={'pk': self.object.pk}
                 ))
             else:
                 return HttpResponseRedirect(reverse('players:player_list'))
@@ -220,7 +220,7 @@ class PlayerDetailView(
     def get_success_url(self):
         return reverse(
             'players:player_detail',
-            kwargs={'pk': self.object.user.pk}
+            kwargs={'pk': self.object.pk}
         )
 
 
@@ -296,7 +296,7 @@ class RegistrationView(FormView):
     def get_success_url(self):
         return reverse(
             'players:player_detail',
-            kwargs={'pk': self.instance.user.pk}
+            kwargs={'pk': self.instance.user.player.pk}
         )
 
 
