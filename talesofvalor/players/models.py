@@ -402,7 +402,7 @@ class Registration(models.Model):
         """
         Indicate how the event was paid for
         """
-        if self.registration_request.paypal_order_id:
+        if self.registration_request and self.registration_request.paypal_order_id:
             return self.PAYPAL
         if self.pay_at_door_flag:
             return self.PAY_AT_DOOR
