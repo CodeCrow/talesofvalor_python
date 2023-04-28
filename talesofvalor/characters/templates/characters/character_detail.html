@@ -66,14 +66,9 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
     </div>
     {% if granted_skills %}
     <h2>Granted Skills</h2>
-    <ul class="header-group group">
+    <ul class="header-group group grants">
     {% for skill in granted_skills %}
-        <li class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>: 
-
-            <ul class="skill-group group">
-            {% include "characters/includes/character_skill_item.html" with skill=skill %}
-            </ul>
-        </li>
+            {% include "characters/includes/character_skill_item.html" with skill=skill compressed=True%}{% if not forloop.last %}, {% endif %}
     {% endfor %}
     </ul>
     {% endif %}

@@ -1,4 +1,4 @@
 {% load cms_tags utils %}
-<li>
+{% if not compressed %}<li>{% endif %}
     <a href="{% url "skills:skill_detail" pk=skill.skill.id %}">{{ skill.skill.name }}</a>{% if count %}&nbsp;({{ count }}){% endif %}
-</li>
+{% if not compressed %}</li>{% endif %}

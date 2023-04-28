@@ -181,6 +181,10 @@ input[type=checkbox] {
   width: 100%;
 }
 
+.group {
+  width: 100%;
+}
+
 .rule {
   padding: 1em 0.5em;
 }
