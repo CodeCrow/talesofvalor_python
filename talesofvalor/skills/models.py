@@ -204,6 +204,9 @@ class HeaderSkill(models.Model):
         default=False
     )
 
+    class Meta:
+        ordering = ['cost', 'skill__name']
+
     def __str__(self):
         return "{header}:{skill}[{cost}]".format(
             header=self.header,
