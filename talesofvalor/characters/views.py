@@ -283,7 +283,6 @@ class CharacterSkillUpdateView(
         # remove skills not in the hash.
         available_skills = self.object.skillhash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills or self.request.user.has_perm('player.view_any_player'), self.skills)
-
         # if this is a user who can see all skills, just return the skill hash.
         '''
         if self.request.user.has_perm('players.view_all_skills'):

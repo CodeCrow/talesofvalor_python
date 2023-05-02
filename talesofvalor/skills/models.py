@@ -69,7 +69,7 @@ class Skill(models.Model):
     )
 
     class Meta:
-        ordering = ['tag', 'name']
+        ordering = ['headerskill__cost', 'name']
         """Add permissions."""
 
         permissions = (
