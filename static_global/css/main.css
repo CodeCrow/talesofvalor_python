@@ -290,6 +290,10 @@ input[type=checkbox] {
   .no-print {
     display: none !important;
   }
+
+  .print-page-break {
+    page-break-after: always;
+  }
 }
 html {
   box-sizing: border-box;

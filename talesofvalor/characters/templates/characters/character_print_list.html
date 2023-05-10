@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Print List{% endblock bar_title %}
+{% block title %}{% endblock title %}
+
+{% block content %}
+
+
+{% for character in object_list %}
+<div class="container character print-page-break">
+    Player: <a href="{% url 'players:player_detail' pk=character.player.pk %}">{{ character.player }}</a>
+    <div>
+        <h2>{{ character.name }}{% if character.pronouns %}&nbsp;({{ character.pronouns }}){% endif %}</h2>
+        {% if character.active_flag %}<span class="no-print">(active)</span>{% endif %}
+    </div> 
+    {% include "characters/includes/character_detail_inner.html" with object=character %}
+</div>
+{% empty %}
+<h1>No Characters Registered</h1>
+{% endfor %}
+
+
+{% endblock content %}
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript">
+        window.addEventListener("load", print());
+    </script>
+{% endblock js %}

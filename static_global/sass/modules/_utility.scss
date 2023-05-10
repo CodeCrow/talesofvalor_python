@@ -65,4 +65,7 @@
 	.no-print {
 		display: none !important;
 	}
+   .print-page-break {
+      page-break-after: always;
+   }
 }

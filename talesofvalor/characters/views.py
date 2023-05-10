@@ -20,6 +20,8 @@ from rest_framework.views import APIView
 
 
 from talesofvalor import get_query
+from talesofvalor.events.models import Event
+from talesofvalor.players.models import Registration
 from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
@@ -283,15 +285,6 @@ class CharacterSkillUpdateView(
         # remove skills not in the hash.
         available_skills = self.object.skillhash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills or self.request.user.has_perm('player.view_any_player'), self.skills)
-        # if this is a user who can see all skills, just return the skill hash.
-        '''
-        if self.request.user.has_perm('players.view_all_skills'):
-            context['skill_hash'] = Skill.skillhash()
-        else:
-            # otherwise, limit the displayed skills to those the character
-            # should have.
-            context['skill_hash'] = self.object.skillhash
-        '''
         context['skill_hash'] = self.object.skillhash
         # add the bare skills granted by the rules
         context['granted_skills'] = self.object.skill_grants()
@@ -615,3 +608,23 @@ class CharacterListView(LoginRequiredMixin, ListView):
         context_data.update(**self.request.GET)
         # return the resulting context
         return context_data
+
+
+class CharacterPrintListView(LoginRequiredMixin, ListView):
+    """
+    Show a list of characters to print.
+
+    """
+
+    model = Character
+    template_name = "characters/character_print_list.html"
+
+    def get_queryset(self):
+        queryset = super().get_queryset() # filter by event
+        event_id = self.kwargs.get('event_id', None)
+        if not event_id:
+            event_id = Event.next_event().id
+        player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
+        queryset = queryset.filter(id__in=player_ids)
+        
+        return queryset

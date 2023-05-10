@@ -3,7 +3,7 @@ from django.urls import path
 
 from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterDetailView, CharacterDeleteView, CharacterResetView,\
-    CharacterListView,\
+    CharacterListView, CharacterPrintListView,\
     CharacterSetActiveView, CharacterSkillUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView
@@ -60,6 +60,16 @@ urlpatterns = [
         '',
         CharacterListView.as_view(),
         name='character_list'
+    ),
+    path(
+        'print/<int:event_id>/',
+        CharacterPrintListView.as_view(),
+        name='character_print_list'
+    ),
+    path(
+        'print/',
+        CharacterPrintListView.as_view(),
+        name='character_print_list'
     ),
     # skill picking
     path(
