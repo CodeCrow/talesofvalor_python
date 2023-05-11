@@ -617,6 +617,6 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
         if not event_id:
             event_id = Event.next_event().id
         player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
-        queryset = queryset.filter(player__id__in=player_ids)
+        queryset = queryset.filter(player__id__in=player_ids, npc_flag=False)
         
         return queryset
