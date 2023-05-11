@@ -36,7 +36,7 @@
 <div class="character-body">
     <h2>Skills:</h2>
     <div class="flex-container">
-    {% regroup skills by skill.header as header_list %}
+    {% regroup object.skills by skill.header as header_list %}
 
     <ul class="header-group group">
     {% for header in header_list %}
@@ -51,10 +51,10 @@
     {% endfor %}
     </ul>
     </div>
-    {% if granted_skills %}
+    {% if object.skill_grants %}
     <h2>Granted Skills</h2>
     <ul class="header-group group grants">
-    {% for skill in granted_skills %}
+    {% for skill in object.skill_grants %}
             {% include "characters/includes/character_skill_item.html" with skill=skill compressed=True%}{% if not forloop.last %}, {% endif %}
     {% endfor %}
     </ul>

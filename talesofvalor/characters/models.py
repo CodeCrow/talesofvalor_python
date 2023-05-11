@@ -162,6 +162,31 @@ class Character(models.Model):
                     available_skills[h]['skills'][skill_id]['cost'] = self.skill_cost(header_skill)
         return available_skills
 
+    @property
+    def skills(self):
+        return self.characterskills_set.order_by('skill__header__category', 'skill__header')
+
+    @property
+    def skill_grants(self):
+        """
+        skills granted by a specific character grant or as a result of
+        of character backgrounds or headers granting skills without the need
+        for the player to spend points.
+        """
+        people_grants = self.people.rules.filter(
+            free=True,
+            skill__isnull=False
+        ).values_list('skill', flat=True)
+        tradition_grants = self.tradition.rules.filter(
+            free=True,
+            skill__isnull=False
+        ).values_list('skill', flat=True)
+        universal_grants = Rule.objects.filter(
+            universal_flag=True
+        ).values_list('skill', flat=True)
+        skill_grants = list(tradition_grants) + list(people_grants) + list(universal_grants)
+        return HeaderSkill.objects.filter(id__in=skill_grants)
+
     def skill_cost(self, header_skill):
         """
         Figure out what this skill should cost for this character, based
@@ -201,26 +226,6 @@ class Character(models.Model):
         if not found_rules:
             return header_skill.cost
         return min(found_rules)
-
-    def skill_grants(self):
-        """
-        skills granted by a specific character grant or as a result of
-        of character backgrounds or headers granting skills without the need
-        for the player to spend points.
-        """
-        people_grants = self.people.rules.filter(
-            free=True,
-            skill__isnull=False
-        ).values_list('skill', flat=True)
-        tradition_grants = self.tradition.rules.filter(
-            free=True,
-            skill__isnull=False
-        ).values_list('skill', flat=True)
-        universal_grants = Rule.objects.filter(
-            universal_flag=True
-        ).values_list('skill', flat=True)
-        skill_grants = list(tradition_grants) + list(people_grants) + list(universal_grants)
-        return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def check_header_prerequisites(self, header):
         """

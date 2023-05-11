@@ -495,14 +495,6 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             return False
         return False
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**self.kwargs)
-
-        context['skills'] = self.object.characterskills_set.order_by('skill__header__category', 'skill__header')
-        # add the bare skills granted by the rules
-        context['granted_skills'] = self.object.skill_grants()
-        return context
-
 
 class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
     """
@@ -620,11 +612,11 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
     template_name = "characters/character_print_list.html"
 
     def get_queryset(self):
-        queryset = super().get_queryset() # filter by event
+        queryset = super().get_queryset()  # filter by event
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
             event_id = Event.next_event().id
         player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
-        queryset = queryset.filter(id__in=player_ids)
+        queryset = queryset.filter(player__id__in=player_ids)
         
         return queryset
