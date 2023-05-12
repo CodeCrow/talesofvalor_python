@@ -287,7 +287,7 @@ class CharacterSkillUpdateView(
         context['skills'] = filter(lambda x:  x.id in available_skills or self.request.user.has_perm('player.view_any_player'), self.skills)
         context['skill_hash'] = self.object.skillhash
         # add the bare skills granted by the rules
-        context['granted_skills'] = self.object.skill_grants()
+        context['granted_skills'] = self.object.skill_grants
         return context
 
     def post(self, request, *args, **kwargs):
