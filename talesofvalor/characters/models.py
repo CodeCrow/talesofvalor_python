@@ -251,8 +251,11 @@ class Character(models.Model):
                             prereq.header not in self.headers.all()):
                         return False            
                     # check for the number of different skills in the header.
-                    purchased_skills = self.skills.filter(header_id=prereq.header.id)
-                    if prereq.number_of_different_skills > self.skills.filter(header_id=prereq.header.id).count(): 
+                    purchased_skills = HeaderSkill.objects.filter(
+                        header=prereq.header,
+                        skill__in=self.skills.values_list('skill', flat=True)
+                    )
+                    if prereq.number_of_different_skills > purchased_skills.count(): 
                         return False
                     # figure out the total skill points
                     total = 0
