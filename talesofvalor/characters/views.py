@@ -337,7 +337,7 @@ class CharacterAddHeaderView(APIView):
         # the list of skills
         if character.check_header_prerequisites(header):
             # see if the character has enough points to add the header
-            if (cp_available - header.cost) > 0:
+            if (cp_available - header.cost) >= 0:
                 character.cp_available -= header.cost
                 character.cp_spent += header.cost
                 character.headers.add(header)
