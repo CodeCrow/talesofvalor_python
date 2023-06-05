@@ -54,7 +54,7 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
 {% block js %}
     {{ block.super }}
     <script type="text/javascript">
-
+        let staff = {% if perms.playsers.view_any_player %}true{% else %}false{% endif %}
         var updateSkill = (eventTarget, character_id) => {
             // get the information
             const submit_url = $(eventTarget).attr('href')
@@ -67,7 +67,7 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
             const cp_available = parseInt($cp_available_display.html());
             const $purchased_display = $(eventTarget).siblings('#' + header_id + "_" + skill_id + "_display");
             const purchased = parseInt($purchased_display.html());
-            if (purchased + vector >= original_purchased) {
+            if ((purchased + vector >= original_purchased) || staff) {
                 // update the skill points for a character
                 $.post(submit_url, { 
                     skill_id: skill_id,
@@ -83,7 +83,7 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
                     $purchased_display.html(purchased + vector);
                     // see if we need to turn on or off the reduce button
                     const $reduce = $purchased_display.siblings('.update-skill[data-skill-vector="-1"]');
-                    if (purchased + vector <= original_purchased) {
+                    if ((purchased + vector <= original_purchased) && (!staff || (purchased + vector <= 0))) {
                         $reduce.addClass('invisible');
                     } else {
                         $reduce.removeClass('invisible');
@@ -105,7 +105,7 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
             const checkbox_checked = $checkbox.is(':checked') ? false : true
             const purchased = checkbox_checked ? 1 : 0;
             const vector = checkbox_checked ? -1 : 1;
-            if (purchased + vector >= original_purchased) {
+            if ((purchased + vector >= original_purchased) || staff)  {
                 // update the skill points for a character
                 $.post(submit_url, { 
                     skill_id: skill_id,

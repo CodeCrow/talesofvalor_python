@@ -285,7 +285,7 @@ class Character(models.Model):
                 content_type__pk=header_type.id,
                 object_id=header.id
             )
-            return self.check_prerequisites(self, header_prerequisites)
+            return self.check_prerequisites(header_prerequisites)
         except Prerequisite.DoesNotExist:
             return True
         return True
@@ -301,7 +301,7 @@ class Character(models.Model):
                 content_type__pk=skill_type.id,
                 object_id=skill.id
             )
-            return self.check_prerequisites(self, skill_prerequisites)
+            return self.check_prerequisites(skill_prerequisites)
         except Prerequisite.DoesNotExist:
             return True
         return True
