@@ -14,7 +14,8 @@
           <th>Vegetarian?</th>
           <th>Vegan?</th>
         </tr>
-		    {% for registration in object_list %}
+        {% regroup object_list by player as player_list %}
+		    {% for registration in player_list %}
         <tr>
             <td><a href="{% url 'players:player_detail' pk=registration.player.pk %}">{{ registration.player }}</td>
             <td>
