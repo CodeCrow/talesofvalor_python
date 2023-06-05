@@ -3,10 +3,26 @@ from django.contrib.contenttypes.forms import generic_inlineformset_factory
 
 from talesofvalor.rules.models import Rule
 
-from .models import Skill, HeaderSkill
+from .models import Skill, Header, HeaderSkill
 
 
+INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "open_flag"]
 INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "single_flag", "bgs_flag"]
+
+
+class HeaderForm(forms.ModelForm):
+    """
+    Handle adding a header.
+
+    The form will allow users to add the header and set up prerequisites.
+    """
+
+    class Media:
+        js = ('js/lib/jquery.formset.js', 'js/lib/jquery-ui.min.js', )
+
+    class Meta:
+        model = Header
+        fields = INCLUDE_FOR_EDIT_HEADER
 
 
 class SkillForm(forms.ModelForm):

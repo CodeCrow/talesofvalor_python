@@ -15,12 +15,9 @@ from rest_framework.generics import ListAPIView
 
 from talesofvalor.rules.forms import PrerequisiteFormSet
 
-from .forms import SkillForm, HeaderSkillFormSet, RuleFormSet
+from .forms import HeaderForm, SkillForm, HeaderSkillFormSet, RuleFormSet
 from .models import Header, Skill
 from .serializers import SkillSerializer
-
-INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "open_flag"]
-INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "attention_flag", "bgs_flag"]
 
 
 class HeaderCreateView(PermissionRequiredMixin, CreateView):
@@ -29,7 +26,7 @@ class HeaderCreateView(PermissionRequiredMixin, CreateView):
     """
 
     model = Header
-    fields = INCLUDE_FOR_EDIT_HEADER
+    form_class = HeaderForm
     permission_required = ('skills.add_header', )
     success_url = reverse_lazy('skills:header_list')
 
@@ -67,7 +64,7 @@ class HeaderUpdateView(PermissionRequiredMixin, UpdateView):
     """
 
     model = Header
-    fields = INCLUDE_FOR_EDIT_HEADER
+    form_class = HeaderForm
     permission_required = ('skills.change_header', )
     success_url = reverse_lazy('skills:header_list')
 

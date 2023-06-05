@@ -28,7 +28,7 @@
             {{ form.id }}
             ( {{ form.name }} )
             Makes skill {{ form.skill }} cost {{ form.new_cost }} or {{ form.free }} free. <br /> Limit to {{ form.picks_remaining }} purchases. <br />
-            {% if rule_formset.can_delete %}{{ form.DELETE }}{% endif %}
+            {% if rule_formset.can_delete %}{{ form.DELETE }} Delete {% endif %}
             </div>
         {% endfor %}
         </div>
@@ -80,7 +80,7 @@
         <ul class="errors">{{ prerequisitegroup_formset.non_form_errors }}</ul>
         {% endif %}
         {% for form in prerequisitegroup_formset %}
-            <div class="prerequisite tabs">
+            <div class="prerequisitegroup tabs">
                 {{ form.id }}
                 <div class="header-requirement tab">
                     <input type="radio" id="{{ prerequisite_group_formset.prefix }}-{{ forloop.counter0 }}-header" name="{{ prerequisite_group_formset.prefix }}-{{ forloop.counter0 }}-tab_group" {% if form.header.value %} checked{% endif%}>
@@ -112,7 +112,7 @@
                 </div>
             </div>
         {% endfor %}
-        {{ prerequisite_formset.management_form }}
+        {{ prerequisitegroup_formset.management_form }}
     </div>
 </form>
 
@@ -126,6 +126,7 @@
             addCssClass: "add-row btn btn-primary"
             {% if rule_formset.initial_form_count > 0 %}, hideLastAddForm: true {% endif %}
         });
+        console.log($('#prerequisite_formset .prerequisite'))
         $('#prerequisite_formset .prerequisite').formset({
             prefix: '{{ prerequisite_formset.prefix }}',
             formCssClass: 'dynamic-{{ prerequisite_formset.prefix }}',

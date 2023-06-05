@@ -227,6 +227,53 @@ class Character(models.Model):
             return header_skill.cost
         return min(found_rules)
 
+    def check_prerequisites(self, prequisites):
+        """
+        Check the list of prerequisites and return the result.
+        This can be used for both skill and header prerequisites
+        """
+        for prereq in prequisites:
+            # check for origin requirements
+            if prereq.origin: 
+                if prereq.origin not in self.origins:
+                    print(f"ORIGIN WRONG")
+                    return False
+            # check for additional header requirements
+            if prereq.additional_header:
+                if (not prereq.additional_header.open_flag and 
+                        prereq.additional_header not in self.headers.all()):
+                    print(f"WE DONT HAVE THE RIGHT HEADER SELECTED")
+                    return False 
+            # check for header/skill requirements
+            # did the user purchase the required header, or is the header open?
+            if prereq.header:
+                if (not prereq.header.open_flag and 
+                        prereq.header not in self.headers.all()):
+                    print(f"WE DONT HAVE THE RIGHT HEADER SELECTED")
+                    return False            
+                # check for the number of different skills in the header.
+                purchased_skills = HeaderSkill.objects.filter(
+                    header=prereq.header,
+                    skill__id__in=self.skills.values_list('skill__skill_id', flat=True)
+                )
+                if prereq.number_of_different_skills > purchased_skills.count(): 
+                    print(f"NUMBER OF SKILLS WRONG:{prereq.number_of_different_skills}:{purchased_skills.count()}")
+                    return False
+                # figure out the total skill points
+                total = 0
+                for skill in purchased_skills:
+                    total += skill.header.cost * skill.characterskills_set.get(character=self).count
+            # check for skill requirements
+            if prereq.skill:
+                try:
+                    result = self.skills.get(skill__skill=prereq.skill)
+                    return result.count >= prereq.number_of_purchases
+                except CharacterSkills.DoesNotExist:
+                    return False
+        # if we made it this far, we can assume all prerequisites
+        # have been met.
+        return True
+
     def check_header_prerequisites(self, header):
         """
         Does the sent header meet the prerequisites for that header.
@@ -238,47 +285,7 @@ class Character(models.Model):
                 content_type__pk=header_type.id,
                 object_id=header.id
             )
-            # check for origin requirements
-            for prereq in header_prerequisites:
-                if prereq.origin: 
-                    if prereq.origin not in self.origins:
-                        print(f"ORIGIN WRONG")
-                        return False
-                # check for additional header requirements
-                if prereq.additional_header:
-                    if (not prereq.additional_header.open_flag and 
-                            prereq.additional_header not in self.headers.all()):
-                        print(f"WE DONT HAVE THE RIGHT HEADER SELECTED")
-                        return False 
-                # check for header/skill requirements
-                # did the user purchase the required header, or is the header open?
-                if prereq.header:
-                    if (not prereq.header.open_flag and 
-                            prereq.header not in self.headers.all()):
-                        print(f"WE DONT HAVE THE RIGHT HEADER SELECTED")
-                        return False            
-                    # check for the number of different skills in the header.
-                    purchased_skills = HeaderSkill.objects.filter(
-                        header=prereq.header,
-                        skill__id__in=self.skills.values_list('skill__skill_id', flat=True)
-                    )
-                    if prereq.number_of_different_skills > purchased_skills.count(): 
-                        print(f"NUMBER OF SKILLS WRONG:{prereq.number_of_different_skills}:{purchased_skills.count()}")
-                        return False
-                    # figure out the total skill points
-                    total = 0
-                    for skill in purchased_skills:
-                        total += skill.header.cost * skill.characterskills_set.get(character=self).count
-                # check for skill requirements
-                if prereq.skill:
-                    try:
-                        result = self.skills.get(skill__skill=prereq.skill)
-                        return result.count >= prereq.number_of_purchases
-                    except CharacterSkills.DoesNotExist:
-                        return False
-            # if we made it this far, we can assume all prerequisites
-            # have been met.
-            return True
+            return self.check_prerequisites(self, header_prerequisites)
         except Prerequisite.DoesNotExist:
             return True
         return True
@@ -294,6 +301,7 @@ class Character(models.Model):
                 content_type__pk=skill_type.id,
                 object_id=skill.id
             )
+            return self.check_prerequisites(self, skill_prerequisites)
         except Prerequisite.DoesNotExist:
             return True
         return True
