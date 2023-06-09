@@ -31,6 +31,13 @@ REQUEST_STATUS_CHOICES = (
     (DENIED, 'Denied'),
 )
 
+CAST = 'cast'
+PLAYER = 'player'
+REGISTRATION_TYPE_CHOICES = (
+    (CAST, 'Cast'),
+    (PLAYER, 'Player'),
+)
+
 
 class Player(models.Model):
     """
@@ -307,6 +314,11 @@ class Registration(models.Model):
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    registration_type = models.CharField(
+        max_length=10,
+        choices=REGISTRATION_TYPE_CHOICES,
+        default=PLAYER
+    )
     registration_request = models.ForeignKey(
         RegistrationRequest,
         null=True,
