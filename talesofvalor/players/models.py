@@ -421,6 +421,13 @@ class Registration(models.Model):
         if self.already_paid_flag:
             return self.PAID_OTHER
         return self.UNPAID
+    
+    class Meta:
+        """Add permissions."""
+
+        permissions = (
+            ("register_as_cast", "Can register as cast"),
+        )
 
 
 class PEL(models.Model):
