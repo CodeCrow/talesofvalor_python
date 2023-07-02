@@ -306,6 +306,31 @@ class CharacterSkillUpdateView(
         return super().form_valid(form)
 
 
+class ResetPointsView(
+        PermissionRequiredMixin,
+        View
+        ):
+    """
+    Resets the points for the season.
+    """
+
+    permission_required = ('characters.reset_points', )
+
+    def get(self, request, *args, **kwargs):
+        """
+        Send the user back to the the originating page or back to the main 
+        page if the referrer isn't set.
+        """
+        Character.objects.all().update(cp_transferred=0)
+        messages.info(self.request, 'Point cap reset!')
+        return HttpResponseRedirect(
+            self.request.META.get(
+                'HTTP_REFERER',
+                '/'
+            )
+        )
+
+
 '''
 Put the AJAX work for Characters here
 '''

@@ -6,6 +6,7 @@ from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterListView, CharacterPrintListView,\
     CharacterSetActiveView, CharacterSkillUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
+    ResetPointsView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView
 
 app_name = 'characters'
@@ -70,6 +71,11 @@ urlpatterns = [
         'print/',
         CharacterPrintListView.as_view(),
         name='character_print_list'
+    ),
+    path(
+        'reset_points/',
+        ResetPointsView.as_view(),
+        name='reset_points'
     ),
     # skill picking
     path(

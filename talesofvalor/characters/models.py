@@ -308,6 +308,10 @@ class Character(models.Model):
 
     class Meta:
         ordering = ["name"]
+        permissions = (
+            ("reset_points", "Can reset points"),
+        )
+
 
 
 class CharacterSkills(models.Model):
