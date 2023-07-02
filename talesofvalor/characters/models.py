@@ -313,7 +313,6 @@ class Character(models.Model):
         )
 
 
-
 class CharacterSkills(models.Model):
     """
     Links chracters with their skills.
