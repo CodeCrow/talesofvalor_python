@@ -9,6 +9,7 @@
 		<table id="registration_report" class="list list-players">
         <tr>
           <th>Player</th>
+          <th>Cast?</th>
           <th>Active Character</th>
           <th>Concept<br />Approved</th>
           <th>History<br />Approved</th>
@@ -21,6 +22,9 @@
 		    {% for registration in object_list %}
         <tr>
             <td><a href="{% url 'players:player_detail' pk=registration.player.pk %}">{{ registration.player }}</td>
+            <td>
+              {% if registration.registration_type == 'cast' %}&#x2714;{% endif %}
+            </td>
             <td>
               {% if registration.player.active_character %}
                 <a href="{% url 'characters:character_detail' pk=registration.player.active_character.id %}">{{ registration.player.active_character.name }}</a>

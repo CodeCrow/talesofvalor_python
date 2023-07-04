@@ -95,6 +95,18 @@ class Player(models.Model):
             self.staff_attention_flag = True
             return self.character_set.first()
 
+    @property
+    def cabin(self):
+        """
+        Gets what the 'current' cabin should be based on 
+        the registration of the previous event they attended.
+        """
+        previous_event = Registration.objects.filter(player=self)\
+            .order_by("-event__event_date").first()
+        if previous_event:
+            return previous_event.cabin
+        return None
+
     class Meta:
         """Add permissions."""
 
@@ -322,6 +334,7 @@ class Registration(models.Model):
     registration_request = models.ForeignKey(
         RegistrationRequest,
         null=True,
+        blank=True,
         on_delete=models.CASCADE,
     )
     cabin = models.CharField(

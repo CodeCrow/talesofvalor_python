@@ -7,7 +7,7 @@
         <li><a href="{% url 'registration:request_list' %}">Registration Requests</a></li>
     {% endif %}
     {% if perms.registration.register_as_cast %}
-        <li><a href="{% url 'registration:request_list' %}">Registration Requests</a></li>
+        <li><a href="{% url 'events:redirect_register_cast' %}">Regester As Cast</a></li>
     {% endif %}
     <li class="heading">Basic Info</li>
     <li><a href="{% url 'origins:origin_list' %}">Backgrounds</a></li>
@@ -41,11 +41,10 @@
     <li><a href="{% url 'events:eventregistrationitem_create' %}">New</a></li>
     <li><a href="{% url 'events:eventregistrationitem_list' %}">List</a></li>
     
-    <li class="heading">Printouts/Reports</li>
+    <li class="heading">Prints/Reports</li>
     <li><a href="{% url 'reports:registration' %}">Registrations</a></li>
     <li><a href="{% url 'reports:dining' %}">Dining Report</a></li>
     <li><a href="{% url 'characters:character_print_list' %}">Print Characters</a></li>
-    }
 
 </ul>
 {% endif %}

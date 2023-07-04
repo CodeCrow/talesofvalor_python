@@ -5,6 +5,7 @@ from .views import EventCreateView, EventUpdateView, EventListView,\
     EventPastListView, EventCharacterPrintListView,\
     EventDetailView, PlayerRegistrationRedirectView,\
     PlayerRegistrationNoEventView, PlayerRegistrationView,\
+    CastRegistrationRedirectView, CastRegistrationView,\
     EventRegistrationItemDetailView, EventRegistrationItemListView,\
     EventRegistrationItemCreateView, EventRegistrationItemUpdateView
 
@@ -50,6 +51,16 @@ urlpatterns = [
         '<int:pk>/register/',
         PlayerRegistrationView.as_view(),
         name='register'
+    ),
+    path(
+        'register-cast/',
+        CastRegistrationRedirectView.as_view(),
+        name='redirect_register_cast'
+    ),
+    path(
+        '<int:pk>/register-cast/',
+        CastRegistrationView.as_view(),
+        name='register_cast'
     ),  
     path(
         'past/',

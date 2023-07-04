@@ -11,14 +11,15 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView,\
-    FormMixin
+from django.views.generic.edit import CreateView,\
+    FormMixin, UpdateView
 
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.players.models import RegistrationRequest,\
     Registration,\
-    DENIED
+    DENIED, CAST
+from talesofvalor.registration.forms import CastRegistrationForm
 
 from .forms import EventForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
@@ -205,6 +206,85 @@ class PlayerRegistrationView(
 
         return super().form_valid(form)
 
+
+class CastRegistrationRedirectView(LoginRequiredMixin, RedirectView):
+    """
+    Redirect to the registration view of the next event.
+    """
+
+    pattern_name = 'events:register_cast'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Figure out where the user should be redirected to if they want to
+        register for the next game as cast.
+        """
+        try: 
+            kwargs['pk'] = Event.next_event().id
+        except AttributeError:
+            return reverse("events:event_no_next_event")
+        return super().get_redirect_url(*args, **kwargs)
+
+
+class CastRegistrationView(
+        PermissionRequiredMixin,
+        CreateView
+        ):
+    """
+    Deals with a player signing up for an event.
+    """
+    model = Registration
+    form_class = CastRegistrationForm
+    template_name = 'events/registration_cast_form.html'
+    permission_required = ("registration.register_as_cast",)
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure that the user hasn't already registered for this event.
+        """
+        existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
+        
+        if existing_registration:
+            # if you have already registered, go to edit the registration
+            return HttpResponseRedirect(
+                reverse('registration:detail', kwargs={'pk': existing_registration.id})
+            )
+        else:
+            return super().dispatch(request, args, kwargs)
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**self.kwargs)
+        # Get the Event Registration Items that have an event in the
+        # current year, and that are still available
+        context['event'] = Event.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        """
+        The form is valid, create the event registration request
+        and resend the user to the paypal screen
+        """
+        cleaned_data = form.cleaned_data
+        # set:
+        # event
+        # mealplan (cast get it automatically)
+        # cabin to the previous cabin
+        # payment type to already paid
+        # registration_type to cast
+        form.instance.event = Event.objects.get(pk=self.kwargs['pk'])
+        form.instance.mealplan_flag = True
+        form.instance.player = self.request.user.player
+        form.instance.registration_type = CAST
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        print(self.__dict__)
+        return reverse(
+            'registration:detail',
+            kwargs={'pk': self.object.pk}
+        )  
 
 class EventRegistrationItemDetailView(DetailView):
     model = EventRegistrationItem

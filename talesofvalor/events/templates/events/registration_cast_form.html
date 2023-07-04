@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Register As Cast{% endblock title %}
+
+{% block content %}
+
+<!-- writes out the form tag automatically -->
+<form action="" method="post">{% csrf_token %}
+
+<table id="event_registration_second_half" class="data event-registration">
+<tr>
+	<td colspan="2"><h2>Food Information</h2></td>
+</tr>
+<tr>
+	<td> {{ form.food_allergies.label_tag }} </td>
+	<td> {{ form.food_allergies }} </td>
+</tr>
+<tr>
+	<td> {{ form.vegetarian_flag }} </td>
+	<td> <label for="id_vegetarian_flag">Vegetarian Meal Requested</label></td>
+</tr>
+<tr>
+	<td> {{ form.vegan_flag }} </td>
+	<td> <label for="id_vegan_flag">Vegan Meal Requested</label></td>
+</tr>
+<tr>
+	<td colspan="2"><h2>Vehicle Information</h2></td>
+</tr>
+<tr>
+	<td> {{ form.no_car_flag }} </td>
+	<td> <label for="id_no_car_flag">No car on site</label></td>
+</tr>
+{% if form.vehicle_make.errors %}
+<tr><td colspan="2">{{ form.vehicle_make.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_make.label_tag }}</td>
+    <td>
+		{{ form.vehicle_make }}{% if form.vehicle_make.help_text %}<br />{{ form.vehicle_make.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.vehicle_model.errors %}
+<tr><td colspan="2">{{ form.vehicle_model.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_model.label_tag }}</td>
+    <td>
+		{{ form.vehicle_model }}{% if form.vehicle_model.help_text %}<br />{{ form.vehicle_model.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.vehicle_color.errors %}
+<tr><td colspan="2">{{ form.vehicle_color.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_color.label_tag }}</td>
+    <td>
+		{{ form.vehicle_color }}{% if form.vehicle_color.help_text %}<br />{{ form.vehicle_color.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.vehicle_registration.errors %}
+<tr><td colspan="2">{{ form.vehicle_registration.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.vehicle_registration.label_tag }}</td>
+    <td>
+		{{ form.vehicle_registration }}{% if form.vehicle_registration.help_text %}<br />{{ form.vehicle_registration.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.site_transportation.errors %}
+<tr><td colspan="2">{{ form.site_transportation.errors }}</td></tr>
+{% endif %}
+<tr>
+	<td>{{ form.site_transportation.label_tag }}
+	</td>
+    <td>
+		{{ form.site_transportation }}{% if form.site_transportation.help_text %}<br />{{ form.site_transportation.help_text }}{% endif %}
+	</td>
+</tr>
+<tr>
+	<td colspan="2"><h2>Additional Information:</h2></td>
+</tr>
+{% if form.local_contact.errors %}
+<tr><td colspan="2">{{ form.local_contact.errors }}</td></tr>
+{% endif %}
+<tr>
+    <td>{{ form.local_contact.label_tag }}</td>
+    <td>
+		{{ form.local_contact }}{% if form.local_contact.help_text %}<br />{{ form.local_contact.help_text }}{% endif %}
+	</td>
+</tr>
+{% if form.notes.errors %}
+<tr><td colspan="2">{{ form.notes.errors }}</td></tr>
+{% endif %}
+<tr>
+	<td>{{ form.notes.label_tag }}
+	</td>
+    <td>
+		{{ form.notes }}{% if form.notes.help_text %}<br />{{ form.notes.help_text }}{% endif %}
+	</td>
+</tr>
+</table>    
+<input type="submit" value="Register" />
+</form>
+{% endblock content %}

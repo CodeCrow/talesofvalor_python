@@ -1,6 +1,6 @@
 from django import forms
 
-from talesofvalor.players.models import RegistrationRequest
+from talesofvalor.players.models import Registration, RegistrationRequest
 
 
 # Create the form class.
@@ -10,6 +10,24 @@ class EventRegistrationForm(forms.ModelForm):
         fields = [
             'event_registration_item',
             'mealplan_flag',
+            'food_allergies',
+            'vegetarian_flag',
+            'vegan_flag',
+            'no_car_flag',
+            'vehicle_make',
+            'vehicle_model',
+            'vehicle_color',
+            'vehicle_registration',
+            'site_transportation',
+            'local_contact',
+            'notes'
+        ]
+
+# Create the form class.
+class CastRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = Registration
+        fields = [
             'food_allergies',
             'vegetarian_flag',
             'vegan_flag',

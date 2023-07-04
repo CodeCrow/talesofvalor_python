@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='registration',
-            options={'permissions': (('register_as_cast', 'Can register as cast.'), )},
+            options={'permissions': (('register_as_cast', 'Can register as cast'), )},
         )
     ]
     
