@@ -7,7 +7,7 @@
         <li><a href="{% url 'registration:request_list' %}">Registration Requests</a></li>
     {% endif %}
     {% if perms.registration.register_as_cast %}
-        <li><a href="{% url 'events:redirect_register_cast' %}">Regester As Cast</a></li>
+        <li><a href="{% url 'events:redirect_register_cast' %}">Register As Cast</a></li>
     {% endif %}
     <li class="heading">Basic Info</li>
     <li><a href="{% url 'origins:origin_list' %}">Backgrounds</a></li>
