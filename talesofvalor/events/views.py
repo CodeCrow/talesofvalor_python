@@ -5,6 +5,8 @@ from datetime import date, datetime
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
 from django.http import HttpResponseRedirect
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.db.models import Max
 from django.db.models.functions import ExtractYear
 from django.urls import reverse, reverse_lazy
@@ -277,7 +279,42 @@ class CastRegistrationView(
         form.instance.player = self.request.user.player
         form.instance.registration_type = CAST
 
-        return super().form_valid(form)
+        response = super().form_valid(form)
+ 
+        # send an email to staff with a link to the registration
+        # send email using the self.cleaned_data dictionary
+        message = """
+        Hello!
+
+        {} {} has a new registration for event {}.
+
+        See it here:
+        {}
+
+        --ToV MechCrow
+        """.format(
+                self.request.user.first_name,
+                self.request.user.last_name,
+                form.instance.event.name,
+                self.request.build_absolute_uri(
+                    reverse("registration:detail", kwargs={
+                        'pk': form.instance.id
+                    })
+                )
+            )
+        email_message = EmailMessage(
+            "CAST Registration for {} {}".format(
+                self.request.user.first_name,
+                self.request.user.last_name
+            ),
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
+        )
+        # send an email to each of them.
+        email_message.send()
+
+        return response
 
     def get_success_url(self):
         print(self.__dict__)
