@@ -139,7 +139,7 @@ class RegistrationUpdateView(
     )
     template_name = "registration/registration_form.html"
     model = Registration
-    permission_required = ('registration.change_registration', )
+    permission_required = ('players.change_registration', )
 
     def get_success_url(self):
         """

@@ -6,7 +6,7 @@
     {% if perms.skills.view_any_player %}
         <li><a href="{% url 'registration:request_list' %}">Registration Requests</a></li>
     {% endif %}
-    {% if perms.registration.register_as_cast %}
+    {% if perms.players.register_as_cast %}
         <li><a href="{% url 'events:redirect_register_cast' %}">Register As Cast</a></li>
     {% endif %}
     <li class="heading">Basic Info</li>
@@ -18,36 +18,36 @@
     {% endif %}
 </ul>
 
-{% if perms.skills.view_any_player %}
-<ul id="navigation_action_staff">
-    <li class="heading">Staff Info</li>
-    <li><a href="{% url 'players:pel_list' %}">PELS</a></li>
-    <li><a href="{% url 'betweengameskills:betweengameskill_list' %}">BGS</a></li>
-    <li><a href="#">Messages</a></li>
-    <li><a href="#">Plots</a></li>
-    <li><a href="#">Tags</a></li>
+    {% if perms.skills.view_any_player %}
+    <ul id="navigation_action_staff">
+        <li class="heading">Staff Info</li>
+        <li><a href="{% url 'players:pel_list' %}">PELS</a></li>
+        <li><a href="{% url 'betweengameskills:betweengameskill_list' %}">BGS</a></li>
+        <li><a href="#">Messages</a></li>
+        <li><a href="#">Plots</a></li>
+        <li><a href="#">Tags</a></li>
 
-    <li class="heading">Characters</li>
-    <li><a href="{% url 'characters:character_create' %}">New</a></li>
-    <li><a href="{% url 'characters:character_list' %}">List</a></li>
-    {% if perms.characters.reset_points %}
-        <li><a href="{% url 'characters:reset_points' %}">Reset Point Cap</a></li>
+        <li class="heading">Characters</li>
+        <li><a href="{% url 'characters:character_create' %}">New</a></li>
+        <li><a href="{% url 'characters:character_list' %}">List</a></li>
+        {% if perms.characters.reset_points %}
+            <li><a href="{% url 'characters:reset_points' %}">Reset Point Cap</a></li>
+        {% endif %}
+
+        <li class="heading">Players</li>
+        <li><a href="{% url 'players:player_list' %}">List</a></li>
+
+        <li class="heading">Registration Items</li>
+        <li><a href="{% url 'events:eventregistrationitem_create' %}">New</a></li>
+        <li><a href="{% url 'events:eventregistrationitem_list' %}">List</a></li>
+
+        <li class="heading">Prints/Reports</li>
+        <li><a href="{% url 'reports:registration' %}">Registrations</a></li>
+        <li><a href="{% url 'reports:dining' %}">Dining Report</a></li>
+        <li><a href="{% url 'characters:character_print_list' %}">Print Characters</a></li>
+
+    </ul>
     {% endif %}
-        
-    <li class="heading">Players</li>
-    <li><a href="{% url 'players:player_list' %}">List</a></li>
-
-    <li class="heading">Registration Items</li>
-    <li><a href="{% url 'events:eventregistrationitem_create' %}">New</a></li>
-    <li><a href="{% url 'events:eventregistrationitem_list' %}">List</a></li>
-    
-    <li class="heading">Prints/Reports</li>
-    <li><a href="{% url 'reports:registration' %}">Registrations</a></li>
-    <li><a href="{% url 'reports:dining' %}">Dining Report</a></li>
-    <li><a href="{% url 'characters:character_print_list' %}">Print Characters</a></li>
-
-</ul>
-{% endif %}
 {% else %}
 <ul id="navigation_action">
     <li class="heading">Welcome!

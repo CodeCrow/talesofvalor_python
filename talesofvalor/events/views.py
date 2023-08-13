@@ -238,7 +238,7 @@ class CastRegistrationView(
     model = Registration
     form_class = CastRegistrationForm
     template_name = 'events/registration_cast_form.html'
-    permission_required = ("registration.register_as_cast",)
+    permission_required = ("players.register_as_cast",)
 
     def dispatch(self, request, *args, **kwargs):
         """
