@@ -24,6 +24,10 @@ class ReportListView(PermissionRequiredMixin, ListView):
         if not event_id:
             event_id = Event.next_event().id
         queryset = queryset.filter(event__id=event_id)
+        # by registration type
+        registration_type = self.request.GET.get('registration_type')
+        if registration_type:
+            queryset = queryset.filter(registration_type=registration_type)
 
         return queryset
 

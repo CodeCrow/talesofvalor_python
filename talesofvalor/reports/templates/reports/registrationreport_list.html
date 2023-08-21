@@ -5,6 +5,15 @@
 {% block content %}
 
 <div class="row">
+  <div id="player_list_filter" class="col-sm-7">
+        <div>
+            <p>Show: 
+              <a href="{% url 'reports:registration' %}">All</a> | 
+              <a href="{% url 'reports:registration' %}?registration_type=player">Players</a> | 
+              <a href="{% url 'reports:registration' %}?registration_type=cast">Cast</a>
+            </p>
+        </div>
+  </div>
 	<div class="col-sm-12">
 		<table id="registration_report" class="list list-players">
         <tr>
@@ -23,7 +32,7 @@
         <tr>
             <td><a href="{% url 'players:player_detail' pk=registration.player.pk %}">{{ registration.player }}</td>
             <td>
-              {% if registration.registration_type == 'cast' %}&#x2714;{% endif %}
+              {% if registration.registration_type == 'cast' %}CAST{% endif %}
             </td>
             <td>
               {% if registration.player.active_character %}

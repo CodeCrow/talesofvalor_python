@@ -42,7 +42,12 @@
         <li><a href="{% url 'events:eventregistrationitem_list' %}">List</a></li>
 
         <li class="heading">Prints/Reports</li>
-        <li><a href="{% url 'reports:registration' %}">Registrations</a></li>
+        <li><a href="{% url 'reports:registration' %}">Registrations</a>
+            <ul>
+                <li><a href="{% url 'reports:registration' %}?registration_type=player">Players</a></li>
+                <li><a href="{% url 'reports:registration' %}?registration_type=cast">Cast</a></li>
+            </ul>
+        </li>
         <li><a href="{% url 'reports:dining' %}">Dining Report</a></li>
         <li><a href="{% url 'characters:character_print_list' %}">Print Characters</a></li>
 
