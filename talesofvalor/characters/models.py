@@ -163,8 +163,12 @@ class Character(models.Model):
         return available_skills
 
     @property
-    def skills(self):
-        return self.characterskills_set.order_by('skill__header__category', 'skill__header')
+    def skills_list(self):
+        header_ids = [*self.characterskills_set.values_list(('skill__header__id'), flat=True)] + [*self.headers.values_list(('id'), flat=True)]
+        skills = Header.objects.filter(id__in=header_ids).order_by('category', 'name').values()
+        for header in skills:
+            header['skills'] = self.characterskills_set.filter(skill__header=header['id'])
+        return skills
 
     @property
     def skill_grants(self):

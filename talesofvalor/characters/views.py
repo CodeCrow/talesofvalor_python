@@ -497,6 +497,8 @@ class CharacterAddSkillView(APIView):
                     'error': "You don't have enough points available to purchase this skill . . ."
                 }
                 status = HTTP_412_PRECONDITION_FAILED
+        else:
+            status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
 
 

@@ -35,22 +35,23 @@
 {% include "characters/includes/character_stats.html" with object=object %}
 <div class="character-body">
     <h2>Skills:</h2>
+    {% regroup object.skills_list by category as category_list %}
+    {% for category in category_list %}
+    <strong>{{ category.grouper }}</strong>
     <div class="flex-container">
-    {% regroup object.skills by skill.header as header_list %}
-
     <ul class="header-group group">
-    {% for header in header_list %}
-        <li class="header-label"><a href="{% url "skills:header_detail" pk=header.grouper.id %}">{{ header.grouper.name }}</a>    
+    {% for header in category.list %}
+        <li class="header-label"><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>    
             <ul class="skill-group group">
-                {% for skill in header.list %}
+                {% for skill in header.skills %}
                     {% include "characters/includes/character_skill_item.html" with skill=skill.skill count=skill.count %}
                 {% endfor %}
             </ul>
         </li>
-
     {% endfor %}
     </ul>
     </div>
+    {% endfor %}
     {% if object.skill_grants %}
     <h2>Granted Skills</h2>
     <ul class="header-group group grants">
