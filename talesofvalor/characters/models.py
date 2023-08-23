@@ -134,7 +134,6 @@ class Character(models.Model):
         # go through the headers and figure out what headers have had the
         # prerequisites met . . .
         bought_headers = list(self.headers.all().values_list('id', flat=True))
-        print(f"BOUGHT HEADERS:{bought_headers}")
         # go through each of the types of rules
         # - update the costs for for the skills
         # - add any granted headers

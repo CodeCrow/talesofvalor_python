@@ -3,7 +3,7 @@
     <li class="heading">Events</li>
     <li><a href="{% url 'events:redirect_register' %}">Register</a></li>
     <li><a href="{% url 'events:event_list' %}">List Events</a></li>
-    {% if perms.skills.view_any_player %}
+    {% if perms.players.view_any_player %}
         <li><a href="{% url 'registration:request_list' %}">Registration Requests</a></li>
     {% endif %}
     {% if perms.players.register_as_cast %}
@@ -18,7 +18,7 @@
     {% endif %}
 </ul>
 
-    {% if perms.skills.view_any_player %}
+    {% if perms.players.view_any_player %}
     <ul id="navigation_action_staff">
         <li class="heading">Staff Info</li>
         <li><a href="{% url 'players:pel_list' %}">PELS</a></li>

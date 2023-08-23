@@ -54,7 +54,7 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
 {% block js %}
     {{ block.super }}
     <script type="text/javascript">
-        let staff = {% if perms.playsers.view_any_player %}true{% else %}false{% endif %}
+        let staff = {% if perms.players.view_any_player %}true{% else %}false{% endif %}
         var updateSkill = (eventTarget, character_id) => {
             // get the information
             const submit_url = $(eventTarget).attr('href')
