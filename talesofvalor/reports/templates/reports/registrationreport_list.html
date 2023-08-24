@@ -16,10 +16,11 @@
   </div>
 	<div class="col-sm-12">
 		<table id="registration_report" class="list list-players">
+        {% with field_list as ['order_by','direction'] %}
         <tr>
-          <th>Player</th>
+          <th><a href="{% url 'reports:registration' %}?order_by=player&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}{% for key, value in request.GET.items %}{% if key not in field_list %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Player</a>{% if request.GET.order_by == 'player' %}<div class="ordering-arrow {{ request.GET.direction }}">&#94;</div>{% endif %}</th>
           {% if not request.GET.registration_type %}<th>Cast?</th>{% endif %}
-          <th>Active Character</th>
+          <th><a href="{% url 'reports:registration' %}?order_by=character&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}{% for key, value in request.GET.items %}{% if key not in field_list %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Active Character</a>{% if request.GET.order_by == 'character' %}<div class="ordering-arrow {{ request.GET.direction }}">&#94;</div>{% endif %}</th>
           <th>Concept<br />Approved</th>
           <th>History<br />Approved</th>
           <th>Allergies</th>
@@ -28,6 +29,7 @@
           <th>Payment Type</th>
           <th class="no-print">Registration</th>
         </tr>
+        {% endwith %}
 		    {% for registration in object_list %}
         <tr>
             <td><a href="{% url 'players:player_detail' pk=registration.player.pk %}">{{ registration.player }}</td>

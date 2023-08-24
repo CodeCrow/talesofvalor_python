@@ -28,6 +28,14 @@ class ReportListView(PermissionRequiredMixin, ListView):
         registration_type = self.request.GET.get('registration_type')
         if registration_type:
             queryset = queryset.filter(registration_type=registration_type)
+        # ordering
+        direction = '-' if self.request.GET.get('direction') == 'desc' else '' 
+        order_by = self.request.GET.get('order_by', 'player')
+        if order_by == 'character':
+            queryset = queryset.filter(player__character__active_flag=True)
+            queryset = queryset.order_by(f"{direction}player__character")
+        elif order_by == 'player':
+            queryset = queryset.order_by(f"{direction}player__user__last_name",  f"{direction}player__user__first_name")
 
         return queryset
 

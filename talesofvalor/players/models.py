@@ -70,6 +70,9 @@ class Player(models.Model):
             )
         return player_string
 
+    class Meta:
+        ordering = ("user__last_name", "user__first_name")
+
     @property
     def active_character(self):
         """

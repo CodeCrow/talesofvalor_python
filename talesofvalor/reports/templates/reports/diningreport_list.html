@@ -8,8 +8,8 @@
 	<div class="col-sm-12">
 		<table id="dining_report" class="list list-players">
         <tr>
-          <th>Player</th>
-          <th>Active Character</th>
+          <th><a href="{% url 'reports:dining' %}?order_by=player&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}{% for key, value in request.GET.items %}{% if key not in field_list %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Player</a>{% if request.GET.order_by == 'player' %}<div class="ordering-arrow {{ request.GET.direction }}">&#94;</div>{% endif %}</th>
+          <th><a href="{% url 'reports:dining' %}?order_by=character&direction={% if request.GET.direction == 'asc' %}desc{% else %}asc{% endif %}{% for key, value in request.GET.items %}{% if key not in field_list %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Active Character</a>{% if request.GET.order_by == 'character' %}<div class="ordering-arrow {{ request.GET.direction }}">&#94;</div>{% endif %}</th>
           <th>Allergies</th>
           <th>Vegetarian?</th>
           <th>Vegan?</th>
