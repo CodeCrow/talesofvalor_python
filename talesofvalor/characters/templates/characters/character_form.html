@@ -9,12 +9,8 @@
         {{ form.as_table }}
         {% if not perms.players.view_any_player and object.id %}
        		<tr>
-				<th><label>Race:</label></th>
-				<td>{{ object.race }}</td>
-			</tr>       		
-			<tr>
-				<th><label>Background:</label></th>
-				<td>{{ object.background }}</td>
+				<th><label>People:</label></th>
+				<td>{{ object.people }}</td>
 			</tr>
        	{% endif %}
         <tr>

@@ -37,6 +37,10 @@ ul.flat-list li {
   padding: 0.5rem;
 }
 
+.list th {
+  position: relative;
+}
+
 .nav {
   padding-left: 0;
 }
@@ -181,6 +185,10 @@ input[type=checkbox] {
   width: 100%;
 }
 
+.group.grants {
+  width: 100%;
+}
+
 .rule {
   padding: 1em 0.5em;
 }
@@ -211,9 +219,78 @@ input[type=checkbox] {
 }
 
 .hidden {
-  display: none !important;
+  display: none;
 }
 
+.ordering-arrow {
+  position: absolute;
+  bottom: 25%;
+  right: 10%;
+}
+.ordering-arrow.desc {
+  transform: rotate(180deg);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 60px;
+  width: 60px;
+  margin: 0px auto;
+  -webkit-animation: rotation 0.6s infinite linear;
+  -moz-animation: rotation 0.6s infinite linear;
+  -o-animation: rotation 0.6s infinite linear;
+  animation: rotation 0.6s infinite linear;
+  border-left: 6px solid rgba(0, 174, 239, 0.15);
+  border-right: 6px solid rgba(0, 174, 239, 0.15);
+  border-bottom: 6px solid rgba(0, 174, 239, 0.15);
+  border-top: 6px solid rgba(0, 174, 239, 0.8);
+  border-radius: 100%;
+}
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+  }
+}
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
 @media print {
   #cms-top {
     display: none;
@@ -225,6 +302,10 @@ input[type=checkbox] {
 
   .no-print {
     display: none !important;
+  }
+
+  .print-page-break {
+    page-break-after: always;
   }
 }
 html {

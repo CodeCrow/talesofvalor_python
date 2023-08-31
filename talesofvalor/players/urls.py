@@ -57,27 +57,27 @@ urlpatterns = [
         name='pel_detail'
     ),    
     path(
-        'pel/<slug:username>/<int:event_id>/',
+        'pel/<int:player_id>/<int:event_id>/',
         PELRedirectView.as_view(),
         name='pel_redirect'
     ),
     path(
-        'pel/<slug:username>/<int:event_id>/edit',
+        'pel/<int:player_id>/<int:event_id>/edit',
         PELUpdateView.as_view(),
         name='pel_update'
     ),
     path(
-        '<slug:username>/',
+        '<int:pk>/',
         PlayerDetailView.as_view(),
         name='player_detail'
     ),
     path(
-        '<slug:username>/update/',
+        '<int:pk>/update/',
         PlayerUpdateView.as_view(),
         name='player_update'
     ),
     path(
-        '<slug:username>/delete/',
+        '<int:pk>/delete/',
         PlayerDeleteView.as_view(),
         name='player_delete'
     ),

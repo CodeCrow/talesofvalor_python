@@ -8,7 +8,7 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-8">
         <div class="box">
           <h3>Filters</h3>
           <form method="GET" action="">
@@ -39,7 +39,7 @@
         </div>
     </div>
     {% if perms.skills.add_skill %}
-    <div class="col-sm-8">
+    <div class="col-sm-4">
         <div class="box text-right">
         <a class="btn btn-primary" href="{% url 'skills:skill_create' %}">add skill</a>
         </div>

@@ -5,24 +5,32 @@
 
 {% block content %}
 
-<h2><a href="{% url 'players:player_detail' username=object.player.user.username %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a> -- <a href="{% url 'events:event_detail' pk=object.event.id %}">{{ object.event }}</a></h2>
+<h2><a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a> -- <a href="{% url 'events:event_detail' pk=object.event.id %}">{{ object.event }}</a></h2>
 
 <p><strong>Event:</strong> {{ object.event }}</p>
+{% if perms.players.view_any_player %}<p><strong>Registration Type:</strong> {{ object.registration_type }}</p>{% endif %}
 {% if perms.players.view_any_player or object.player.user is request.user %}
 <p><a href="{% url 'registration:edit' pk=object.pk %}">edit</a></p>
 <p><strong>Cabin:</strong> {{ object.cabin }}</p>
 <p><strong>On-site Contact:</strong> {{ object.local_contact }}</p>
-<p><strong>Mealplan?</strong> {% if object.mealplan_flag %}&#x2714;{% else %}&#x2717;{% endif %}</p>
+<p>
+	<strong>Mealplan?</strong> {% if object.mealplan_flag %}&#x2714;{% else %}&#x2717;{% endif %}<br />
+	Vegetarian meal requested? {% if object.vegetarian_flag %}&#x2714;{% else %}&#x2717;{% endif %}<br />
+	Vegan meal requested? {% if object.vegan_flag %}&#x2714;{% else %}&#x2717;{% endif %}
+</p>
 <p><strong>Food allergies:</strong> {{ object.food_allergies }}</p>
 
-<h3>Vehicle Info:<h3><br />
-<p><strong>No car on site?</strong> {% if object.no_car_flag %}&#x2714;{% else %}&#x2717;{% endif %}</p>
+<h3>Vehicle Info:</h3>
+{% if object.no_car_flag %}
+<p><strong>No car on site</strong></p>
+{% else %}
 <p>
 	<strong>Make:</strong>{{ object.vehicle_make }}<br />
 	<strong>Model:</strong>{{ object.vehicle_model }}<br />
 	<strong>Color:</strong>{{ object.vehicle_color }}<br />
 	<strong>License Plate:</strong>{{ object.vehicle_registration }}<br />
 </p>
+{% endif %}
 <p><strong>Other site transportation?</strong>{{ object.site_transportation }}</p>
 <h3><strong>Notes:</strong></h3>
 <p>{{ object.notes }}</p>

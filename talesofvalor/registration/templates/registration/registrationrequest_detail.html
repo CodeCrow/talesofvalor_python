@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<h2><a href="{% url 'players:player_detail' username=object.player.user.username %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a></h2>
+<h2><a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a></h2>
 
 <table class="list">
 <thead>

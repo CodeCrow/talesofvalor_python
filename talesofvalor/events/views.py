@@ -5,20 +5,23 @@ from datetime import date, datetime
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
 from django.http import HttpResponseRedirect
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.db.models import Max
 from django.db.models.functions import ExtractYear
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView,\
-    FormMixin
+from django.views.generic.edit import CreateView,\
+    FormMixin, UpdateView
 
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.players.models import RegistrationRequest,\
     Registration,\
-    DENIED
+    DENIED, CAST
+from talesofvalor.registration.forms import CastRegistrationForm
 
 from .forms import EventForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
@@ -205,6 +208,120 @@ class PlayerRegistrationView(
 
         return super().form_valid(form)
 
+
+class CastRegistrationRedirectView(LoginRequiredMixin, RedirectView):
+    """
+    Redirect to the registration view of the next event.
+    """
+
+    pattern_name = 'events:register_cast'
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Figure out where the user should be redirected to if they want to
+        register for the next game as cast.
+        """
+        try: 
+            kwargs['pk'] = Event.next_event().id
+        except AttributeError:
+            return reverse("events:event_no_next_event")
+        return super().get_redirect_url(*args, **kwargs)
+
+
+class CastRegistrationView(
+        PermissionRequiredMixin,
+        CreateView
+        ):
+    """
+    Deals with a player signing up for an event.
+    """
+    model = Registration
+    form_class = CastRegistrationForm
+    template_name = 'events/registration_cast_form.html'
+    permission_required = ("players.register_as_cast",)
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure that the user hasn't already registered for this event.
+        """
+        existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
+        
+        if existing_registration:
+            # if you have already registered, go to edit the registration
+            return HttpResponseRedirect(
+                reverse('registration:detail', kwargs={'pk': existing_registration.id})
+            )
+        else:
+            return super().dispatch(request, args, kwargs)
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**self.kwargs)
+        # Get the Event Registration Items that have an event in the
+        # current year, and that are still available
+        context['event'] = Event.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        """
+        The form is valid, create the event registration request
+        and resend the user to the paypal screen
+        """
+        cleaned_data = form.cleaned_data
+        # set:
+        # event
+        # mealplan (cast get it automatically)
+        # cabin to the previous cabin
+        # payment type to already paid
+        # registration_type to cast
+        form.instance.event = Event.objects.get(pk=self.kwargs['pk'])
+        form.instance.mealplan_flag = True
+        form.instance.player = self.request.user.player
+        form.instance.registration_type = CAST
+
+        response = super().form_valid(form)
+ 
+        # send an email to staff with a link to the registration
+        # send email using the self.cleaned_data dictionary
+        message = """
+        Hello!
+
+        {} {} has a new registration for event {}.
+
+        See it here:
+        {}
+
+        --ToV MechCrow
+        """.format(
+                self.request.user.first_name,
+                self.request.user.last_name,
+                form.instance.event.name,
+                self.request.build_absolute_uri(
+                    reverse("registration:detail", kwargs={
+                        'pk': form.instance.id
+                    })
+                )
+            )
+        email_message = EmailMessage(
+            "CAST Registration for {} {}".format(
+                self.request.user.first_name,
+                self.request.user.last_name
+            ),
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
+        )
+        # send an email to each of them.
+        email_message.send()
+
+        return response
+
+    def get_success_url(self):
+        print(self.__dict__)
+        return reverse(
+            'registration:detail',
+            kwargs={'pk': self.object.pk}
+        )  
 
 class EventRegistrationItemDetailView(DetailView):
     model = EventRegistrationItem

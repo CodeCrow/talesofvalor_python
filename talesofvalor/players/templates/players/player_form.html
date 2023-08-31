@@ -44,7 +44,7 @@
         <td colspan="2" class="text-right">
             <input class="btn btn-primary" type="submit" value="{% if object.id %}Update{% else %}Save{% endif %}" />
             {% if object.id and perms.player.delete_player %}
-            	<a href="{% url "players:player_delete" username=object.user.username %}" class="btn btn-danger">Delete</a></td>
+            	<a href="{% url "players:player_delete" pk=object.pk %}" class="btn btn-danger">Delete</a></td>
             {% endif %}
         </td>
     </tr>

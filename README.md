@@ -102,6 +102,11 @@ DATABASES = {
 
     }
 }
+
+
+# email back end for development only
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 ```
 
 ## database and media syncing
@@ -143,6 +148,18 @@ $ ./manage.py runserver --settings=talesofvalor.settings.local
 Open a browser and go to [http://127.0.0.1:8000/admin/]()
 
 You should now see a login screen!
+
+## email on the development server
+
+So you don't have to set up a local SMTP server, make sure the following is added to your local settings file (local.py).
+
+```
+# email back end for development only
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
+
+This will display the emails sent in the server log rather than trying to send emails.
+
 
 # CSS
 The CSS files are created using [SASS](https://sass-lang.com/) using the [gulp workflow](https://gulpjs.com/).

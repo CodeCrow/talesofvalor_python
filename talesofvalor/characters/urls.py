@@ -2,9 +2,11 @@
 from django.urls import path
 
 from .views import CharacterCreateView, CharacterUpdateView,\
-    CharacterDetailView, CharacterDeleteView, CharacterListView,\
+    CharacterDetailView, CharacterDeleteView, CharacterResetView,\
+    CharacterListView, CharacterPrintListView,\
     CharacterSetActiveView, CharacterSkillUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
+    ResetPointsView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView
 
 app_name = 'characters'
@@ -19,6 +21,11 @@ urlpatterns = [
         '<int:pk>',
         CharacterDetailView.as_view(),
         name='character_detail'
+    ),
+    path(
+        '<int:pk>/reset/',
+        CharacterResetView.as_view(),
+        name='character_reset'
     ),
     path(
         '<int:pk>/delete/',
@@ -54,6 +61,21 @@ urlpatterns = [
         '',
         CharacterListView.as_view(),
         name='character_list'
+    ),
+    path(
+        'print/<int:event_id>/',
+        CharacterPrintListView.as_view(),
+        name='character_print_list'
+    ),
+    path(
+        'print/',
+        CharacterPrintListView.as_view(),
+        name='character_print_list'
+    ),
+    path(
+        'reset_points/',
+        ResetPointsView.as_view(),
+        name='reset_points'
     ),
     # skill picking
     path(

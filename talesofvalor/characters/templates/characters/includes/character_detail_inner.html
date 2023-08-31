@@ -1,0 +1,75 @@
+
+{% if object.picture %}
+<img class="portrait no-print" src="{{ object.picture.url }}" alt="{{ object.name }}" />
+{% endif %}
+<nav class="no-print">
+    <a href="{% url 'characters:character_update' pk=object.pk %}">Update</a> |
+    <a href="{% url 'characters:character_skill_update' pk=object.pk %}">Skills</a> |
+    {% if object != object.player.active_character %}
+        <a href="{% url 'characters:character_set_active' pk=object.pk %}">Set Active</a> |
+    {% endif %}
+    <a href="{% url 'characters:character_reset' pk=character.pk %}">Reset</a> |
+    <a href="{% url 'characters:character_delete' pk=object.pk %}">Destroy</a> | 
+    Print | 
+    <a href="{% url 'events:event_list' character=object.id %}">Events</a>
+</nav>
+<div class="attributes character_attributes">
+    <table id="status" class="character-detail no-print">
+        <tr>
+            <td>Status:</td>
+            <td>{{ object.status }}</td>
+        </tr>
+    </table>
+    <table id="origins" class="character-detail">
+        <tr>
+            <td>People:</td>
+            <td>{{ object.people }}</td>
+        </tr>
+        <tr>
+            <td>Tradition:</td>
+            <td>{{ object.tradition }}</td>
+        </tr>
+    </table>
+</div>
+
+{% include "characters/includes/character_stats.html" with object=object %}
+<div class="character-body">
+    <h2>Skills:</h2>
+    {% regroup object.skills_list by category as category_list %}
+    {% for category in category_list %}
+    <strong>{{ category.grouper }}</strong>
+    <div class="flex-container">
+    <ul class="header-group group">
+    {% for header in category.list %}
+        <li class="header-label"><a href="{% url "skills:header_detail" pk=header.id %}">{{ header.name }}</a>    
+            <ul class="skill-group group">
+                {% for skill in header.skills %}
+                    {% include "characters/includes/character_skill_item.html" with skill=skill.skill count=skill.count %}
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+    </div>
+    {% endfor %}
+    {% if object.skill_grants %}
+    <h2>Granted Skills</h2>
+    <ul class="header-group group grants">
+    {% for skill in object.skill_grants %}
+            {% include "characters/includes/character_skill_item.html" with skill=skill compressed=True%}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="no-print">
+        <h2>Description:</h2>
+        {{ object.description }}
+        <h2>Concept {% if object.concept_approved_flag %}(Concept Approved){% else %}{% if perms.players.change_any_player %}<form id="character_concept_approve" method="POST" action="{% url "characters:concept_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_concept_approve" class="btn btn-primary btn-submit no-print" type="submit">Approve Concept</button></form>{% endif %}{% endif %}:</h2>
+        {{ object.concept }}
+        <h2>History {% if object.history_approved_flag %}(History Approved){% else %}{% if perms.players.change_any_player %}<form id="character_history_approve" method="POST" action="{% url "characters:history_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_history_approve" class="btn btn-primary btn-submit no-print" type="submit">Approve History</button></form>{% endif %}{% endif %}:</h2>
+        {{ object.history }}
+    </div>
+    <h2>Player Notes:</h2>
+    {{ object.player_notes }}
+    <h2>Visible Staff Notes:</h2>
+    {{ object.staff_notes_visible }}
+</div>

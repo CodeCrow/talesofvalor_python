@@ -31,6 +31,13 @@ REQUEST_STATUS_CHOICES = (
     (DENIED, 'Denied'),
 )
 
+CAST = 'cast'
+PLAYER = 'player'
+REGISTRATION_TYPE_CHOICES = (
+    (CAST, 'Cast'),
+    (PLAYER, 'Player'),
+)
+
 
 class Player(models.Model):
     """
@@ -63,6 +70,9 @@ class Player(models.Model):
             )
         return player_string
 
+    class Meta:
+        ordering = ("user__last_name", "user__first_name")
+
     @property
     def active_character(self):
         """
@@ -87,6 +97,18 @@ class Player(models.Model):
         except MultipleObjectsReturned:
             self.staff_attention_flag = True
             return self.character_set.first()
+
+    @property
+    def cabin(self):
+        """
+        Gets what the 'current' cabin should be based on 
+        the registration of the previous event they attended.
+        """
+        previous_event = Registration.objects.filter(player=self)\
+            .order_by("-event__event_date").first()
+        if previous_event:
+            return previous_event.cabin
+        return None
 
     class Meta:
         """Add permissions."""
@@ -307,9 +329,15 @@ class Registration(models.Model):
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    registration_type = models.CharField(
+        max_length=10,
+        choices=REGISTRATION_TYPE_CHOICES,
+        default=PLAYER
+    )
     registration_request = models.ForeignKey(
         RegistrationRequest,
         null=True,
+        blank=True,
         on_delete=models.CASCADE,
     )
     cabin = models.CharField(
@@ -402,13 +430,20 @@ class Registration(models.Model):
         """
         Indicate how the event was paid for
         """
-        if self.registration_request.paypal_order_id:
+        if self.registration_request and self.registration_request.paypal_order_id:
             return self.PAYPAL
         if self.pay_at_door_flag:
             return self.PAY_AT_DOOR
         if self.already_paid_flag:
             return self.PAID_OTHER
         return self.UNPAID
+    
+    class Meta:
+        """Add permissions."""
+
+        permissions = (
+            ("register_as_cast", "Can register as cast"),
+        )
 
 
 class PEL(models.Model):

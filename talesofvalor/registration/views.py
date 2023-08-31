@@ -139,7 +139,7 @@ class RegistrationUpdateView(
     )
     template_name = "registration/registration_form.html"
     model = Registration
-    permission_required = ('registration.change_registration', )
+    permission_required = ('players.change_registration', )
 
     def get_success_url(self):
         """
@@ -208,8 +208,7 @@ class RegistrationRequestAlreadyPaidView(
 
     Then moves the user on to completing the registration
     """
-    template_name = "registration/registration_delete.html"
-    success_url = reverse_lazy('registration:complete')
+    pattern_name = 'registration:complete'
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -265,7 +264,7 @@ class RegistrationRequestApproveFormView(
         
         RegistrationRequest.request_complete(
             registration_request.id,
-            self.request.user,
+            registration_request.player.user,
             self.request
         )
 

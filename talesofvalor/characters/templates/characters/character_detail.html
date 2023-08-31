@@ -1,99 +1,24 @@
 {% extends "base.html" %}
 {% load cms_tags %}
 
-{% block title %}{{ object.name }}{% if object.active_flag %} (active){% endif %}{% endblock title %}
+{% block title %}{{ object.name }}{% if object.active_flag %} {% if object.pronouns %}&nbsp;({{ object.pronouns }}){% endif %} (active){% endif %}{% endblock title %}
 
 {% block content %}
 <div class="container character">
-Player: {{ object.player }}
-<div>
-    <span class="h1"> {{ object.name }} </span>
-    <span style="font-size: large"> {{ object.pronouns }} </span>
-    {% if object.active_flag %} (active){% endif %}
-</div> 
-{% if object.picture %}
-<img class="portrait" src="{{ object.picture.url }}" alt="{{ object.name }}" />
-{% endif %}
-<nav class="no-print">
-    <a href="{% url 'characters:character_update' pk=object.pk %}">Update</a>
-    <a href="{% url 'characters:character_skill_update' pk=object.pk %}">Skills</a>
-    {% if object != object.player.active_character %}
-        <a href="{% url 'characters:character_set_active' pk=object.pk %}">Set Active</a>
-    {% endif %}
-    Reset
-    <a href="{% url 'characters:character_delete' pk=object.pk %}">Destroy</a> | 
-    Print | 
-    <a href="{% url 'events:event_list' character=object.id %}">Events</a>
-</nav>
-<div class="attributes character_attributes">
-    <table id="status" class="character-detail">
-        <tr>
-            <td>Status:</td>
-            <td>{{ object.status }}</td>
-        </tr>
-    </table>
-    <table id="origins" class="character-detail">
-        <caption>Origins</caption>
-        <tr>
-            <td>People:</td>
-            <td>{{ object.people }}</td>
-        </tr>
-        <tr>
-            <td>Tradition:</td>
-            <td>{{ object.tradition }}</td>
-        </tr>
-    </table>
-</div>
-
-{% include "characters/includes/character_stats.html" with object=object %}
-<div class="character-body">
-    <h2>Skills:</h2>
-    <div class="flex-container">
-    {% regroup skills by skill.header as header_list %}
-
-    <ul class="header-group group">
-    {% for header in header_list %}
-        <li class="header-label"><a href="{% url "skills:header_detail" pk=header.grouper.id %}">{{ header.grouper.name }}</a>    
-            <ul class="skill-group group">
-                {% for skill in header.list %}
-                    {% include "characters/includes/character_skill_item.html" with skill=skill.skill count=skill.count %}
-                {% endfor %}
-            </ul>
-        </li>
-
-    {% endfor %}
-    </ul>
-    </div>
-    {% if granted_skills %}
-    <h2>Granted Skills</h2>
-    <ul class="header-group group">
-    {% for skill in granted_skills %}
-        <li class="header-label"><a href="{% url "skills:header_detail" pk=skill.header.id %}">{{ skill.header }}</a>: 
-
-            <ul class="skill-group group">
-            {% include "characters/includes/character_skill_item.html" with skill=skill %}
-            </ul>
-        </li>
-    {% endfor %}
-    </ul>
-    {% endif %}
-    <h2>Description:</h2>
-    {{ object.description }}
-    <h2>Concept {% if object.concept_approved_flag %}(Concept Approved){% else %}{% if perms.players.change_any_player %}<form id="character_concept_approve" method="POST" action="{% url "characters:concept_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_concept_approve" class="btn btn-primary btn-submit" type="submit">Approve Concept</button>{% endif %}{% endif %}:</h2>
-    {{ object.concept }}
-    <h2>History {% if object.history_approved_flag %}(History Approved){% else %}{% if perms.players.change_any_player %}<form id="character_history_approve" method="POST" action="{% url "characters:history_approve"  %}">{% csrf_token %}<input type="hidden" id="id_character_id" name="character_id" value="{{ object.id }}" /> <button id="character_history_approve" class="btn btn-primary btn-submit" type="submit">Approve History</button>{% endif %}{% endif %}:</h2>
-    {{ object.history }}
-    <h2>Player Notes:</h2>
-    {{ object.player_notes }}
-    <h2>Visible Staff Notes:</h2>
-    {{ object.staff_notes_visible }}
+    Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ object.player }}</a>
+    <div class="no-print">
+        <h2>{{ object.name }}{% if object.pronouns %}&nbsp;({{ object.pronouns }}){% endif %}</h2>
+        {% if object.active_flag %}<span class="no-print">(active)</span>{% endif %}
+    </div> 
+    {% include "characters/includes/character_detail_inner.html" with object=object %}
     {% if perms.players.change_any_player %}
-        <h2>Private Staff Notes:</h2>
-        {{ object.staff_notes_hidden }}
+        <div class="character-body">
+            <h2>Private Staff Notes:</h2>
+            {{ object.staff_notes_hidden }}
+            <h2>Log:</h2>
+            {% include "characters/includes/character_log.html" with character=object %}
+        </div>
     {% endif %}
-    <h2>Log:</h2>
-    {% include "characters/includes/character_log.html" with character=object %}
-</div>
 <form action="" method="post">{% csrf_token %}
     <table class="data">
         {{ object.history }}

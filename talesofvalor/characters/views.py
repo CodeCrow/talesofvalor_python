@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
+from django.db import transaction
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
@@ -19,6 +20,8 @@ from rest_framework.views import APIView
 
 
 from talesofvalor import get_query
+from talesofvalor.events.models import Event
+from talesofvalor.players.models import Registration
 from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
@@ -143,6 +146,56 @@ class CharacterDeleteView(
         return False
 
 
+class CharacterResetView(
+        PermissionRequiredMixin,
+        UserPassesTestMixin,
+        View
+        ):
+    """
+    Resets a characters skills to none and returns their points to them.
+    """
+
+    model = Character
+    permission_required = ('characters.change_character', )
+    success_url = reverse_lazy('characters:character_list')
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            player = Character.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
+        except Character.DoesNotExist:
+            return False
+        return False
+
+    def get(self, request, *args, **kwargs):
+        """
+        Send the user back to the the originating page or back to the
+        character they are setting active
+        """
+
+        with transaction.atomic():
+            character = self.model.objects.get(pk=self.kwargs['pk'])
+            character.cp_available += character.cp_spent
+            character.cp_spent = 0
+            character.save(update_fields=['cp_available', 'cp_spent'])
+            character.characterskills_set.all().delete()
+            character.headers.clear()
+        messages.info(self.request, 'Character skills reset for {}.'.format(
+            character.name
+        ))
+        return HttpResponseRedirect(
+            self.request.META.get(
+                'HTTP_REFERER',
+                reverse(
+                    'characters:character_detail',
+                    kwargs={'pk': self.kwargs['pk']}
+                )
+            )
+        )
+
+
 class CharacterSetActiveView(
         LoginRequiredMixin,
         UserPassesTestMixin,
@@ -231,20 +284,10 @@ class CharacterSkillUpdateView(
 
         # remove skills not in the hash.
         available_skills = self.object.skillhash.keys()
-        context['skills'] = filter(lambda x:  x.id in available_skills, self.skills)
-
-        # if this is a user who can see all skills, just return the skill hash.
-        '''
-        if self.request.user.has_perm('players.view_all_skills'):
-            context['skill_hash'] = Skill.skillhash()
-        else:
-            # otherwise, limit the displayed skills to those the character
-            # should have.
-            context['skill_hash'] = self.object.skillhash
-        '''
+        context['skills'] = filter(lambda x:  x.id in available_skills or self.request.user.has_perm('player.view_any_player'), self.skills)
         context['skill_hash'] = self.object.skillhash
         # add the bare skills granted by the rules
-        context['granted_skills'] = self.object.skill_grants()
+        context['granted_skills'] = self.object.skill_grants
         return context
 
     def post(self, request, *args, **kwargs):
@@ -261,6 +304,31 @@ class CharacterSkillUpdateView(
         appropriate number of characters points.
         """
         return super().form_valid(form)
+
+
+class ResetPointsView(
+        PermissionRequiredMixin,
+        View
+        ):
+    """
+    Resets the points for the season.
+    """
+
+    permission_required = ('characters.reset_points', )
+
+    def get(self, request, *args, **kwargs):
+        """
+        Send the user back to the the originating page or back to the main 
+        page if the referrer isn't set.
+        """
+        Character.objects.all().update(cp_transferred=0)
+        messages.info(self.request, 'Point cap reset!')
+        return HttpResponseRedirect(
+            self.request.META.get(
+                'HTTP_REFERER',
+                '/'
+            )
+        )
 
 
 '''
@@ -285,20 +353,16 @@ class CharacterAddHeaderView(APIView):
         # get the character and then see if the header is allowed
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
-        print("CHARACTER HEADERS:{}".format(character.headers.all()))
-        # check that the header is allowed.
-        print("HEADER CHECK:{}".format(character.check_header_prerequisites(header)))
         # Default to error.
         content = {
             'error': "prerequisites not met"
         }
         status = None
-        print("HEADER COST:{}".format(header.cost))
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
         if character.check_header_prerequisites(header):
             # see if the character has enough points to add the header
-            if (cp_available - header.cost) > 0:
+            if (cp_available - header.cost) >= 0:
                 character.cp_available -= header.cost
                 character.cp_spent += header.cost
                 character.headers.add(header)
@@ -342,7 +406,6 @@ class CharacterDropHeaderView(APIView):
         # get the character and header
         header = Header.objects.get(pk=header_id)
         character = Character.objects.get(pk=character_id)
-        print(f'header to drop: {header}')
         # Default to error.
         content = {
             'error': "Header is not already bought!"
@@ -434,6 +497,8 @@ class CharacterAddSkillView(APIView):
                     'error': "You don't have enough points available to purchase this skill . . ."
                 }
                 status = HTTP_412_PRECONDITION_FAILED
+        else:
+            status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
 
 
@@ -456,14 +521,6 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         except Character.DoesNotExist:
             return False
         return False
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**self.kwargs)
-
-        context['skills'] = self.object.characterskills_set.order_by('skill__header__category', 'skill__header')
-        # add the bare skills granted by the rules
-        context['granted_skills'] = self.object.skill_grants()
-        return context
 
 
 class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
@@ -570,3 +627,23 @@ class CharacterListView(LoginRequiredMixin, ListView):
         context_data.update(**self.request.GET)
         # return the resulting context
         return context_data
+
+
+class CharacterPrintListView(LoginRequiredMixin, ListView):
+    """
+    Show a list of characters to print.
+
+    """
+
+    model = Character
+    template_name = "characters/character_print_list.html"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()  # filter by event
+        event_id = self.kwargs.get('event_id', None)
+        if not event_id:
+            event_id = Event.next_event().id
+        player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
+        queryset = queryset.filter(player__id__in=player_ids, npc_flag=False, active_flag=True)
+        
+        return queryset

@@ -69,7 +69,7 @@ class Skill(models.Model):
     )
 
     class Meta:
-        ordering = ['tag', 'name']
+        ordering = ['headerskill__cost', 'name']
         """Add permissions."""
 
         permissions = (
@@ -107,6 +107,8 @@ class Skill(models.Model):
             h.id: {
                 'skills': {
                     s.skill_id: {
+                        'name': s.skill.name,
+                        'headerskill': s.id,
                         'cost': s.cost,
                         'purchased': 0
                     }
@@ -201,6 +203,9 @@ class HeaderSkill(models.Model):
             """),
         default=False
     )
+
+    class Meta:
+        ordering = ['cost', 'skill__name']
 
     def __str__(self):
         return "{header}:{skill}[{cost}]".format(
