@@ -2,7 +2,7 @@
 {% load cms_tags sekizai_tags %}
 
 {% block bar_title %}{{ object.event }} | {{ object.event.attendance.character }} | {{ block.super }}{% endblock bar_title %}
-{% block title %}{{ object.event }}{{ object.event.attendance.character }} | {{ object.event.attendance.character }}{% endblock title %}
+{% block title %}{{ object.event }}| {{ object.event.attendance.character }}{% endblock title %}
 
 {% block content %}
 
@@ -30,7 +30,7 @@
 
 <p>What did you do: {{ object.what_did_you_do }} </p>
 
-{% if request.user.player == object.player%}<a href="{% url 'players:pel_update' username=request.user.username event_id=object.event.id %}" class="btn btn-primary">Edit</a>{% endif %}
+{% if request.user.player == object.player%}<a href="{% url 'players:pel_update' player_id=request.user.player.id event_id=object.event.id %}" class="btn btn-primary">Edit</a>{% endif %}
 
 {{ form.as_p }}
 

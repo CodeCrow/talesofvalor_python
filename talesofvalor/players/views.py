@@ -194,7 +194,14 @@ class PlayerDetailView(
         context['future_event_list'] = Event.objects\
             .filter(event_date__gte=datetime.today())
         context['past_event_list'] = Event.objects\
-            .filter(event_date__lt=datetime.today())
+            .filter(event_date__lt=datetime.today())\
+            .order_by('-event_date')
+        # add the attendance to the querystring
+        for past_event in context['past_event_list']:
+            past_event.attended = Attendance.objects.filter(
+                player=self.object,
+                event=past_event
+            ).exists()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -363,7 +370,8 @@ class PlayerListAttendanceView(LoginRequiredMixin, FormView):
         for player in players_selected:
             attendance = Attendance.objects.create(
                 player=player,
-                event=form.cleaned_data['event_attended']
+                event=form.cleaned_data['event_attended'],
+                character=player.active_character
             )
         messages.info(self.request, 'Players Marked Attended.')
         # return result
@@ -579,7 +587,12 @@ class PELListView(PermissionRequiredMixin, ListView):
         return context_data
 
 
-class PELDetailView(UserPassesTestMixin, FormMixin, DetailView):
+class PELDetailView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        FormMixin,
+        DetailView
+        ):
     '''
     Show a particular PEL
     '''
@@ -637,6 +650,7 @@ class PELDetailView(UserPassesTestMixin, FormMixin, DetailView):
             kwargs={'pk': self.object.id}
         )
 
+
 class PELRedirectView(RedirectView): 
     pattern_name = 'players:pel_detail'
 
@@ -656,10 +670,23 @@ class PELRedirectView(RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class PELUpdateView(LoginRequiredMixin, UpdateView):
+class PELUpdateView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        UpdateView
+        ):
     form_class = PELUpdateForm
 
     return_url = None
+
+    def test_func(self):
+        try:
+            event = Event.objects.get(pk=self.kwargs['event_id'])
+            player = Player.objects.get(pk=self.kwargs['player_id'])
+            return Attendance.objects.filter(player=player, event=event).exists()
+        except Event.DoesNotExist:
+            return False
+        return True
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

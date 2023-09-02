@@ -270,7 +270,14 @@ class PELUpdateForm(forms.ModelForm):
         '''
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.return_url = self.request.META['HTTP_REFERER']
+        self.return_url = self.request.META.get(
+            'HTTP_REFERER', 
+            reverse('players:pel_update', kwargs={
+                'event_id': kwargs['instance'].event_id,
+                'player_id': kwargs['instance'].player_id
+                }
+            )
+        )
         self.fields['return_url'].initial = self.return_url
 
     class Meta:

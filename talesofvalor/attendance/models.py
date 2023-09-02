@@ -28,7 +28,11 @@ class Attendance(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     character = models.ForeignKey(Character, null=True, on_delete=models.SET_NULL)
-
+    
+    def __str__(self):
+        return "{} -- {}".format(
+            self.player, self.event)
+    
     def save(self, *args, **kwargs):
         """
         Save the attendance.
