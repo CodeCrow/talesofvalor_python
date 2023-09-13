@@ -3,7 +3,7 @@ Describes the game events.
 
 These models describe the game events.
 """
-from datetime import date
+from datetime import date, timedelta
 
 from django.db import models
 from django.urls import reverse
@@ -39,16 +39,22 @@ class Event(models.Model):
 
     @classmethod
     def previous_event(cls):
+        event_range_beginning = date.today() - timedelta(days=3)
         try:
-            return cls.objects.filter(event_date__lt=date.today())\
+            return cls.objects.filter(event_date__lt=event_range_beginning)\
                 .order_by('-event_date').first()
         except cls.DoesNotExist:
             return None
 
     @classmethod
     def next_event(cls):
+        '''
+        When looking for the next event, make sure we are not in a 
+        current event.
+        '''
+        event_range_end = date.today() + timedelta(days=3)
         try:
-            return cls.objects.filter(event_date__gt=date.today())\
+            return cls.objects.filter(event_date__gt=event_range_end)\
                 .order_by('event_date').first()
         except cls.DoesNotExist:
             return None
