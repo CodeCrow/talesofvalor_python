@@ -189,10 +189,24 @@ class PlayerDetailView(
         """
 
         context = super(PlayerDetailView, self).get_context_data(**kwargs)
-        context['future_event_list'] = Event.objects\
+        future_event_list = Event.objects\
             .filter(event_date__gte=datetime.today())
-        context['past_event_list'] = Event.objects\
+        # for each event, indicate if the user is registered for it.
+        for event in future_event_list:
+            try:
+                event.registration = Registration.objects.get(event=event, player=self.object)
+            except Registration.DoesNotExist:
+                event.registration = None
+        context['future_event_list'] = future_event_list
+        # for each event, indicate if the user is registered for it.
+        past_event_list = Event.objects\
             .filter(event_date__lt=datetime.today())
+        for event in past_event_list:
+            try:
+                event.registration = Registration.objects.get(event=event, player=self.object)
+            except Registration.DoesNotExist:
+                event.registration = None
+        context['past_event_list'] = past_event_list
         return context
 
     def post(self, request, *args, **kwargs):
