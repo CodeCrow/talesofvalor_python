@@ -269,9 +269,9 @@ class Character(models.Model):
             # check for skill requirements
             if prereq.skill:
                 try:
-                    result = self.skills.get(skill__skill=prereq.skill)
+                    result = self.characterskills_set.get(skill__skill=prereq.skill)
                     return result.count >= prereq.number_of_purchases
-                except CharacterSkills.DoesNotExist:
+                except HeaderSkill.DoesNotExist:
                     return False
         # if we made it this far, we can assume all prerequisites
         # have been met.
