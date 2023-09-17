@@ -32,7 +32,7 @@ from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     PlayerViewable_PlayerForm, \
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm
-from .models import Player, Registration, PEL
+from .models import Player, Registration, RegistrationRequest, PEL
 
 
 class PlayerUpdateView(
@@ -195,7 +195,16 @@ class PlayerDetailView(
         for event in future_event_list:
             try:
                 event.registration = Registration.objects.get(event=event, player=self.object)
+                event.registration_request = None
             except Registration.DoesNotExist:
+                # see if we have a request
+                try:
+                    event.registration_request = RegistrationRequest.objects.get(
+                        event_registration_item__events=event,
+                        player=self.object
+                    )
+                except RegistrationRequest.DoesNotExist:
+                    event.registration_request = None 
                 event.registration = None
         context['future_event_list'] = future_event_list
         # for each event, indicate if the user is registered for it.
@@ -204,7 +213,16 @@ class PlayerDetailView(
         for event in past_event_list:
             try:
                 event.registration = Registration.objects.get(event=event, player=self.object)
+                event.registration_request = None
             except Registration.DoesNotExist:
+                # see if we have a request
+                try:
+                    event.registration_request = RegistrationRequest.objects.get(
+                        event_registration_item__events=event,
+                        player=self.object
+                    )
+                except RegistrationRequest.DoesNotExist:
+                    event.registration_request = None 
                 event.registration = None
         context['past_event_list'] = past_event_list
         return context
