@@ -257,7 +257,7 @@ class Character(models.Model):
                 # check for the number of different skills in the header.
                 purchased_skills = HeaderSkill.objects.filter(
                     header=prereq.header,
-                    skill__id__in=self.skills.values_list('skill__skill_id', flat=True)
+                    skill__id__in=self.skills.values_list('skill__id', flat=True)
                 )
                 if prereq.number_of_different_skills > purchased_skills.count(): 
                     print(f"NUMBER OF SKILLS WRONG:{prereq.number_of_different_skills}:{purchased_skills.count()}")
