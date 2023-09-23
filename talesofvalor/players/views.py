@@ -211,19 +211,19 @@ class PlayerDetailView(
         past_event_list = Event.objects\
             .filter(event_date__lt=datetime.today())
         for event in past_event_list:
-            try:
-                event.registration = Registration.objects.get(event=event, player=self.object)
-                event.registration_request = None
-            except Registration.DoesNotExist:
+            event.registration = Registration.objects\
+                .filter(event=event, player=self.object)\
+                .order_by('-id')\
+                .first()
+            event.registration_request = None
+            if not event.registration:
                 # see if we have a request
-                try:
-                    event.registration_request = RegistrationRequest.objects.get(
-                        event_registration_item__events=event,
-                        player=self.object
-                    )
-                except RegistrationRequest.DoesNotExist:
-                    event.registration_request = None 
-                event.registration = None
+                event.registration_request = RegistrationRequest.objects.filter(
+                    event_registration_item__events=event,
+                    player=self.object
+                )\
+                    .order_by('-requested')\
+                    .first()
         context['past_event_list'] = past_event_list
         return context
 
