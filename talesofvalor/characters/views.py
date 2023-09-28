@@ -21,7 +21,7 @@ from rest_framework.views import APIView
 
 from talesofvalor import get_query
 from talesofvalor.events.models import Event
-from talesofvalor.players.models import Registration
+from talesofvalor.players.models import Registration, PLAYER
 from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
@@ -646,4 +646,34 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
         player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
         queryset = queryset.filter(player__id__in=player_ids, npc_flag=False, active_flag=True)
         
+        return queryset
+
+
+class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
+    """
+    List the characters currently in attendance, alphabetically.
+    Show the current influence for the character.
+    Show a field to update the current influece.
+    """
+    permission_required = ('players.change_any_player', )
+    model = Character
+    template_name = "characters/character_influence_list.html"
+    
+    def get_queryset(self):
+        """
+        if the event id is set, get the information for that event.
+        If it isn't get the latest event id
+        """        
+        queryset = super().get_queryset()
+        # filter by event
+        event_id = self.kwargs.get('event_id', None)
+        character_name = self.request.GET.get('name', None)
+        print(f"Character Name:{character_name}")
+        if character_name:
+            queryset = queryset.filter(name__istartswith=character_name)
+        else:     
+            if not event_id:
+                event_id = Event.next_event().id
+            players = Registration.objects.filter(event__id=event_id, registration_type=PLAYER).values_list('player', flat=True)
+            queryset = queryset.filter(player__in=players, active_flag=True)
         return queryset
