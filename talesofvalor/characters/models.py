@@ -314,6 +314,7 @@ class Character(models.Model):
         ordering = ["name"]
         permissions = (
             ("reset_points", "Can reset points"),
+            ("update_influence", "Can update influence"),
         )
 
 

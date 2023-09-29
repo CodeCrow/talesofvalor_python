@@ -17,6 +17,9 @@
     <li><a href="{% url 'rules:rule_list' %}">Skill Rules</a></li>
     {% endif %}
 </ul>
+    <ul>
+        <li><a href="{% url 'characters:influence_list' %}">Update Influence</li>
+    </ul>
 
     {% if perms.players.view_any_player %}
     <ul id="navigation_action_staff">
