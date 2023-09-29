@@ -12,7 +12,8 @@ from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DeleteView, DetailView, FormView, ListView
 
-from rest_framework.status import HTTP_412_PRECONDITION_FAILED
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND,\
+    HTTP_412_PRECONDITION_FAILED
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
@@ -677,3 +678,37 @@ class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
             players = Registration.objects.filter(event__id=event_id, registration_type=PLAYER).values_list('player', flat=True)
             queryset = queryset.filter(player__in=players, active_flag=True)
         return queryset
+
+
+class CharacterInfluenceUpdateView(APIView):
+    '''
+    Set of AJAX views to update influence
+.
+    '''
+
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [OwnsCharacter]
+
+    def post(self, request, format=None):
+        status = None
+        content = {
+            'message': "Success!",
+            'influence': None
+        }
+        character_id = int(request.POST.get('character_id', 0))
+        try:
+            influence = int(request.POST.get('influence', 0))
+        except ValueError:
+            status = HTTP_400_BAD_REQUEST
+            content['message'] = "Invalid influence value."
+            return Response(content, status)
+        # get the character
+        try:
+            character = Character.objects.get(pk=character_id)
+        except Character.DoesNotExist:
+            status = HTTP_404_NOT_FOUND
+            content['message'] = "Invalid influence value."
+            return Response(content, status)
+        character.influence = content['influence'] = influence
+        character.save(update_fields=('influence', ))
+        return Response(content, status)

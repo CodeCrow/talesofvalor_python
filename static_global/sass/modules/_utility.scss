@@ -64,6 +64,23 @@
        to {transform: rotate(359deg);}
     }
 
+
+@-o-keyframes fadeIt {
+  0%   { background-color: rgba(118, 199, 106, 1); }
+  100% { background-color:  rgba(118, 199, 106, 0); }
+}
+
+@keyframes fadeIt {
+  0%   { background-color: rgba(118, 199, 106, 1); }
+  100% { background-color:  rgba(118, 199, 106, 0); }
+}
+
+.value_update{    
+    background-image:none !important; 
+         -o-animation: fadeIt 1s ease-out; 
+            animation: fadeIt 1s ease-out; 
+}
+
 @media print {
 	#cms-top {
 		display: none;

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+
+{% block bar_title %}Character Influence{% endblock bar_title %}
+{% block title %}Character Influence{% endblock title %}
+
+{% block content %}
+
+
+<div class="row">
+    <div id="influence_list_filter" class="col-sm-12">
+        <div>
+            <form method="GET">
+            <p>Search: <input name="name" type="text" value="{{ request.GET.name }}" />
+            <button id="influence_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
+            </p>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table id="influence_form" class="list list-influence table table-striped">
+            <tr>
+                <th>Name</th>
+                <th>Current</th>
+                <th>New</th>
+            </tr>
+            <tbody>
+            {% for character in object_list %}
+                <tr>
+                    <td>{{ character.name }}</td>
+                    <td id="current_influence_{{ character.id }}" class="influence-current">{{ character.influence }}</td>
+                    <td><form class="influence-update"><input type="text" name="infuence_{{ character.id }}" id="infuence_{{ character.id }}" value="{{ character.influence }}" class="influence-value"></form></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content %}
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var submitInfluence = ($eventTarget) => {
+            var character_id = $eventTarget.prop('id').split("_")[1];
+            var $influence_value = $("td#current_influence_" + character_id);
+            $influence_value.removeClass('value_update');
+            $.post('{% url "characters:influence_update" %}', {
+                character_id: character_id,
+                influence: $eventTarget.val(),
+            }).done((data) => {
+                    $influence_value.html(data.influence);
+                    $influence_value.addClass('value_update');
+            }).fail((data) => { 
+                showError("Error", data.responseJSON.message);
+                console.log(data);
+            });
+
+
+        } 
+
+        $('.influence-update').on('submit', (event) => {
+                event.preventDefault();
+                submitInfluence($(event.currentTarget).children('.influence-value'));
+            }
+        );
+        $('.influence-value').on('keydown', (event) => {
+                // submit if are tabbing between.
+                if (event.keyCode == 9) {
+                    submitInfluence($(event.currentTarget));
+                }
+                
+            }
+        );
+    </script>
+{% endblock %}

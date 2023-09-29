@@ -8,7 +8,7 @@ from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
     ResetPointsView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView,\
-    CharacterInfluenceUpdateListView
+    CharacterInfluenceUpdateListView, CharacterInfluenceUpdateView
 
 app_name = 'characters'
 
@@ -104,5 +104,10 @@ urlpatterns = [
         'influence/',
         CharacterInfluenceUpdateListView.as_view(),
         name='influence_list'
-    )
+    ),
+    path(
+        'influence/update/',
+        CharacterInfluenceUpdateView.as_view(),
+        name='influence_update'
+    ),
 ]

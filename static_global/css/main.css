@@ -208,8 +208,20 @@ input[type=checkbox] {
   width: 30%;
 }
 
+.list-influence td:first-child {
+  padding-left: 2rem;
+}
+
+table.list td.influence-current {
+  width: 4rem;
+  padding-left: 0.5rem;
+  padding-right: 1.5rem;
+  text-align: right;
+}
+
 .influence-update input[type=text] {
   width: 3rem;
+  text-align: right;
 }
 
 .portrait {
@@ -295,6 +307,28 @@ input[type=checkbox] {
     transform: rotate(359deg);
   }
 }
+@-o-keyframes fadeIt {
+  0% {
+    background-color: #76c76a;
+  }
+  100% {
+    background-color: rgba(118, 199, 106, 0);
+  }
+}
+@keyframes fadeIt {
+  0% {
+    background-color: #76c76a;
+  }
+  100% {
+    background-color: rgba(118, 199, 106, 0);
+  }
+}
+.value_update {
+  background-image: none !important;
+  -o-animation: fadeIt 1s ease-out;
+  animation: fadeIt 1s ease-out;
+}
+
 @media print {
   #cms-top {
     display: none;

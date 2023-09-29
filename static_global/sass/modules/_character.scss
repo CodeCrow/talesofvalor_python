@@ -1,9 +1,21 @@
 .list-characters td:first-child {
-	width:30%;
+	width: 30%;
+}
+
+.list-influence td:first-child {
+	padding-left: 2rem;
+}
+
+table.list td.influence-current {
+	width: 4rem;
+	padding-left: 0.5rem;
+	padding-right: 1.5rem;
+	text-align: right;
 }
 
 .influence-update input[type="text"]{
 	width: 3rem;
+	text-align: right;
 
 }
 
