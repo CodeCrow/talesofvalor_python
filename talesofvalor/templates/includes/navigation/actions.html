@@ -17,10 +17,6 @@
     <li><a href="{% url 'rules:rule_list' %}">Skill Rules</a></li>
     {% endif %}
 </ul>
-    <ul>
-        <li><a href="{% url 'characters:influence_list' %}">Update Influence</li>
-    </ul>
-
     {% if perms.players.view_any_player %}
     <ul id="navigation_action_staff">
         <li class="heading">Staff Info</li>
@@ -33,6 +29,7 @@
         <li class="heading">Characters</li>
         <li><a href="{% url 'characters:character_create' %}">New</a></li>
         <li><a href="{% url 'characters:character_list' %}">List</a></li>
+        <li><a href="{% url 'characters:influence_list' %}">Update Influence</li>
         {% if perms.characters.reset_points %}
             <li><a href="{% url 'characters:reset_points' %}">Reset Point Cap</a></li>
         {% endif %}

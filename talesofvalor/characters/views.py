@@ -669,7 +669,6 @@ class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
         # filter by event
         event_id = self.kwargs.get('event_id', None)
         character_name = self.request.GET.get('name', None)
-        print(f"Character Name:{character_name}")
         if character_name:
             queryset = queryset.filter(name__istartswith=character_name)
         else:     
@@ -680,12 +679,13 @@ class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
         return queryset
 
 
-class CharacterInfluenceUpdateView(APIView):
+class CharacterInfluenceUpdateView(PermissionRequiredMixin, APIView):
     '''
     Set of AJAX views to update influence
 .
     '''
 
+    permission_required = ('players.change_any_player', )
     authentication_classes = [SessionAuthentication]
     permission_classes = [OwnsCharacter]
 
