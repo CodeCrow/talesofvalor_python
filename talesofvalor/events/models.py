@@ -52,7 +52,7 @@ class Event(models.Model):
         When looking for the next event, make sure we are not in a 
         current event.
         '''
-        event_range_end = date.today() + timedelta(days=3)
+        event_range_end = date.today() - timedelta(days=3)
         try:
             return cls.objects.filter(event_date__gt=event_range_end)\
                 .order_by('event_date').first()

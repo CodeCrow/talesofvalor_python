@@ -361,7 +361,8 @@ class CharacterAddHeaderView(APIView):
         status = None
         # if the prerequisites are met, add the header to the user and return
         # the list of skills
-        if character.check_header_prerequisites(header):
+        result, message = character.check_header_prerequisites(header)
+        if result:
             # see if the character has enough points to add the header
             if (cp_available - header.cost) >= 0:
                 character.cp_available -= header.cost
@@ -387,6 +388,9 @@ class CharacterAddHeaderView(APIView):
                 }
                 status = HTTP_412_PRECONDITION_FAILED
         else:
+            content = {
+                'error': message
+            }
             status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
 
@@ -469,7 +473,8 @@ class CharacterAddSkillView(APIView):
             'success': "testing right now"
         }
         status = None
-        if character.check_skill_prerequisites(header_skill.skill, header_skill.header):
+        result, message = character.check_skill_prerequisites(header_skill.skill, header_skill.header)
+        if result:
             # since vector is the direction, we want to reverse it when
             # dealing with what we want to change for the available points
             # see if the character has enough points to add the header
@@ -500,6 +505,9 @@ class CharacterAddSkillView(APIView):
                 status = HTTP_412_PRECONDITION_FAILED
         else:
             status = HTTP_412_PRECONDITION_FAILED
+            content = {
+                'error': message
+            }
         return Response(content, status)
 
 
