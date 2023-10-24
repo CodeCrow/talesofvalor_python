@@ -83,10 +83,10 @@ urlpatterns += i18n_patterns(
             'talesofvalor.skills.urls'
         )
     ),
-    path(  # router for the between game skills application.
-        'betweengameskills/',
+    path(  # router for the between game abilities application.
+        'betweengameabilities/',
         include(
-            'talesofvalor.betweengameskills.urls'
+            'talesofvalor.betweengameabilities.urls'
         )
     ),
     path(  # router for the rules application.

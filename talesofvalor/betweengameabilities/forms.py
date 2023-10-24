@@ -3,8 +3,8 @@ from django.forms import widgets
 
 from talesofvalor.attendance.models import Attendance
 
-from .models import BetweenGameSkill
+from .models import BetweenGameAbility
 
 
-class BetweenGameSkillForm(forms.ModelForm):
+class BetweenGameAbilityForm(forms.ModelForm):
     pass

@@ -30,12 +30,12 @@
 </tr>
 {% for bgs in object_list %}
 <tr>
-    <td><p><a href="{% url 'betweengameskills:betweengameskill_detail' pk=bgs.id %}">{{ bgs }}</a></p></td>
+    <td><p><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bgs.id %}">{{ bgs }}</a></p></td>
     <td>{{ bgs.question|truncatewords_html:10 }}</td>
     <td>
         <nav class="item-navigation">
-            <a href="{% url 'betweengameskills:betweengameskill_update' pk=bgs.id %}">Edit</a>&nbsp;|&nbsp; 
-            <a href="{% url 'betweengameskills:betweengameskill_delete' pk=bgs.id %}">Destroy</a>
+            <a href="{% url 'betweengameabilities:betweengameability_update' pk=bgs.id %}">Edit</a>&nbsp;|&nbsp; 
+            <a href="{% url 'betweengameabilities:betweengameability_delete' pk=bgs.id %}">Destroy</a>
         </nav>
     </td> 
 </tr>

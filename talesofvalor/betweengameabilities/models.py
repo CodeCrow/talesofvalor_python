@@ -1,11 +1,11 @@
 """
-Describes the between game skills.
+Describes the between game abilities.
 
-Between game skills are associate with the characters who are using
+Between game abilities are associate with the characters who are using
 them and are assigned to staff members.  Staff members supply answers and
 can add comments for discussion about the player request.
 
-Each request also is associated with the even that it is the "ask" for.
+Each request also is associated with the event that it is the "ask" for.
 
 Each request also as a "count" of the skill type that is making the request.
 This is the "power" of each request.
@@ -21,16 +21,16 @@ from talesofvalor.skills.models import Skill
 from talesofvalor.events.models import Event
 
 
-class BetweenGameSkill(models.Model):
+class BetweenGameAbility(models.Model):
     """
-    Between Game Skills.
+    Between Game Abilities.
 
     Holds the question and the links to the other parts of the game.
     """
 
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    ability = models.ForeignKey(Skill, on_delete=models.CASCADE)
     count = models.PositiveIntegerField()
     question = HTMLField(blank=False)
     answer = HTMLField(blank=True)

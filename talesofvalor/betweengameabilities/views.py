@@ -13,37 +13,37 @@ from django.views.generic import DetailView, ListView
 
 from talesofvalor.events.models import Event
 
-from .models import BetweenGameSkill
+from .models import BetweenGameAbility
 
 
-class BetweenGameSkillCreateView(LoginRequiredMixin, CreateView):
+class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
     """
-    Allows the Creation of an Between Game Skill
+    Allows the Creation of an Between Game Ability Request
     """
-    model = BetweenGameSkill
+    model = BetweenGameAbility
     fields = ("character",
               "event",
               "skill",
               "count",
               "question",)
 
-    success_url = reverse_lazy('betweengameskills:betweengameskill_list')
+    success_url = reverse_lazy('betweengameabilities:betweengameability_list')
 
 
-class BetweenGameSkillCharacterEventView(
+class BetweenGameAbilityCharacterEventView(
     LoginRequiredMixin,
     PermissionRequiredMixin,
     UserPassesTestMixin,
     DetailView
 ):
     """
-    Show the BGS detail page for a character event.
+    Show the BGA detail page for a character event.
     """
     model = Event
-    template_name = "betweengameskill/characterevent_detail.html"
+    template_name = "betweengamesabilities/characterevent_detail.html"
 
 
-class BetweenGameSkillUpdateView(
+class BetweenGameAbilityUpdateView(
     LoginRequiredMixin,
     PermissionRequiredMixin,
     UserPassesTestMixin,
@@ -53,70 +53,68 @@ class BetweenGameSkillUpdateView(
     Edits a Between Game skill that has already been created
     """
 
-    model = BetweenGameSkill
+    model = BetweenGameAbility
     fields = "__all__"
     permission_required = ('player.can_update_any_player',)
-    success_url = reverse_lazy('betweengameskills:betweengameskills_list')
+    success_url = reverse_lazy('betweengameabilities:betweengameabilities_list')
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
             return True
         try:
-            bgs = BetweenGameSkill.objects.get(self.kwargs['pid'])
+            bgs = BetweenGameAbility.objects.get(self.kwargs['pid'])
             return (bgs.character.player == self.request.user)
-        except BetweenGameSkill.DoesNotExist:
+        except BetweenGameAbility.DoesNotExist:
             return False
         return False
 
 
-class BetweenGameSkillDeleteView(
+class BetweenGameAbilityDeleteView(
     LoginRequiredMixin,
     PermissionRequiredMixin,
     UserPassesTestMixin,
     DeleteView
 ):
     """
-    Removes a between game skill permanantly.
+    Removes a between game ability request permanantly.
     """
 
-    model = BetweenGameSkill
-    success_url = reverse_lazy('betweengameskills:betweengameskills_list')
+    model = BetweenGameAbility
+    success_url = reverse_lazy('betweengameabilities:betweengameabilities_list')
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
             return True
         try:
-            bgs = BetweenGameSkill.objects.get(self.kwargs['pid'])
+            bgs = BetweenGameAbility.objects.get(self.kwargs['pid'])
             return (bgs.character.player == self.request.user)
-        except BetweenGameSkill.DoesNotExist:
+        except BetweenGameAbility.DoesNotExist:
             return False
         return False
 
 
-class BetweenGameSkillDetailView(LoginRequiredMixin, DetailView):
+class BetweenGameAbilityDetailView(LoginRequiredMixin, DetailView):
     """
-    Show the details for a character.
-
-    From here you can edit the details of a character or choose skills.
+    Show the details for a between game ability request.
     """
 
-    model = BetweenGameSkill
+    model = BetweenGameAbility
     fields = '__all__'
 
 
-class BetweenGameSkillListView(LoginRequiredMixin, ListView):
+class BetweenGameAbilityListView(LoginRequiredMixin, ListView):
     """
-    Show a list of BetweenGameSkills.
+    Show a list of BetweenGameAbilities.
 
     Limit by event if the event id is sent.
     Limit by player if the player username is sent.
     If the player username is not sent, limit the list to the current user
     if they don't have the permission to "view_any_player"
 
-    There should be a modal to add comments to each BGS
+    There should be a modal to add comments to each BGA
     """
 
-    model = BetweenGameSkill
+    model = BetweenGameAbility
     paginate_by = 25
     ordering = ['-event__event_date', 'character']
 
