@@ -8,7 +8,8 @@ from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
     ResetPointsView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView,\
-    CharacterInfluenceUpdateListView, CharacterInfluenceUpdateView
+    CharacterInfluenceUpdateListView, CharacterInfluenceUpdateView,\
+    CharacterViewSet
 
 app_name = 'characters'
 
@@ -62,6 +63,11 @@ urlpatterns = [
         '',
         CharacterListView.as_view(),
         name='character_list'
+    ),
+    path(
+        'select/',
+        CharacterViewSet.as_view(),
+        name='character_select'
     ),
     path(
         'print/<int:event_id>/',

@@ -23,6 +23,7 @@
     <div class="col-sm-12">
         <table id="influence_form" class="list list-influence table table-striped">
             <tr>
+                <th>Select</th>
                 <th>Name</th>
                 <th>Current</th>
                 <th>New</th>
@@ -30,6 +31,7 @@
             <tbody>
             {% for character in object_list %}
                 <tr>
+                    <td><input type="checkbox" class="save-select" name="character_select" data-id="{{ character.id }}" value="{{ character.id }}"{% if character.id in request.session.character_select %} checked{% endif %}></td>
                     <td>{{ character.name }}</td>
                     <td id="current_influence_{{ character.id }}" class="influence-current">{{ character.influence }}</td>
                     <td><form class="influence-update"><input type="text" name="infuence_{{ character.id }}" id="infuence_{{ character.id }}" value="{{ character.influence }}" class="influence-value"></form></td>
@@ -75,5 +77,12 @@
                 
             }
         );
+        // set up the selection handler
+        $(document).ready(function(){
+            $('.save-select').selectionSave({
+                selectionEndPoint: "{% url 'characters:character_select' %}",
+                valueSelector: "id"
+            });
+        });
     </script>
 {% endblock %}

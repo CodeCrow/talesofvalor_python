@@ -335,6 +335,35 @@ class ResetPointsView(
 '''
 Put the AJAX work for Characters here
 '''
+class CharacterViewSet(APIView):
+    '''
+    Set of AJAX views for a Character
+
+    This handles different API calls for character actions.
+    '''
+    @staticmethod
+    def add_to_session_selection(request, ids):
+        # get the existing player selection:
+        character_selection = request.session.get('character_select', [])
+        for new_id in ids:
+            if new_id > 0:
+                if new_id not in character_selection:
+                    character_selection.append(new_id)
+            else:
+                character_selection = [x for x in character_selection if x != abs(new_id)]
+            request.session['character_select'] = character_selection
+        return character_selection
+
+    def post(self, request, format=None):
+        ids = []
+        new_id = int(request.POST.get('id', None))
+        if new_id:
+            ids.append(new_id)
+        content = {
+            'character_select': self.add_to_session_selection(request, ids)
+        }
+
+        return Response(content)
 
 
 class CharacterAddHeaderView(APIView):
@@ -681,9 +710,12 @@ class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
             queryset = queryset.filter(name__istartswith=character_name)
         else:     
             if not event_id:
-                event_id = Event.next_event().id
-            players = Registration.objects.filter(event__id=event_id, registration_type=PLAYER).values_list('player', flat=True)
-            queryset = queryset.filter(player__in=players, active_flag=True)
+                event = Event.next_event()
+                if event:
+                    event_id = event.id
+            if event_id:
+                players = Registration.objects.filter(event__id=event_id, registration_type=PLAYER).values_list('player', flat=True)
+                queryset = queryset.filter(player__in=players, active_flag=True)
         return queryset
 
 
