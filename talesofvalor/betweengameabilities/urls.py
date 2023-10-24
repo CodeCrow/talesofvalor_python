@@ -3,7 +3,7 @@ from django.urls import path
 
 from .views import BetweenGameAbilityCreateView, BetweenGameAbilityUpdateView,\
     BetweenGameAbilityDetailView, BetweenGameAbilityListView,\
-    BetweenGameAbilityDeleteView, BetweenGameAbilityCharacterEventView
+    BetweenGameAbilityDeleteView
 
 app_name = 'betweengameabilities'
 
@@ -37,10 +37,5 @@ urlpatterns = [
         '<int:pk>/delete/',
         BetweenGameAbilityDeleteView.as_view(),
         name='betweengameability_delete'
-    ),
-    path(
-        'event/<int:event_id>/character/<int:character_id>/',
-        BetweenGameAbilityCharacterEventView.as_view(),
-        name='betweengameabilitycharacterevent_detail'
     )
 ]

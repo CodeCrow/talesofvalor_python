@@ -25,7 +25,7 @@ class Comment(models.Model):
         ) | models.Q(
             app_label='attendance', model='Attendance'
         ) | models.Q(
-            app_label='betweengameskills', model='BetweenGameSkill'
+            app_label='betweengameabilities', model='betweengameability'
         ) | models.Q(
             app_label='origins', model='Origin'
         ) | models.Q(
