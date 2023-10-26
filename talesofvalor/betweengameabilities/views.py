@@ -10,9 +10,11 @@ from django.views.generic.edit import CreateView, UpdateView, \
     DeleteView
 from django.views.generic import DetailView, ListView
 
+from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player
 
+from .forms import BetweenGameAbilityForm
 from .models import BetweenGameAbility
 
 
@@ -20,14 +22,39 @@ class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
     """
     Allows the Creation of an Between Game Ability Request
     """
+    form_class = BetweenGameAbilityForm
     model = BetweenGameAbility
-    fields = ("character",
-              "event",
-              "skill",
-              "count",
-              "question",)
 
     success_url = reverse_lazy('betweengameabilities:betweengameability_list')
+
+    def get_initial(self):
+        # Get the initial dictionary from the superclass method
+        initial = super().get_initial()
+        # see if we are getting the character or event from the query string.
+        try:
+            event_id = self.request.GET.get('event_id', None)
+            initial['event'] = Event.objects.get(id=event_id)
+        except Event.DoesNotExist:
+            initial['event'] = Event.previous_event()
+        try:
+            character_id = self.request.GET.get('character_id', None)
+            initial['character'] = Character.objects.get(id=event_id)
+        except Character.DoesNotExist:
+            print(f"USER:{self.request.user.player}")
+            initial['character'] = self.request.user.player.active_character
+        # etc...
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # pass the 'user' in kwargs
+        return kwargs
+
+    def form_valid(self, form):
+        '''
+        Set the correct event and character for the bga
+        '''
+        return super().form_valid(form)
 
 
 class BetweenGameAbilityCharacterEventView(
@@ -120,12 +147,10 @@ class BetweenGameAbilityListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        event = character = None
+        event = character = player = None
         context = super().get_context_data(**kwargs)
         # get the event
         event_id = self.request.GET.get('event_id', None)
-        print(f"EVENT ID:{event_id}")
-        print(f"EVENT:{Event.objects.get(pk=event_id)}")
         if event_id:
             event = Event.objects.get(pk=event_id)
         else:

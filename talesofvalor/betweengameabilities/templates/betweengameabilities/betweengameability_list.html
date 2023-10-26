@@ -25,10 +25,13 @@
         <td>Character:</td>
         <td>{{ character }}</td>
     </tr>
-    {% endif %}
+    {% endif %}  
 </table>
 {% endif %}
 <table class="list">
+<tr>
+    <td colspan="3"><a href="{% url "betweengameabilities:betweengameability_create" %}" class="btn btn-primary"">Add Between Game Ability</a></td>
+</tr>
 <tr>
     <th>Name</th>
     <th>Question</th>
@@ -45,7 +48,13 @@
         </nav>
     </td> 
 </tr>
+
 {% endfor %}
+{% if object_list%}
+<tr>
+    <td colspan="3"><a href="{% url "betweengameabilities:betweengameability_create" %}" class="btn btn-primary"">Add Between Game Ability</a></td>
+</tr>
+{% endif %}
 </table>
 
 
