@@ -5,7 +5,7 @@ BGS are written by players and .
 """
 from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, \
     DeleteView
 from django.views.generic import DetailView, ListView
@@ -25,8 +25,6 @@ class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
     form_class = BetweenGameAbilityForm
     model = BetweenGameAbility
 
-    success_url = reverse_lazy('betweengameabilities:betweengameability_list')
-
     def get_initial(self):
         # Get the initial dictionary from the superclass method
         initial = super().get_initial()
@@ -38,7 +36,7 @@ class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
             initial['event'] = Event.previous_event()
         try:
             character_id = self.request.GET.get('character_id', None)
-            initial['character'] = Character.objects.get(id=event_id)
+            initial['character'] = Character.objects.get(id=character_id)
         except Character.DoesNotExist:
             print(f"USER:{self.request.user.player}")
             initial['character'] = self.request.user.player.active_character
@@ -56,6 +54,11 @@ class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
         '''
         return super().form_valid(form)
 
+    def get_success_url(self):
+        return "%s?event_id=%s&character_id=%s" % (reverse(
+            'betweengameabilities:betweengameability_list',
+        ), self.object.event.id, self.object.character.id) 
+
 
 class BetweenGameAbilityCharacterEventView(
     LoginRequiredMixin,
@@ -72,7 +75,6 @@ class BetweenGameAbilityCharacterEventView(
 
 class BetweenGameAbilityUpdateView(
     LoginRequiredMixin,
-    PermissionRequiredMixin,
     UserPassesTestMixin,
     UpdateView
 ):
@@ -81,19 +83,27 @@ class BetweenGameAbilityUpdateView(
     """
 
     model = BetweenGameAbility
-    fields = "__all__"
-    permission_required = ('player.can_update_any_player',)
-    success_url = reverse_lazy('betweengameabilities:betweengameabilities_list')
+    form_class = BetweenGameAbilityForm
 
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
             return True
         try:
-            bgs = BetweenGameAbility.objects.get(self.kwargs['pid'])
-            return (bgs.character.player == self.request.user)
+            bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
+            return (bga.character.player.user == self.request.user)
         except BetweenGameAbility.DoesNotExist:
             return False
         return False
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user  # pass the 'user' in kwargs
+        return kwargs
+
+    def get_success_url(self):
+        return "%s?event_id=%s&character_id=%s" % (reverse(
+            'betweengameabilities:betweengameability_list',
+        ), self.object.event.id, self.object.character.id)
 
 
 class BetweenGameAbilityDeleteView(

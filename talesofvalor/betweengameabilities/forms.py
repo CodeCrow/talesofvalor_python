@@ -23,8 +23,8 @@ class BetweenGameAbilityForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         # limit the skills shown to what the user has
-        print(f"{kwargs}")
-        self.fields['ability'].queryset = kwargs['initial']['character'].skills.filter(skill__bgs_flag=True)
+        character = kwargs['initial'].get('character', self.instance.character)
+        self.fields['ability'].queryset = character.skills.filter(skill__bgs_flag=True)
         # adjust fields for different users
         if user.has_perm('players.view_any_player'):
             allowed_fields = self.fields.keys()
@@ -36,12 +36,10 @@ class BetweenGameAbilityForm(forms.ModelForm):
         """
         Set up the to use the current event and character if one hasn't been set
         """
-        bga = super().save(commit=commit)
-        # if we have both the types of origins, then update the origins here.
-        """
-        for origin in Origin.ORIGIN_TYPES:
-            if origin[0] in self.cleaned_data:
-                character.origins.remove(*character.origins.filter(type=origin[0]))
-                character.origins.add(self.cleaned_data[origin[0]])
-        """
-        return bga
+        if not self.cleaned_data.get('character'):
+            if not self.instance.pk:
+                self.instance.character = self.initial['character']
+        if not self.cleaned_data.get('event'):
+            if not self.instance.pk:
+                self.instance.event = self.initial['event']
+        return super().save(commit=commit)

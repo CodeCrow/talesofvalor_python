@@ -17,7 +17,7 @@ from djangocms_text_ckeditor.fields import HTMLField
 
 from talesofvalor.characters.models import Character
 from talesofvalor.players.models import Player
-from talesofvalor.skills.models import Skill
+from talesofvalor.skills.models import HeaderSkill
 from talesofvalor.events.models import Event
 
 
@@ -30,7 +30,7 @@ class BetweenGameAbility(models.Model):
 
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    ability = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    ability = models.ForeignKey(HeaderSkill, on_delete=models.CASCADE)
     count = models.PositiveIntegerField()
     question = HTMLField(blank=False)
     answer = HTMLField(blank=True)
@@ -53,3 +53,7 @@ class BetweenGameAbility(models.Model):
 
     def __str__(self):
         return f"{self.character} -> {self.event}"
+
+    class Meta:
+        verbose_name = "Between Game Ability"
+        verbose_name_plural = "Between Game Abilities"

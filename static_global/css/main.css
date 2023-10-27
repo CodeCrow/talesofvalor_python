@@ -214,6 +214,10 @@ input[type=checkbox] {
   max-width: 400px;
 }
 
+.bga-item {
+  padding-top: 1.5em;
+}
+
 .alternating-container > *:nth-of-type(even) {
   background: #e0e0e0;
 }

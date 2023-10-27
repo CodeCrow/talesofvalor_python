@@ -317,7 +317,6 @@ class CastRegistrationView(
         return response
 
     def get_success_url(self):
-        print(self.__dict__)
         return reverse(
             'registration:detail',
             kwargs={'pk': self.object.pk}
