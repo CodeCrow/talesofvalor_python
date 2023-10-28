@@ -164,7 +164,7 @@ class BetweenGameAbilityListView(LoginRequiredMixin, ListView):
         if event_id:
             event = Event.objects.get(pk=event_id)
         else:
-            event = Event.next_event()
+            event = Event.previous_event()
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('players.view_any_player'):
             # if the player id was sent, filter by that.

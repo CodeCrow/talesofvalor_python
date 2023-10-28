@@ -32,7 +32,7 @@
 <a href="{% url "betweengameabilities:betweengameability_create" %}" class="btn btn-primary"">Add Between Game Ability</a>
 {% for bga in object_list %}
 <div class="list bga-item">
-    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a></h3>
+    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{{ bga.ability }}:&nbsp;{{ bga.count }}</h3>
     <div class="bga-item-right">
         {{ bga.question|truncatewords_html:10 }}<br />
         {% if perms.players.change_any_player or not bga.answer %}
