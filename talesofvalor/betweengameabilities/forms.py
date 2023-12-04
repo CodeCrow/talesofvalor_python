@@ -30,7 +30,7 @@ class BetweenGameAbilityForm(forms.ModelForm):
             character = self.instance.character
         self.fields['ability'].queryset = character.skills.filter(skill__bgs_flag=True)
         # adjust fields for different users
-        if user.has_perm('players.view_any_player'):
+        if user.has_perm('players.change_any_player'):
             allowed_fields = self.fields.keys()
         else:
             allowed_fields = ("ability", "count", "question",)
@@ -42,20 +42,16 @@ class BetweenGameAbilityForm(forms.ModelForm):
         """
 
         cleaned_data = super().clean()
-        ability_count = cleaned_data.get("count")
         character = cleaned_data.get("character")
         if not character:
             character = self.initial['character']
         event = cleaned_data.get("event")
         if not event:
             event = self.initial['event']
-        skill = character.characterskills_set.get(skill=cleaned_data['ability'])
-        print(f"SUM: {self._meta.model.objects.filter(event=event, character=character).aggregate(Sum('count'))}")
         all_skill_bgas_count = self._meta.model.objects.filter(event=event, character=character).aggregate(Sum('count'))
-        if cleaned_data.get('count', 0) > all_skill_bgas_count['count__sum']:
-            raise ValidationError(
-                "Requested more abilities than you have . . ."
-            )
+        character_amount = character.characterskills_set.get(skill=cleaned_data.get('ability')).count
+        if (cleaned_data.get('count', 0) + all_skill_bgas_count['count__sum']) > character_amount:
+            self.add_error('count', "Requested more abilities than you have available . . .")
         return cleaned_data
 
     def save(self, commit=True):

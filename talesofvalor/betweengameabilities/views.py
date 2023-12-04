@@ -10,6 +10,7 @@ from django.views.generic.edit import CreateView, UpdateView, \
     DeleteView
 from django.views.generic import DetailView, ListView
 
+from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player
@@ -18,12 +19,27 @@ from .forms import BetweenGameAbilityForm
 from .models import BetweenGameAbility
 
 
-class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
+class BetweenGameAbilityCreateView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    CreateView
+):
     """
     Allows the Creation of an Between Game Ability Request
     """
     form_class = BetweenGameAbilityForm
     model = BetweenGameAbility
+
+    def test_func(self):
+        print("INSIDE TEST FUNCTION")
+        if self.request.user.has_perm('players.change_any_player'):
+            return True
+        try:
+            bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
+            return (bga.character.player.user == self.request.user)
+        except BetweenGameAbility.DoesNotExist:
+            return False
+        return False
 
     def get_initial(self):
         # Get the initial dictionary from the superclass method
@@ -38,8 +54,8 @@ class BetweenGameAbilityCreateView(LoginRequiredMixin, CreateView):
             character_id = self.request.GET.get('character_id', None)
             initial['character'] = Character.objects.get(id=character_id)
         except Character.DoesNotExist:
-            print(f"USER:{self.request.user.player}")
             initial['character'] = self.request.user.player.active_character
+
         # etc...
         return initial
 
