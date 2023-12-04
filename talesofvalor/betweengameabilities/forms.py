@@ -48,10 +48,16 @@ class BetweenGameAbilityForm(forms.ModelForm):
         event = cleaned_data.get("event")
         if not event:
             event = self.initial['event']
-        all_skill_bgas_count = self._meta.model.objects.filter(event=event, character=character).aggregate(Sum('count'))
+        # Testing the character having the right number of purchases.
+        all_skill_bgas_count = self._meta.model.objects.filter(event=event, character=character).aggregate(Sum('count'))['count__sum']
+        all_skill_bgas_count = all_skill_bgas_count if all_skill_bgas_count else 0
         character_amount = character.characterskills_set.get(skill=cleaned_data.get('ability')).count
-        if (cleaned_data.get('count', 0) + all_skill_bgas_count['count__sum']) > character_amount:
+        if (cleaned_data.get('count', 0) + all_skill_bgas_count) > character_amount:
             self.add_error('count', "Requested more abilities than you have available . . .")
+        # Testing attendence at previous event.
+        attended_event = character.attendance_set.filter(event=event).exists()
+        if not attended_event:
+            self.add_error('event', "Did not attend chosen event.")
         return cleaned_data
 
     def save(self, commit=True):
