@@ -31,15 +31,16 @@ class BetweenGameAbilityCreateView(
     model = BetweenGameAbility
 
     def test_func(self):
-        print("INSIDE TEST FUNCTION")
         if self.request.user.has_perm('players.change_any_player'):
             return True
-        try:
-            bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
-            return (bga.character.player.user == self.request.user)
-        except BetweenGameAbility.DoesNotExist:
-            return False
-        return False
+        event = Event.objects.get(pk=self.request.GET.get('event_id', None))
+        character = Character.objects.get(
+            pk=self.request.GET.get(
+                'character_id',
+                self.request.user.player.active_character
+                )
+            )
+        return event.attended(character)
 
     def get_initial(self):
         # Get the initial dictionary from the superclass method
@@ -52,9 +53,13 @@ class BetweenGameAbilityCreateView(
             initial['event'] = Event.previous_event()
         try:
             character_id = self.request.GET.get('character_id', None)
+            character_id = character_id if character_id else 0
             initial['character'] = Character.objects.get(id=character_id)
         except Character.DoesNotExist:
-            initial['character'] = self.request.user.player.active_character
+            if not self.request.user.has_perm('players.change_any_player'):
+                initial['character'] = self.request.user.player.active_character
+            else:
+                pass
 
         # etc...
         return initial
@@ -65,9 +70,12 @@ class BetweenGameAbilityCreateView(
         return kwargs
 
     def form_valid(self, form):
-        '''
-        Set the correct event and character for the bga
-        '''
+        """
+        Add the modified and created by
+        """
+        bga = form.save(commit=False)
+        bga.modified_by = bga.created_by = self.request.user.player
+        bga.save()
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -106,7 +114,10 @@ class BetweenGameAbilityUpdateView(
             return True
         try:
             bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
-            return (bga.character.player.user == self.request.user)
+            return (
+                (bga.character.player.user == self.request.user) and
+                (bga.created_by == self.request.user.player)
+            )
         except BetweenGameAbility.DoesNotExist:
             return False
         return False
@@ -115,6 +126,15 @@ class BetweenGameAbilityUpdateView(
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user  # pass the 'user' in kwargs
         return kwargs
+
+    def form_valid(self, form):
+        """
+        Add the modified by
+        """
+        bga = form.save(commit=False)
+        bga.modified_by = self.request.user.player
+        bga.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return "%s?event_id=%s&character_id=%s" % (reverse(
@@ -155,7 +175,11 @@ class BetweenGameAbilityDetailView(LoginRequiredMixin, DetailView):
     fields = '__all__'
 
 
-class BetweenGameAbilityListView(LoginRequiredMixin, ListView):
+class BetweenGameAbilityListView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    ListView
+):
     """
     Show a list of BetweenGameAbilities.
 
@@ -170,6 +194,12 @@ class BetweenGameAbilityListView(LoginRequiredMixin, ListView):
     model = BetweenGameAbility
     paginate_by = 25
     ordering = ['-event__event_date', 'character']
+
+    def test_func(self):
+        if self.request.user.has_perm('players.change_any_player'):
+            return True
+        event = Event.objects.get(pk=self.request.GET.get('event_id', None))
+        return event.attended_player(self.request.user.player)
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context

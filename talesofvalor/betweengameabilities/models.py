@@ -40,16 +40,17 @@ class BetweenGameAbility(models.Model):
         limit_choices_to={"user__is_staff": True},
         on_delete=models.SET_NULL
     )
-    submit_date = models.DateTimeField(
-        _('submitted'),
-        auto_now=True,
-        editable=False
-    )
     answer_date = models.DateTimeField(
         _('answered'),
         editable=False,
         null=True
     )
+    created = models.DateTimeField(
+        _('submitted'),
+        auto_now_add=True, editable=False)
+    modified = models.DateTimeField(_('last updated'), auto_now=True, editable=False)
+    created_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"{self.character} -> {self.event}"

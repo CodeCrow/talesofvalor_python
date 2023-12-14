@@ -75,6 +75,12 @@ class Event(models.Model):
         except self.DoesNotExist:
             return None
 
+    def attended(self, character):
+        return self.attendance_set.filter(character=character).exists()
+
+    def attended_player(self, player):
+        return self.attendance_set.filter(character__in=player.character_set.all()).exists()
+
     def get_absolute_url(self):
         """
         Return the absolute URL.

@@ -9,11 +9,6 @@ app_name = 'betweengameabilities'
 
 urlpatterns = [
     path(
-        '<int:event_id>',
-        BetweenGameAbilityListView.as_view(),
-        name='betweengameability_list'
-    ),
-    path(
         '',
         BetweenGameAbilityListView.as_view(),
         name='betweengameability_list'
