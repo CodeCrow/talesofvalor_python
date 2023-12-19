@@ -177,7 +177,7 @@ class PlayerDetailView(
         return False
 
     def get_form_kwargs(self):
-        kwargs = super(PlayerDetailView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs.update({
                 'player': self.object
             })
@@ -188,7 +188,7 @@ class PlayerDetailView(
         Add context: The event lists
         """
 
-        context = super(PlayerDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         future_event_list = Event.objects\
             .filter(event_date__gte=datetime.today())
         # for each event, indicate if the user is registered for it.

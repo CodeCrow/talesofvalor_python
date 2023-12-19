@@ -3,19 +3,23 @@ These are views that are used for viewing and editing Between game skills.
 
 BGS are written by players and .
 """
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin, UserPassesTestMixin
+from django.core import mail
 from django.urls import reverse, reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView, \
-    DeleteView
+from django.utils import timezone
+from django.views.generic.edit import CreateView, DeleteView, FormMixin,\
+    UpdateView
 from django.views.generic import DetailView, ListView
+
 
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player
 
-from .forms import BetweenGameAbilityForm
+from .forms import BetweenGameAbilityForm, BetweenGameAbilityAnswerForm
 from .models import BetweenGameAbility
 
 
@@ -166,14 +170,88 @@ class BetweenGameAbilityDeleteView(
         return False
 
 
-class BetweenGameAbilityDetailView(LoginRequiredMixin, DetailView):
+class BetweenGameAbilityDetailView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    FormMixin,
+    DetailView
+):
     """
     Show the details for a between game ability request.
     """
 
     model = BetweenGameAbility
-    fields = '__all__'
+    form_class = BetweenGameAbilityAnswerForm
 
+    def test_func(self):
+        if self.request.user.has_perm('players.change_any_player'):
+            return True
+        try:
+            bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
+            return bga.character.player.user == self.request.user
+        except BetweenGameAbility.DoesNotExist:
+            return False
+        return False
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        self.object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:                
+            context['form'] = self.form_class(
+                instance=self.object,
+                data=self.request.POST
+            )
+        else:
+            context['form'] = self.form_class(instance=self.object)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        form = context['form']
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        self.object.answer_date = timezone.now()
+        self.object.save()
+        result = super().form_valid(form)
+        # send an email if the assigned_to field has changed 
+        if 'assigned_to' in form.changed_data:
+            assigned_to = form.cleaned_data.get('assigned_to')
+            message = """
+            Hello {}!
+
+            You have had a Between Game Ability assigned to you.
+
+            See it here:
+            {}
+
+            --ToV MechCrow
+            """.format(
+                    assigned_to.user.first_name,
+                    self.request.build_absolute_uri(
+                        reverse("betweengameabilities:betweengameability_detail", kwargs={
+                            'pk': form.instance.id
+                        })
+                    )
+                )
+            email_message = mail.EmailMessage(
+                "BGA assigned to you",
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                (assigned_to.user.email, )
+            )
+            email_message.send()
+        return result
+
+    def get_success_url(self):
+        return reverse(
+            'betweengameabilities:betweengameability_detail',
+            kwargs={'pk': self.object.pk}
+        )
 
 class BetweenGameAbilityListView(
     LoginRequiredMixin,

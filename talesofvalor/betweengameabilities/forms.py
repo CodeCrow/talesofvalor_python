@@ -86,3 +86,12 @@ class BetweenGameAbilityForm(forms.ModelForm):
             if not self.instance.pk:
                 self.instance.event = self.initial['event']
         return super().save(commit=commit)
+
+
+class BetweenGameAbilityAnswerForm(forms.ModelForm):
+    class Meta:
+        model = BetweenGameAbility
+        fields = (
+            "assigned_to",
+            "answer",
+        )
