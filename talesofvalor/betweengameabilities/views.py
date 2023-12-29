@@ -253,6 +253,7 @@ class BetweenGameAbilityDetailView(
             kwargs={'pk': self.object.pk}
         )
 
+
 class BetweenGameAbilityListView(
     LoginRequiredMixin,
     UserPassesTestMixin,

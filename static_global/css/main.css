@@ -41,6 +41,9 @@ ul.flat-list li {
   padding: 0.5rem;
 }
 
+.list caption {
+  caption-side: top;
+}
 .list th {
   position: relative;
 }
