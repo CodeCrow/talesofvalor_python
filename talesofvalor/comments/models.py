@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+
 class Comment(models.Model):
     subject = models.CharField(max_length=255, blank=False)
     comment = HTMLField(blank=False)
@@ -47,3 +48,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.subject
+
+    class Meta:
+        ordering = ('created', )

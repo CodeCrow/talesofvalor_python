@@ -1,3 +1,18 @@
 .bga-item {
+	display: flex;
+	flex-wrap: wrap;
 	padding-top: 1.5em;
+	h3 {
+		width: 100%; 
+	}
+}
+
+.bga-item-left {
+	width: 33%;
+	padding-right: 0.5em;
+	border-right: 1px solid #000;
+}
+
+.bga-item-right {
+	padding-left: 0.5em;
 }

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags %}
+{% load cms_tags comment_tags %}
 
 
 {% block bar_title %}Between Game Skills{% endblock bar_title %}
@@ -32,8 +32,17 @@
 <a href="{% url "betweengameabilities:betweengameability_create" %}?character_id={{ character.id}}&event_id={{event.id}}" class="btn btn-primary">Add Between Game Ability</a>
 {% for bga in object_list %}
 <div class="list bga-item">
-    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{{ bga.ability }}:&nbsp;{{ bga.count }}</h3>
-    <div class="bga-item-right">
+    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{{ bga.ability }}:&nbsp;{{ bga.count }}</h3>        
+    {% if perms.players.change_any_player %}
+        <div class="bga-item-left bga-item-internal">
+            <div class="bga-item-comment-inner">
+                <h4>Comments</h4>
+                {% comments_display bga %}
+            </div>
+        </div>
+    {% endif %}
+    <div class="bga-item-right bga-item-internal">
+        <h4>Questions</h4>
         {{ bga.question|truncatewords_html:10 }}<br />
         {% if perms.players.change_any_player or not bga.answer %}
         <nav class="item-navigation">

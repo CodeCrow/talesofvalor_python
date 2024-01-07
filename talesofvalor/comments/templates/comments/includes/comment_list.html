@@ -1,0 +1,8 @@
+<ul class="list list-comment">
+	{% for comment in comments %}
+	<li class="comment">
+		<p>{{ comment.created_by }} - {{ comment.created }}</p>
+		{{ comment.comment }}
+	</li>
+	{% endfor %}
+</ol>
