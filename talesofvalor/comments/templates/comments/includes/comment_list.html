@@ -5,4 +5,7 @@
 		{{ comment.comment }}
 	</li>
 	{% endfor %}
-</ol>
+	<li class="controls-comment" id="controls_comment_{{ object.id }}">
+		<input type="button" class="add-comment btn btn-primary" data-objectid="{{ object.id }}" value="add comment" />
+	</li>
+</ul>
