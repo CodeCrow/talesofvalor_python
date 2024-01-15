@@ -53,14 +53,25 @@ def comment_add():
         let serialized_data = $comment_form.serialize();
         // turn off the form
         var $inputs = $comment_form.find("input, select, button, textarea");
-        $inputs.prop('disabed', true);
+        $inputs.prop('disabled', true);
         var request = $.post("{comment_url}", serialized_data, (e) => {{
             console.log("SUCCESS");
         }})
-        .fail(()=>{{
-            console.log("FAILED REQUEST");
-            $inputs.prop('disabed', false);
+        .fail((response)=>{{
+            if (response.status == 400) {{
+                var errorString = '';
+                Object.keys(response.responseJSON).forEach(function(key, index) {{
+                    errorString += key + ": " +  response.responseJSON[key] + "<br />";
+                }});
+                showError("Error Creating Comment", errorString);
+            }} else {{
+                showError("Error Creating Comment", response.responseText);
+            }}
+            console.log(response);
         }})
+        .always(()=>{{
+            $inputs.prop('disabled', false);
+        }});
     }});
     """
     return mark_safe(add_script)
