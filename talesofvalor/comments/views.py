@@ -1,8 +1,9 @@
 """
 Comment views.
 """
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
 
 from .models import Comment
 from .serializers import CommentSerializer
@@ -27,4 +28,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (CanComment,)
-        
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        # Add the author.
+        data['created_by'] = data['modified_by'] = request.user.id
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )

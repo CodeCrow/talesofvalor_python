@@ -17,12 +17,13 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = [
             'content_type',
             'object_id',
+            'created_by',
+            'modified_by',
             'comment'
         ]
 
     def create(self, validated_data):
         # figure out the content type and put it in.
-        print(f"DATA:{validated_data}")
         content_type = ContentType.objects.get(model=validated_data.get('content_type'))
         validated_data['content_type'] = content_type
         # actually create and return the comment
