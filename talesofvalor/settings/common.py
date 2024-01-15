@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     'wiki.plugins.macros.apps.MacrosConfig',
     # for api/ajax calls
     'rest_framework',
+    'generic_relations',
     # For tagging
     'taggit',
     'taggit_autosuggest',

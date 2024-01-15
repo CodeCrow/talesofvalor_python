@@ -95,6 +95,12 @@ urlpatterns += i18n_patterns(
             'talesofvalor.rules.urls'
         )
     ),
+    path(  # router for the comments application.
+        'comments/',
+        include(
+            'talesofvalor.comments.urls'
+        )
+    ),
     path('notifications/', include('django_nyt.urls')),
     path('wiki/', include('wiki.urls')),
     # for the main cms
