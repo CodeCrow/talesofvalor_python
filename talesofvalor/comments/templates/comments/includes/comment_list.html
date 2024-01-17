@@ -1,8 +1,9 @@
 <ul class="list list-comment">
 	{% for comment in comments %}
 	<li class="comment">
-		<p>{{ comment.created_by }} - {{ comment.created }}</p>
-		{{ comment.comment }}
+		<p><h4>{{ comment.created_by }} - {{ comment.created }}</h4>
+			{{ comment.comment }}
+		</p>
 	</li>
 	{% endfor %}
 	<li class="controls-comment" id="controls_comment_{{ object.id }}">

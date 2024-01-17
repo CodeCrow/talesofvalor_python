@@ -11,6 +11,7 @@ class CommentSerializer(serializers.ModelSerializer):
     
     content_type = serializers.CharField()
     object_id = serializers.IntegerField()
+    created = serializers.DateTimeField(format="%b. %d, %Y, %H:%M %p", required=False)
 
     class Meta:
         model = Comment
@@ -18,6 +19,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'content_type',
             'object_id',
             'created_by',
+            'created',
             'modified_by',
             'comment'
         ]

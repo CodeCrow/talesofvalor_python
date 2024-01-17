@@ -1,6 +1,8 @@
 """
 Comment views.
 """
+from django.contrib.auth.models import User
+
 from rest_framework import status, viewsets
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
@@ -37,6 +39,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        response_data = serializer.data
+        response_data['created_by'] = User.objects.get(pk=serializer.data['created_by']).username
+        print(f"CREATED BY: {response_data}")
         return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+            response_data, status=status.HTTP_201_CREATED, headers=headers
         )
