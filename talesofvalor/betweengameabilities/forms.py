@@ -54,7 +54,7 @@ class BetweenGameAbilityForm(forms.ModelForm):
             return cleaned_data
         character = cleaned_data.get("character")
         if not character:
-            character = self.initial['character']
+            character = self.initial['character'].id
         character = Character.objects.get(pk=character)
         event = cleaned_data.get("event")
         if not event:
