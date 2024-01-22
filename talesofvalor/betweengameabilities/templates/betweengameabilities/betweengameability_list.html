@@ -52,9 +52,11 @@
             {% endif %}
         </nav>
         {% endif %}
-        {% if perms.players.change_any_player and bga.answer %}
+        {% if bga.answer %}
+        {% if perms.players.change_any_player or bga.created_by.user == request.user %}
             <hr />
             {{ bga.answer }}
+        {% endif %}
         {% endif %}
     </div>
 </div>
