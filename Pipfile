@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 django = "~=3.0"
-django-cms = "*"
+django-cms = "~=3.0"
 fabric = "*"
 djangocms-text-ckeditor = "*"
 djangocms-file = "*"
@@ -17,7 +17,7 @@ djangocms-video = "*"
 djangorestframework = "*"
 django-taggit = "~=3.0"
 django-taggit-autosuggest = "*"
-djangocms-page-tags = "*"
+# djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
 # mysqlclient = "*"
 # mysql-connector-python = "==8.0.29"
 mysql-connector-python = "*"

@@ -33,6 +33,8 @@ class BetweenGameAbilityForm(forms.ModelForm):
                 character = self.instance.character
             except ObjectDoesNotExist:
                 pass
+        if type(character) == int:
+            character = Character.objects.get(pk=character)
         if self.user.has_perm('players.change_any_player'):
             self.fields['ability'].queryset = HeaderSkill.objects.filter(skill__bgs_flag=True)
         else:
@@ -48,14 +50,15 @@ class BetweenGameAbilityForm(forms.ModelForm):
         """
         Make sure the player isn't asking for more than they have purchased.
         """
-
         cleaned_data = super().clean()
         if self.user.has_perm('players.change_any_player'):
             return cleaned_data
         character = cleaned_data.get("character")
         if not character:
-            character = self.initial['character'].id
-        character = Character.objects.get(pk=character)
+            character = self.initial['character']
+
+        if type(character) == int:
+            character = Character.objects.get(pk=character)
         event = cleaned_data.get("event")
         if not event:
             event = self.initial['event']

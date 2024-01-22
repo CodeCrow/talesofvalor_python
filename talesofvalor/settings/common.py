@@ -164,7 +164,6 @@ INSTALLED_APPS = (
     # For tagging
     'taggit',
     'taggit_autosuggest',
-    'djangocms_page_tags',
     # Main ToV code
     'talesofvalor',
     'talesofvalor.players',
