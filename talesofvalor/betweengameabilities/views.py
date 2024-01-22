@@ -14,7 +14,7 @@ from django.views.generic.edit import CreateView, DeleteView, FormMixin,\
 from django.views.generic import DetailView, ListView
 
 
-from talesofvalor.attendance.models import Attendance
+from talesofvalor import get_query
 from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player
@@ -282,13 +282,16 @@ class BetweenGameAbilityListView(
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        event = character = player = None
+        event = character = player = assigned = None
         context = super().get_context_data(**kwargs)
         # get the event
         event_id = self.request.GET.get('event_id', None)
         if event_id:
-            event = Event.objects.get(pk=event_id)
-        else:
+            try:
+                event = Event.objects.get(pk=event_id)
+            except Event.DoesNotExist:
+                pass
+        if not event:
             event = Event.previous_event()
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('players.view_any_player'):
@@ -299,6 +302,9 @@ class BetweenGameAbilityListView(
             player = self.request.user.player
         if player:
             character = player.active_character
+
+        # get the list of events so we can pick from them to filter the lists.
+        context['event_list'] = Event.objects.all()
         context['event'] = event
         context['character'] = character
         return context
@@ -306,8 +312,19 @@ class BetweenGameAbilityListView(
     def get_queryset(self):
         player = None
         queryset = super().get_queryset()
+        # do we only want to view items assigned to me?
+        assigned = int(self.request.GET.get('assigned', 0))
+        if assigned:
+            queryset = queryset.filter(assigned_to=self.request.user.player)
+        # filter by character/player name
+        name = self.request.GET.get('name', '')
+        if (name.strip()):
+            entry_query = get_query(
+                name,
+                ['character__player__user__username', 'character__player__user__first_name', 'character__player__user__last_name', 'character__name']
+            )
+            queryset = queryset.filter(entry_query)
         # filter by event
-
         event_id = self.request.GET.get('event_id', None)
         if event_id:
             queryset = queryset.filter(event__id=event_id)

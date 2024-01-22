@@ -7,34 +7,54 @@
 
 {% block content %}
 
-<div class="attributes bgs_attributes">
 {% if character or event %}
-<table id="status" class="character-detail data">
-    {% if event %}
-    <tr>
-        <td>Event:</td>
-        <td>{{ event }}</td>
-    </tr>
-    {% endif %}
-    {% if character %}
-    <tr>
-        <td>Player:</td>
-        <td>{{ character.player }}</td>
-    </tr>
-    <tr>
-        <td>Character:</td>
-        <td>{{ character }}</td>
-    </tr>
-    {% endif %}  
-</table>
+<div class="row attributes bgs_attributes">
+    <div id="bga_list_filter" class="col-sm-12">
+        {% if event %}
+            <h4>{{ event }}</h4>
+        {% endif %}
+        {% if character %}
+            <h4>{{ character.player }} - {{ character }}</h4>
+        {% endif %}
+    </div>
+</div>
 {% endif %}
+<div class="row">
+    <div id="bga_list_filter" class="col-sm-7">
+        <div class="box">
+            <form method="GET">
+            {% if perms.players.change_any_player %}
+            <p>Filter: 
+              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=0{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">All</a> | 
+              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=1{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Assigned to Me</a>
+            </p>
+            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
+            {% endif %}
+            <p>Event:&nbsp;<select name="event_id" id="event_id">
+              <option value="0"{% if not event %} selected{% endif %}>---</option>
+              {% for e in event_list %}
+                <option value="{{ e.id }}"{% if e.id == event.id %} selected{% endif %}>{{ e }}</option>
+              {% endfor %}
+            </select></p>
+            <button id="bga_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
+            </form>
+        </div>
+    </div>
+    <div id="bga_list_actions" class="col-sm-5">
+        <div class="box">    
+            <a href="{% url "betweengameabilities:betweengameability_create" %}?character_id={{ character.id}}&event_id={{event.id}}" class="btn btn-primary">Add Between Game Ability</a>
+        </div>
+    </div>
+</div>
 
-<a href="{% url "betweengameabilities:betweengameability_create" %}?character_id={{ character.id}}&event_id={{event.id}}" class="btn btn-primary">Add Between Game Ability</a>
+<div class="row attributes bgs_attributes">
+<div id="bga_list_filter" class="col-sm-12">
 {% for bga in object_list %}
 <div class="list bga-item">
-    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{{ bga.ability }}:&nbsp;{{ bga.count }}</h3>        
+    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{{ bga.ability }}:&nbsp;{{ bga.count }}</h3>
     {% if perms.players.change_any_player %}
         <div class="bga-item-left bga-item-internal">
+        <h5>Assigned To: {% if bga.assigned_to %}{{ bga.assigned_to }}{% endif %}</h5><br />
             <div class="bga-item-comment-inner">
                 <h4>Comments</h4>
                 {% comments_display bga %}
@@ -67,27 +87,9 @@
 {% endif %}
 
 
-{% if is_paginated %}
-  <ul class="pagination">
-    {% if page_obj.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-    {% else %}
-      <li class="page-item disabled"><span>&laquo;</span></li>
-    {% endif %}
-    {% for i in paginator.page_range %}
-      {% if page_obj.number == i %}
-        <li class="page-item active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-      {% else %}
-        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %}
-    {% endfor %}
-    {% if page_obj.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-    {% else %}
-      <li class="page-item disabled"><span>&raquo;</span></li>
-    {% endif %}
-  </ul>
-{% endif %}
+
+{% include "includes/pagination.html" %}
+</div>
 </div>
 {% endblock content %}
 {% block js %}
