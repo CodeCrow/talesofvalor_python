@@ -30,7 +30,11 @@ class BetweenGameAbility(models.Model):
 
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    ability = models.ForeignKey(HeaderSkill, on_delete=models.CASCADE)
+    ability = models.ForeignKey(
+        HeaderSkill,
+        null=True,
+        on_delete=models.CASCADE
+    )
     count = models.PositiveIntegerField()
     question = HTMLField(blank=False)
     answer = HTMLField(blank=True)
