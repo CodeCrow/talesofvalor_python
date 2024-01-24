@@ -32,8 +32,14 @@ class BetweenGameAbility(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     ability = models.ForeignKey(
         HeaderSkill,
+        blank=True,
         null=True,
         on_delete=models.CASCADE
+    )
+    non_ability_source_flag = models.BooleanField(
+        _("Other"),
+        help_text=_("Choose this for abilities granted by potions or other, non-ability sources."),
+        default=False
     )
     count = models.PositiveIntegerField()
     question = HTMLField(blank=False)

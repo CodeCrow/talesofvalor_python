@@ -12,12 +12,11 @@ from .models import BetweenGameAbility
 
 class BetweenGameAbilityForm(forms.ModelForm):
 
-    ability = forms.ChoiceField()
-
     class Meta:
         model = BetweenGameAbility
         fields = (
             "ability",
+            "non_ability_source_flag", 
             "count",
             "question",
             "event", 
@@ -40,16 +39,14 @@ class BetweenGameAbilityForm(forms.ModelForm):
         if type(character) == int:
             character = Character.objects.get(pk=character)
         if self.user.has_perm('players.change_any_player'):
-            self.fields['ability'].choices = HeaderSkill.objects.annotate(full_name=Concat('skill__name', Value('::'), 'header__name')).filter(skill__bgs_flag=True).values_list("id", "full_name")
+            self.fields['ability'].queryset = HeaderSkill.objects.filter(skill__bgs_flag=True)
         else:
-            self.fields['ability'].choices = character.skills.annotate(full_name=Concat('skill__name', Value('::'), 'header__name')).filter(skill__bgs_flag=True).values_list("id", "full_name")
-        self.fields['ability'].choices[:0] = [(0, "---")]
-        self.fields['ability'].choices.append((-1, "Other"))
+            self.fields['ability'].queryset = character.skills.filter(skill__bgs_flag=True)
         # adjust fields for different users
         if self.user.has_perm('players.change_any_player'):
             allowed_fields = self.fields.keys()
         else:
-            allowed_fields = ("ability", "count", "question",)
+            allowed_fields = ("ability", "count", "question", "non_ability_source_flag")
         self.fields = dict([(key, val) for key, val in self.fields.items() if key in allowed_fields])        
 
     def clean(self):
@@ -87,16 +84,11 @@ class BetweenGameAbilityForm(forms.ModelForm):
         if not attended_event:
             self.add_error('event', "Did not attend chosen event.")
         # test the ability entry
-        if ((ability >= 0) and 
-                not self.user.has_perm('players.change_any_player')):
-            try:
-                character.skills.get(pk=ability)
-            except ObjectDoesNotExist:
-                self.add_error('ability', "You must choose an ability that you have.")
-        elif count > 0:
-            self.add_error('count', "Don't enter a count for an 'Other' ability.")
-        if ability == -1:
-            cleaned_data['ability'] = None
+        try:
+            character.skills.get(pk=ability)
+        except ObjectDoesNotExist:
+            self.add_error('ability', "You must choose an ability that you have.")
+
         return cleaned_data
 
     def save(self, commit=True):
