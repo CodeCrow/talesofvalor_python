@@ -34,7 +34,7 @@
             <h2>Future Events</h2>
             <ul>
             {% for event in future_event_list %}
-                <li>{{ event }}{% if event.registration %} - <a href="{% url 'registration:detail' pk=event.registration.id %}">Registration</a><br />{% else %}&nbsp;{% endif %}{% if event.registration_request %} - <a href="{% url 'resistration:request_detail' pk=event.registration_request.id %}">Registration Request</a><br />{% else %}&nbsp;{% endif %}<a href="{% url 'betweengameskills:betweengameskill_list' %}?event_id={{ event.id}}&player_id={{ object.pk }}">BGS</a></li>
+                <li>{{ event }}{% if event.registration %} - <a href="{% url 'registration:detail' pk=event.registration.id %}">Registration</a><br />{% else %}&nbsp;{% endif %}{% if event.registration_request %} - <a href="{% url 'registration:request_detail' pk=event.registration_request.id %}">Registration Request</a><br />{% else %}&nbsp;{% endif %}<a href="{% url 'betweengameskills:betweengameskill_list' %}?event_id={{ event.id}}&player_id={{ object.pk }}">BGS</a></li>
             {% endfor %}
             </ul>
             <hr />
