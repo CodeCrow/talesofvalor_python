@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -195,6 +196,9 @@ class PlayerDetailView(
         for event in future_event_list:
             try:
                 event.registration = Registration.objects.get(event=event, player=self.object)
+                event.registration_request = None
+            except MultipleObjectsReturned:
+                event.registration = Registration.objects.filter(event=event, player=self.object).first()
                 event.registration_request = None
             except Registration.DoesNotExist:
                 # see if we have a request
