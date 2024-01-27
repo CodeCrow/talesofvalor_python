@@ -67,7 +67,7 @@ class BetweenGameAbilityForm(forms.ModelForm):
             event = self.initial['event']
         # Testing the character having the right number of purchases.
         count = cleaned_data.get('count', 0)
-        ability = int(cleaned_data.get('ability', 0))
+        ability = cleaned_data.get('ability', None)
         if (count > 0) and (ability > 0):
             all_skill_bgas_count = self._meta.model.objects.filter(
                 event=event,
@@ -84,10 +84,13 @@ class BetweenGameAbilityForm(forms.ModelForm):
         if not attended_event:
             self.add_error('event', "Did not attend chosen event.")
         # test the ability entry
-        try:
-            character.skills.get(pk=ability)
-        except ObjectDoesNotExist:
-            self.add_error('ability', "You must choose an ability that you have.")
+        non_ability_source_flag = cleaned_data.get('non_ability_source_flag', False)
+        print(f"OTHER:{non_ability_source_flag}")
+        if not non_ability_source_flag:
+            try:
+                character.skills.get(pk=ability.id)
+            except ObjectDoesNotExist:
+                self.add_error('ability', "You must choose an ability that you have.")
 
         return cleaned_data
 

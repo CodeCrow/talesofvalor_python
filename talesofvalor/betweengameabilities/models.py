@@ -41,7 +41,9 @@ class BetweenGameAbility(models.Model):
         help_text=_("Choose this for abilities granted by potions or other, non-ability sources."),
         default=False
     )
-    count = models.PositiveIntegerField()
+    count = models.PositiveIntegerField(
+        help_text=_("If you enter 0, please include a description of where you are getting the ability from.")
+    )
     question = HTMLField(blank=False)
     answer = HTMLField(blank=True)
     assigned_to = models.ForeignKey(

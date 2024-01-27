@@ -51,7 +51,7 @@
 <div id="bga_list_filter" class="col-sm-12">
 {% for bga in object_list %}
 <div class="list bga-item">
-    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{{ bga.ability }}:&nbsp;{{ bga.count }}</h3>
+    <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{% if bga.non_ability_source_flag %}Non Ability Source{% else %}{{ bga.ability }}{% endif %}:&nbsp;{{ bga.count }}</h3>
     {% if perms.players.change_any_player %}
         <div class="bga-item-left bga-item-internal">
         <h5>Assigned To: {% if bga.assigned_to %}{{ bga.assigned_to }}{% endif %}</h5><br />
