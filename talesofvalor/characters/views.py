@@ -650,8 +650,34 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
         queryset = super().get_queryset()  # filter by event
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
-            event_id = Event.next_event().id
+            next_event = Event.next_event()
+            if next_event:
+                event_id = next_event.id
+            else:
+                # there is no next event, so this should be blank.
+                return queryset.none()
         player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
         queryset = queryset.filter(player__id__in=player_ids, npc_flag=False, active_flag=True)
         
         return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Add the bga questions/answers to the printout.
+        """
+        # get the context data to add to.
+        context_data = super().get_context_data(**kwargs)
+        # Get the bga for each character
+        # get the event
+        event_id = self.kwargs.get('event_id', None)
+        event = None
+        if event_id:
+            try:
+                event = Event.objects.get(pk=event_id)
+                event = event.previous()
+            except Event.DoesNotExist:
+                pass
+        if not event:
+            event = Event.previous_event()
+        # return the resulting context
+        return context_data
