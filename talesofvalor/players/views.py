@@ -213,7 +213,8 @@ class PlayerDetailView(
         context['future_event_list'] = future_event_list
         # for each event, indicate if the user is registered for it or attended.
         past_event_list = Event.objects\
-            .filter(event_date__lt=datetime.today())
+            .filter(event_date__lt=datetime.today())\
+            .order_by('-event_date')
         for event in past_event_list:
             event.registration = Registration.objects\
                 .filter(event=event, player=self.object)\
