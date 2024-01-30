@@ -76,10 +76,10 @@ class Event(models.Model):
             return None
 
     def attended(self, character):
-        return self.attendance_set.filter(character=character).exists()
+        return self.attendance_set.filter(player=character.player).exists()
 
     def attended_player(self, player):
-        return self.attendance_set.filter(character__in=player.character_set.all()).exists()
+        return self.attendance_set.filter(player=player).exists()
 
     def get_absolute_url(self):
         """

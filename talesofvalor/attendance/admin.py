@@ -6,8 +6,7 @@ from talesofvalor.attendance.models import Attendance
 
 class AttendanceAdmin(admin.ModelAdmin):
     """Access the Attendance from the admin."""
-
-    pass
+    list_display = ('event', 'player', 'character', )
 
 # Register the admin models
 admin.site.register(Attendance, AttendanceAdmin)

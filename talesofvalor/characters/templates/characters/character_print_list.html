@@ -16,7 +16,16 @@
         {% if character.active_flag %}<span class="no-print">(active)</span>{% endif %}
     </div> 
     {% include "characters/includes/character_detail_inner.html" with object=character %}
+    
 </div>
+{% if character.bgas %}
+    <div class="print-page-break print-ability-list">
+        <h2>Between Game Abilities</h2>
+        {% for ability in character.bgas %}
+            {{ ability.question }}
+        {% endfor %}
+    </div>
+    {% endif %}
 {% empty %}
 <h1>No Characters registered or there is no next event registered.</h1>
 {% endfor %}

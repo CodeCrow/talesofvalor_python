@@ -679,5 +679,8 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
                 pass
         if not event:
             event = Event.previous_event()
+        print(f"OBJECTS:{self.object_list}")
+        for character in self.object_list:
+            character.bgas = character.betweengameability_set.filter(event=event)
         # return the resulting context
         return context_data

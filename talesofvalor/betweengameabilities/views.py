@@ -37,7 +37,7 @@ class BetweenGameAbilityCreateView(
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
             return True
-        event = Event.objects.get(pk=self.request.GET.get('event_id', None))
+        event = Event.objects.get(pk=self.request.GET.get('event_id', 0))
         character = Character.objects.get(
             pk=self.request.GET.get(
                 'character_id',
@@ -51,7 +51,7 @@ class BetweenGameAbilityCreateView(
         initial = super().get_initial()
         # see if we are getting the character or event from the query string.
         try:
-            event_id = self.request.GET.get('event_id', None)
+            event_id = self.request.GET.get('event_id', 0)
             initial['event'] = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
             initial['event'] = Event.previous_event()

@@ -68,7 +68,7 @@ class BetweenGameAbilityForm(forms.ModelForm):
         # Testing the character having the right number of purchases.
         count = cleaned_data.get('count', 0)
         ability = cleaned_data.get('ability', None)
-        if (count > 0) and (ability > 0):
+        if (count > 0) and ability:
             all_skill_bgas_count = self._meta.model.objects.filter(
                 event=event,
                 character=character, 
@@ -80,12 +80,11 @@ class BetweenGameAbilityForm(forms.ModelForm):
             if (count + all_skill_bgas_count) > character_amount:
                 self.add_error('count', "Requested more abilities than you have available . . .")
         # Testing attendence at previous event.
-        attended_event = character.attendance_set.filter(event=event).exists()
+        attended_event = event.attended(character)
         if not attended_event:
             self.add_error('event', "Did not attend chosen event.")
         # test the ability entry
         non_ability_source_flag = cleaned_data.get('non_ability_source_flag', False)
-        print(f"OTHER:{non_ability_source_flag}")
         if not non_ability_source_flag:
             try:
                 character.skills.get(pk=ability.id)
