@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=3.0"
-django-cms = "~=3.0"
+django = "*"
+django-cms = "<4"
 fabric = "*"
 djangocms-text-ckeditor = "*"
 djangocms-file = "*"
