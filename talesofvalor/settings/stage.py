@@ -16,7 +16,7 @@ DATABASES = {
         'PASSWORD': 'wereunicorn',
         'HOST': 'mysql.talesofvalor.com',
         'OPTIONS': {
-            'use_pure': True
+            # 'use_pure': True
         },
     }
 }
