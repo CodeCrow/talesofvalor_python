@@ -19,7 +19,7 @@ django-taggit = "~=3.0"
 django-taggit-autosuggest = "*"
 # djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
 # mysqlclient = "*"
-mysql-connector-python = "==8.0.30"
+mysql-connector-python = "*"
 paypal-checkout-serversdk = "*"
 selenium = "*"
 mailosaur = "*"
