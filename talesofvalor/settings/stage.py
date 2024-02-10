@@ -10,7 +10,7 @@ ALLOWED_HOSTS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'talesof_rhiven_stage',
         'USER': 'fodder',
         'PASSWORD': 'wereunicorn',
