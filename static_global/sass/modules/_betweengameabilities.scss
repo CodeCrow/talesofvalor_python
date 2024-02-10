@@ -16,3 +16,14 @@
 .bga-item-right {
 	padding-left: 0.5em;
 }
+
+.print-ability-list {
+
+	.bga-list-item  {
+		border-top: 1px solid $divider-color;
+	}
+	.bga-question {
+		border-bottom: 1px dashed $divider-color;
+	}
+
+}

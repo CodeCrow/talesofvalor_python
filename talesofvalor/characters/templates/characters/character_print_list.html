@@ -19,15 +19,24 @@
     
 </div>
 {% if character.bgas %}
-    <div class="print-page-break print-ability-list">
+    <div class="print-page-break print-ability-list container">
         <h2>Between Game Abilities</h2>
         {% for ability in character.bgas %}
-            {{ ability.question }}
+            <div class="bga-list-item">
+                <div class="bga-question">
+                    <h3>Question:</h3>
+                    {{ ability.question }}
+                </div>
+                <div class="bga-answer">
+                    <h3>Answer:</h3>
+                    {{ ability.answer }}
+                </div>
+            </div>
         {% endfor %}
     </div>
     {% endif %}
 {% empty %}
-<h1>No Characters registered or there is no next event registered.</h1>
+<h1>No Characters registered or there is no next event created.</h1>
 {% endfor %}
 
 
