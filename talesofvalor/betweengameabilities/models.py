@@ -15,6 +15,8 @@ from django.utils.translation import gettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+from taggit.managers import TaggableManager
+
 from talesofvalor.characters.models import Character
 from talesofvalor.players.models import Player
 from talesofvalor.skills.models import HeaderSkill
@@ -57,12 +59,15 @@ class BetweenGameAbility(models.Model):
         editable=False,
         null=True
     )
+    # taggit tags
+    tags = TaggableManager()
     created = models.DateTimeField(
         _('submitted'),
         auto_now_add=True, editable=False)
     modified = models.DateTimeField(_('last updated'), auto_now=True, editable=False)
     created_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
+
 
     def __str__(self):
         return f"{self.character} -> {self.event}"

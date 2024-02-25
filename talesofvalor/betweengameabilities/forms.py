@@ -1,9 +1,9 @@
+from dal import autocomplete
 from django import forms 
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import Sum, Value
-from django.db.models.functions import Concat
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Sum
+from django.urls import reverse_lazy
 
-from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.skills.models import HeaderSkill
 
@@ -21,6 +21,7 @@ class BetweenGameAbilityForm(forms.ModelForm):
             "question",
             "event", 
             "character",
+            "tags",
         )
 
     def __init__(self, *args, **kwargs):
@@ -112,4 +113,10 @@ class BetweenGameAbilityAnswerForm(forms.ModelForm):
         fields = (
             "assigned_to",
             "answer",
+            "tags",
         )
+        widgets = {
+            'tags': autocomplete.TaggitSelect2(
+                reverse_lazy("services:tag_autocomplete")
+            )
+        }

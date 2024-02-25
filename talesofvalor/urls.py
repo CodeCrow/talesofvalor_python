@@ -32,9 +32,13 @@ urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),  # NOQA
     path('hijack/', include('hijack.urls')),
     path('', include('django.contrib.auth.urls')),
-    # For tags
-    path('taggit_autosuggest/', include('taggit_autosuggest.urls')),
     # main application
+    path(  # router for utility services not specific to apps.
+        'services/',
+        include(
+            'talesofvalor.services.urls'
+        )
+    ),
     path(  # router for the player application.
         'players/',
         include(
@@ -100,7 +104,7 @@ urlpatterns += i18n_patterns(
         include(
             'talesofvalor.comments.urls'
         )
-    ),
+    ), 
     path('notifications/', include('django_nyt.urls')),
     path('wiki/', include('wiki.urls')),
     # for the main cms

@@ -16,7 +16,6 @@ djangocms-snippet = "*"
 djangocms-video = "*"
 djangorestframework = "*"
 django-taggit = "~=3.0"
-django-taggit-autosuggest = "*"
 # djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
 mysql-connector-python = "*"
 mysqlclient = "*"
@@ -26,6 +25,7 @@ mailosaur = "*"
 names = "*"
 wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
 django-hijack = "*"
+django-autocomplete-light = "*"
 
 [dev-packages]
 autopep8 = "*"

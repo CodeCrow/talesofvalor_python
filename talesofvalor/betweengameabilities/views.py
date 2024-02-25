@@ -138,6 +138,7 @@ class BetweenGameAbilityUpdateView(
         bga = form.save(commit=False)
         bga.modified_by = self.request.user.player
         bga.save()
+        # we might need the m2m save for tags here
         return super().form_valid(form)
 
     def get_success_url(self):

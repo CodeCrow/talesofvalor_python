@@ -163,9 +163,14 @@ INSTALLED_APPS = (
     'rest_framework',
     # For tagging
     'taggit',
-    'taggit_autosuggest',
+    # for autosuggest
+    'dal',
+    'dal_select2',
+    # for autosuggest OF tagging
+    'dal_select2_taggit',
     # Main ToV code
     'talesofvalor',
+    'talesofvalor.services',
     'talesofvalor.players',
     'talesofvalor.skills',
     'talesofvalor.origins',
@@ -233,6 +238,11 @@ MIGRATION_MODULES = {
 
 }
 
+'''
+Taggit settings
+'''
+# make life easier 
+TAGGIT_CASE_INSENSITIVE = True
 
 '''
 Paypal secrets
