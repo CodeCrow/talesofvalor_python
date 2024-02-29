@@ -23,6 +23,11 @@ class BetweenGameAbilityForm(forms.ModelForm):
             "character",
             "tags",
         )
+        widgets = {
+            'tags': autocomplete.TaggitSelect2(
+                reverse_lazy("services:tag_autocomplete")
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         """
