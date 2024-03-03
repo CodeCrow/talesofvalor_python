@@ -78,6 +78,16 @@
             {{ bga.answer }}
         {% endif %}
         {% endif %}
+        {% if perms.players.change_any_player and bga.tags.all %}
+            <div class="tags-list bga-tags-list">
+                <h4>Tags</h4>
+                <div class=bga-tags-list-inner">
+                    {% for tag in bga.tags.all %}
+                        <a href="{% url 'services:tag_list' tag=tag %}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 

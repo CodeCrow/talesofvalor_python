@@ -11,6 +11,7 @@ Each request also as a "count" of the skill type that is making the request.
 This is the "power" of each request.
 """
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -68,6 +69,12 @@ class BetweenGameAbility(models.Model):
     created_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
+    def get_absolute_url(self):
+        """
+        Get to the specific display for an instance.
+        """
+        print("BLAH BLAH BLAH")
+        return reverse('betweengameabilities:betweengameability_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return f"{self.character} -> {self.event}"

@@ -1,7 +1,7 @@
 """Router for services not specific to apps"""
 from django.urls import path
 
-from .tags import TagsAutocompleteView
+from .tags import TagsAutocompleteView, TagListView
 
 app_name = 'services'
 
@@ -10,5 +10,10 @@ urlpatterns = [
         'tags/suggest/',
         TagsAutocompleteView.as_view(),
         name='tag_autocomplete'
+    ),
+    path(
+        'tags/<str:tag>',
+        TagListView.as_view(),
+        name='tag_list'
     ),
 ]
