@@ -138,7 +138,6 @@ class BetweenGameAbilityUpdateView(
         bga = form.save(commit=False)
         bga.modified_by = self.request.user.player
         bga.save()
-        # we might need the m2m save for tags here
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -216,8 +215,11 @@ class BetweenGameAbilityDetailView(
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        self.object.answer_date = timezone.now()
-        self.object.save()
+        bga = form.save(commit=False)
+        bga.answer_date = timezone.now()
+        bga.save()
+        # save the tags
+        form.save_m2m()
         result = super().form_valid(form)
         # send an email if the assigned_to field has changed 
         if 'assigned_to' in form.changed_data:
@@ -276,7 +278,6 @@ class BetweenGameAbilityListView(
     ordering = ['-event__event_date', 'character']
 
     def test_func(self):
-        print(f"EVENT:{self.event}")
         if self.request.user.has_perm('players.change_any_player'):
             return True
         if not self.event:

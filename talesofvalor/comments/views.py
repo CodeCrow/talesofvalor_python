@@ -41,7 +41,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         response_data = serializer.data
         response_data['created_by'] = User.objects.get(pk=serializer.data['created_by']).username
-        print(f"CREATED BY: {response_data}")
         return Response(
             response_data, status=status.HTTP_201_CREATED, headers=headers
         )
