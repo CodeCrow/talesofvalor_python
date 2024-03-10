@@ -73,7 +73,7 @@
         </nav>
         {% endif %}
         {% if bga.answer %}
-        {% if perms.players.change_any_player or bga.created_by.user == request.user %}
+        {% if perms.players.change_any_player or bga.created_by.user == request.user and bga.answer_available %}
             <hr />
             {{ bga.answer }}
         {% endif %}
@@ -83,7 +83,7 @@
                 <h4>Tags</h4>
                 <div class=bga-tags-list-inner">
                     {% for tag in bga.tags.all %}
-                        <a href="{% url 'services:tag_list' tag=tag %}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+                        <a href="{% url 'services:tag_list' tag=tag.slug %}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </div>
             </div>

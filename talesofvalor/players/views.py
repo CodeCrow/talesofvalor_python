@@ -399,7 +399,8 @@ class PlayerListAttendanceView(LoginRequiredMixin, FormView):
         for player in players_selected:
             attendance = Attendance.objects.create(
                 player=player,
-                event=form.cleaned_data['event_attended']
+                event=form.cleaned_data['event_attended'],
+                character=player.active_character
             )
         messages.info(self.request, 'Players Marked Attended.')
         # return result

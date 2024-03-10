@@ -16,4 +16,9 @@ urlpatterns = [
         TagListView.as_view(),
         name='tag_list'
     ),
+    path(
+        'tags/',
+        TagListView.as_view(),
+        name='tag_list'
+    ),
 ]

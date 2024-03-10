@@ -18,6 +18,7 @@ from djangocms_text_ckeditor.fields import HTMLField
 
 from taggit.managers import TaggableManager
 
+from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
 from talesofvalor.players.models import Player
 from talesofvalor.skills.models import HeaderSkill
@@ -69,11 +70,21 @@ class BetweenGameAbility(models.Model):
     created_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
+    def answer_available(self):
+        """
+        an available answer is one whose relavent event is in the past 
+        and the player has attended an event since.
+        """
+        return Attendance.objects.filter(
+            player=self.character.player
+        ).filter(
+            event__event_date__gte=self.event.next.event_date
+        ).exists()
+
     def get_absolute_url(self):
         """
         Get to the specific display for an instance.
         """
-        print("BLAH BLAH BLAH")
         return reverse('betweengameabilities:betweengameability_detail', kwargs={'pk': self.pk})
 
     def __str__(self):

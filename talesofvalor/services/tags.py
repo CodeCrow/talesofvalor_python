@@ -31,11 +31,9 @@ class TagListView(PermissionRequiredMixin, ListView):
     permission_required = ('players.view_any_player', )
     template_name = "services/tag_list.html"
 
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        for obj in self.object_list:
-            for item in obj.taggit_taggeditem_items.all():
-                print(f"ITEM:{item.__dict__}")
-                print(f"DIR:{dir(item)}")
-                print(f"EX:{item.content_object}")
-        return context_data
+    def get_queryset(self):
+        qs = super().get_queryset()
+        slug = self.kwargs.get('tag')
+        if slug:
+            qs = qs.filter(slug=self.kwargs.get('tag'))
+        return qs

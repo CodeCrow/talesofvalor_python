@@ -71,7 +71,7 @@ class Event(models.Model):
     def next(self):
         try:
             return type(self).objects.filter(event_date__gt=self.event_date)\
-                .order_by('-event_date').first()
+                .order_by('event_date').first()
         except self.DoesNotExist:
             return None
 

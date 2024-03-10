@@ -276,24 +276,31 @@ class BetweenGameAbilityListView(
     ordering = ['-event__event_date', 'character']
 
     def test_func(self):
+        print(f"EVENT:{self.event}")
         if self.request.user.has_perm('players.change_any_player'):
             return True
-        event = Event.objects.get(pk=self.request.GET.get('event_id', None))
-        return event.attended_player(self.request.user.player)
+        if not self.event:
+            return False
+        return self.event.attended_player(self.request.user.player)
 
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        event = character = player = assigned = None
-        context = super().get_context_data(**kwargs)
+    def dispatch(self, request, *args, **kwargs):
         # get the event
+        self.event = None
         event_id = self.request.GET.get('event_id', None)
         if event_id:
             try:
-                event = Event.objects.get(pk=event_id)
+                self.event = Event.objects.get(pk=event_id)
             except Event.DoesNotExist:
                 pass
-        if not event:
-            event = Event.previous_event()
+        if not self.event:
+            self.event = Event.previous_event()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        character = player = None
+        context = super().get_context_data(**kwargs)
+
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('players.view_any_player'):
             # if the player id was sent, filter by that.
@@ -306,7 +313,7 @@ class BetweenGameAbilityListView(
 
         # get the list of events so we can pick from them to filter the lists.
         context['event_list'] = Event.objects.all()
-        context['event'] = event
+        context['event'] = self.event
         context['character'] = character
         return context
 
