@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey,\
     GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 

@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=3.0"
-django-cms = "*"
+django = "*"
+django-cms = "<4"
 fabric = "*"
 djangocms-text-ckeditor = "*"
 djangocms-file = "*"
@@ -15,17 +15,17 @@ djangocms-style = "*"
 djangocms-snippet = "*"
 djangocms-video = "*"
 djangorestframework = "*"
-django-taggit = "*"
-django-taggit-autosuggest = "*"
-djangocms-page-tags = "*"
-# mysqlclient = "*"
-mysql-connector-python = "==8.0.29"
+django-taggit = "~=3.0"
+# djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
+mysql-connector-python = "*"
+mysqlclient = "*"
 paypal-checkout-serversdk = "*"
 selenium = "*"
 mailosaur = "*"
 names = "*"
 wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
 django-hijack = "*"
+django-autocomplete-light = "*"
 
 [dev-packages]
 autopep8 = "*"

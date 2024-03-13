@@ -1,0 +1,35 @@
+.bga-item {
+	display: flex;
+	flex-wrap: wrap;
+	padding-top: 1.5em;
+	h3 {
+		width: 100%; 
+	}
+}
+
+.bga-item-left {
+	width: 33%;
+	padding-right: 0.5em;
+	border-right: 1px solid #000;
+}
+
+.bga-item-right {
+	padding-left: 0.5em;
+}
+
+.bga-tags-list {
+	padding: 0.25em;
+	margin-top: 0.25em;
+	border-top: 1px solid $divider-color;
+}
+
+.print-ability-list {
+
+	.bga-list-item  {
+		border-top: 1px solid $divider-color;
+	}
+	.bga-question {
+		border-bottom: 1px dashed $divider-color;
+	}
+
+}

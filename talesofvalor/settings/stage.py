@@ -10,18 +10,18 @@ ALLOWED_HOSTS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'talesof_rhiven_stage',
         'USER': 'fodder',
         'PASSWORD': 'wereunicorn',
         'HOST': 'mysql.talesofvalor.com',
         'OPTIONS': {
-            'use_pure': True
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         },
     }
 }
 
-FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp_upload")
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp")
 STATIC_ROOT = BASE_DIR + '/public/static/'
 
 # Paypal integration for test Tales of Valor account

@@ -180,7 +180,6 @@ class PlayerRegistrationView(
         if form.is_valid():
             return self.form_valid(form)
         else:
-            print(form.errors)
             return self.form_invalid(form)
 
     def form_valid(self, form):
@@ -317,7 +316,6 @@ class CastRegistrationView(
         return response
 
     def get_success_url(self):
-        print(self.__dict__)
         return reverse(
             'registration:detail',
             kwargs={'pk': self.object.pk}

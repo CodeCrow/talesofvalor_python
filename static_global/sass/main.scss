@@ -1,16 +1,23 @@
 // Third-party -- comes first so we can override it
 
 // Modules and Variables
+// General layout
 @import "modules/colors";
 @import "modules/typography";
 @import "modules/layout";
 @import "modules/pagination";
 @import "modules/forms";
 @import "modules/tabs";
+
+// Specific to applications
+@import "modules/betweengameabilities";
+@import "modules/character";
+@import "modules/comment";
 @import "modules/player";
 @import "modules/registration";
 @import "modules/skill";
-@import "modules/character";
+
+// utilities (should override)
 @import "modules/utility";
 
 html {

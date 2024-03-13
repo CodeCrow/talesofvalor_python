@@ -21,8 +21,13 @@ ul.flat-list {
     }
 }
 
-.list th {
-    position: relative;
+.list {
+    caption {
+        caption-side: top;
+    }
+    th {
+        position: relative;
+    }
 }
 
 .nav {

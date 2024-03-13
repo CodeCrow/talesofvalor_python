@@ -85,6 +85,7 @@
                         Requires {{ form.origin }} to be available.
                     </div>
                 </div>
+                {% if prerequisite_formset.can_delete %}{{ form.DELETE }}{% endif %}
             </div>
         {% endfor %}
         {{ prerequisite_formset.management_form }}

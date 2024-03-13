@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -34,7 +35,7 @@ from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     PlayerViewable_PlayerForm, \
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm
-from .models import Player, Registration, PEL
+from .models import Player, Registration, RegistrationRequest, PEL
 
 
 class PlayerUpdateView(
@@ -179,7 +180,7 @@ class PlayerDetailView(
         return False
 
     def get_form_kwargs(self):
-        kwargs = super(PlayerDetailView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs.update({
                 'player': self.object
             })
@@ -191,17 +192,47 @@ class PlayerDetailView(
         """
 
         context = super().get_context_data(**kwargs)
-        context['future_event_list'] = Event.objects\
+        future_event_list = Event.objects\
             .filter(event_date__gte=datetime.today())
-        context['past_event_list'] = Event.objects\
+        # for each event, indicate if the user is registered for it.
+        for event in future_event_list:
+            try:
+                event.registration = Registration.objects.get(event=event, player=self.object)
+                event.registration_request = None
+            except MultipleObjectsReturned:
+                event.registration = Registration.objects.filter(event=event, player=self.object).first()
+                event.registration_request = None
+            except Registration.DoesNotExist:
+                # see if we have a request
+                try:
+                    event.registration_request = RegistrationRequest.objects.get(
+                        event_registration_item__events=event,
+                        player=self.object
+                    )
+                except RegistrationRequest.DoesNotExist:
+                    event.registration_request = None 
+                event.registration = None
+        context['future_event_list'] = future_event_list
+        # for each event, indicate if the user is registered for it or attended.
+        past_event_list = Event.objects\
             .filter(event_date__lt=datetime.today())\
             .order_by('-event_date')
-        # add the attendance to the querystring
-        for past_event in context['past_event_list']:
-            past_event.attended = Attendance.objects.filter(
-                player=self.object,
-                event=past_event
-            ).exists()
+        for event in past_event_list:
+            event.registration = Registration.objects\
+                .filter(event=event, player=self.object)\
+                .order_by('-id')\
+                .first()
+            event.registration_request = None
+            if not event.registration:
+                # see if we have a request
+                event.registration_request = RegistrationRequest.objects.filter(
+                    event_registration_item__events=event,
+                    player=self.object
+                )\
+                    .order_by('-requested')\
+                    .first()
+            event.attended = event.attended_player(self.object)
+        context['past_event_list'] = past_event_list
         return context
 
     def post(self, request, *args, **kwargs):
