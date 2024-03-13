@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+
+{% block title %}Tags{% endblock title %}
+
+{% block content %}
+<table id="tag_list" class="list list-tags">
+<tr>
+    <th>Tag</th>
+    <th>&nbsp;</th>
+</tr>
+    {% for tag in object_list %}
+    <tr>
+        <td>{{ tag }}</td>
+        <td>{% for item in tag.taggit_taggeditem_items.all %}<a href="{{ item.content_object.get_absolute_url }}">{{ item.content_object }}</a>{% endfor %}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% include "includes/pagination.html" %}
+
+{% endblock content %}
