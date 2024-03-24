@@ -109,7 +109,6 @@ class RegistrationForm(forms.Form):
         if User.objects.filter(username=data).exists():
             raise ValidationError(mark_safe(f"This username already exists.  Did you <a href=\"{reverse('password_reset')}\">forget your login?</a>"))
 
-
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
         return data
@@ -270,15 +269,10 @@ class PELUpdateForm(forms.ModelForm):
         '''
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.return_url = self.request.META.get(
+        self.fields['return_url'].initial = self.request.META.get(
             'HTTP_REFERER', 
-            reverse('players:pel_update', kwargs={
-                'event_id': kwargs['instance'].event_id,
-                'player_id': kwargs['instance'].player_id
-                }
-            )
+            reverse('players:player_redirect_detail')
         )
-        self.fields['return_url'].initial = self.return_url
 
     class Meta:
         model = PEL

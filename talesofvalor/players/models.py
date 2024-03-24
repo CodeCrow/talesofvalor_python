@@ -460,8 +460,10 @@ class PEL(models.Model):
         (2, 'Fair'),
         (1, 'Poor'),
     )
+    # number of points players get for submitting a pel on time
+    ON_TIME_BONUS = 3
 
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    character = models.ForeignKey('characters.Character', on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     created = models.DateTimeField(
         _('date created'),
@@ -475,24 +477,69 @@ class PEL(models.Model):
         auto_now=True,
         editable=False
     )
-    donations_time = models.TextField(_('Donations (Time spent doing set up / breakdown'), blank=True, default='')
-    donations_props = models.TextField(_('Donations (Props/funds/or other materials'), blank=True, default='')
+    donations_time = models.TextField(
+        _('Donations (Time spent doing set up / breakdown'),
+        blank=True,
+        default=''
+    )
+    donations_props = models.TextField(
+        _('Donations (Props/funds/or other materials'),
+        blank=True,
+        default=''
+    )
     rating = models.PositiveIntegerField(null=True, choices=RATINGS_CHOICES)
-    favorites = models.TextField(_('What did you enjoy?'), blank=True, default='')
-    suggestions = models.TextField(_('What do you think could be improved?'), blank=True, default='')
-    plans = models.TextField(_("What are you character's current interests and plans? What do you think you'll be working on moving forward?"), blank=True, default='')
-    devout = models.TextField(_("If you are Devout or Supplicant to a faith, please tell us how you practiced and demonstrated your beliefs."), blank=True, default='')
-    new_rule_likes = models.TextField(_("Is there anything you really liked about the new rules and systems we've implemented?"),
-                                      blank=True, default='')
-    new_rule_dislikes = models.TextField(_("Is there anything you didn't care for about the new rules and systems and what do you think would improve it?"),
-                                         blank=True, default='')
-    learned = models.TextField('Did your character learn new skills or spells during game?  If so, list them here.',
-                               blank=True, default='')
+    favorites = models.TextField(
+        _('What did you enjoy?'),
+        blank=True,
+        default=''
+    )
+    suggestions = models.TextField(
+        _('What do you think could be improved?'),
+        blank=True,
+        default=''
+    )
+    plans = models.TextField(
+        _("""What are you character's current interests and plans? What do
+        you think you'll be working on moving forward?"""),
+        blank=True,
+        default=''
+    )
+    devout = models.TextField(
+        _("""If you are Devout or Supplicant to a faith, please tell us 
+        how you practiced and demonstrated your beliefs."""),
+        blank=True,
+        default=''
+    )
+    new_rule_likes = models.TextField(
+        _("""Is there anything you really liked about the new rules and
+        systems we've implemented?"""),
+        blank=True,
+        default=''
+    )
+    new_rule_dislikes = models.TextField(
+        _("""Is there anything you didn't care for about the new rules and
+        systems and what do you think would improve it?"""),
+        blank=True,
+        default=''
+    )
+    learned = models.TextField(
+        _("""Did your character learn new skills or spells during game?  
+        If so, list them here."""),
+        blank=True,
+        default=''
+    )
     heavy_armor_worn_flag = models.BooleanField(
-        _('Character wore heavy armor this event (cheaper Health pre-req)?'),
+        _("Character wore heavy armor this event (cheaper Health pre-req)?"),
         default=False
     )
     what_did_you_do = HTMLField(
-        'What did you do during this event?',
+        _("What did you do during this event?"),
         blank=True, default=''
     )
+
+    class Meta:
+        """Ordering for grouping."""
+
+        ordering = (
+            "-event",
+        )

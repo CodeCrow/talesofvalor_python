@@ -7,26 +7,30 @@ https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-u
 """
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
+from django.core import mail
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import DeleteView, UpdateView,\
+from django.views.generic.edit import CreateView, DeleteView, UpdateView,\
     FormView, FormMixin
-from django.urls import reverse, reverse_lazy
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from talesofvalor import get_query
 from talesofvalor.attendance.models import Attendance
+from talesofvalor.characters.models import Character
 from talesofvalor.comments.forms import CommentForm
 from talesofvalor.comments.models import Comment
 from talesofvalor.events.models import Event
@@ -218,6 +222,7 @@ class PlayerDetailView(
             .filter(event_date__lt=datetime.today())\
             .order_by('-event_date')
         for event in past_event_list:
+            event.attendance = event.attendance_set.filter(player=self.object).first()
             event.registration = Registration.objects\
                 .filter(event=event, player=self.object)\
                 .order_by('-id')\
@@ -481,6 +486,8 @@ class PlayerListView(LoginRequiredMixin, ListView):
 '''
 Put the AJAX work for Players here
 '''
+
+
 class PlayerViewSet(APIView):
     '''
     Set of AJAX views for a Player
@@ -635,7 +642,7 @@ class PELDetailView(
         if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
-            pel = PEL.objects.get(player=self.object.player)
+            pel = PEL.objects.get(pk=self.kwargs.get('pk'))
             return (pel.player.user == self.request.user)
         except PEL.DoesNotExist:
             return False
@@ -651,7 +658,7 @@ class PELDetailView(
         except Http404:
             return redirect(reverse('players:pel_update', kwargs={
                 'event_id': self.kwargs['event_id'],
-                'player_id': self.kwargs['player_id']
+                'character_id': self.kwargs['character_id']
             }))
 
     def post(self, request, *args, **kwargs):
@@ -663,7 +670,6 @@ class PELDetailView(
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        print(f"{form.__dict__}")
         for error in form.errors:
             messages.error(self.request, form.errors[error])
         messages.warning(self.request, 'Error transferring points.')
@@ -683,7 +689,6 @@ class PELDetailView(
 
 
 class PELRedirectView(RedirectView): 
-    pattern_name = 'players:pel_detail'
 
     def get_redirect_url(self, *args, **kwargs):
         """
@@ -692,13 +697,88 @@ class PELRedirectView(RedirectView):
         """
         try: 
             event = Event.objects.get(pk=self.kwargs['event_id'])
-            player = Player.objects.get(pk=self.kwargs['player_id'])
-            kwargs['pk'] = PEL.objects.get(event=event, player=player).id
+            character = Character.objects.get(pk=self.kwargs['character_id'])
+            kwargs['pk'] = PEL.objects.get(event=event, character=character).id
             del(kwargs['event_id'])
-            del(kwargs['player_id'])
+            del(kwargs['character_id'])
         except PEL.DoesNotExist:
-            return reverse("players:pel_update", kwargs=kwargs)
+            return reverse("players:pel_create", kwargs=kwargs)
         return super().get_redirect_url(*args, **kwargs)
+
+
+class PELCreateView(
+        LoginRequiredMixin,
+        UserPassesTestMixin,
+        CreateView
+        ):
+    form_class = PELUpdateForm
+    return_url = None
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
+        try:
+            event = Event.objects.get(pk=self.kwargs['event_id'])
+            character = Character.objects.get(pk=self.kwargs['character_id'])
+            return Attendance.objects.filter(character=character, event=event).exists()
+        except Event.DoesNotExist:
+            return False
+        return False
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        # Get the initial dictionary from the superclass method
+        initial = super().get_initial()
+        try:
+            initial['event'] = Event.objects.get(pk=self.kwargs['event_id'])
+            initial['character'] = Character.objects.get(pk=self.kwargs['character_id'])
+        except Event.DoesNotExist:
+            raise
+
+    def form_valid(self, form):
+        '''
+        send the user back where they came from
+        Because they could have come from an event list
+        or the PEL list.
+
+        Send an email to the staff.
+        Add the CP if the player has submitted it in time.
+        '''
+        result = super().form_valid(form)
+        # if the user has submitted in time, add point to the player.
+        if timezone.now() <= form.instance.pel_due_date:
+            form.instance.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
+        # Alert the staff
+        message = """
+        Hello Staff!
+
+        Player {} has submitted a PEL.
+
+        See it here:
+        {}
+
+        --ToV MechCrow
+        """.format(
+                form.instance.character.player,
+                self.request.build_absolute_uri(
+                    reverse("players:pel_detail", kwargs={
+                        'pk': form.instance.id
+                    })
+                )
+            )
+        email_message = mail.EmailMessage(
+            f"PEL submitted by {form.instance.player}",
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            (settings.STAFF_EMAIL, )
+        )
+        email_message.send()
+        self.return_url = form.cleaned_data['return_url']
+        return result
 
 
 class PELUpdateView(
@@ -707,14 +787,15 @@ class PELUpdateView(
         UpdateView
         ):
     form_class = PELUpdateForm
-
     return_url = None
 
     def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
         try:
             event = Event.objects.get(pk=self.kwargs['event_id'])
-            player = Player.objects.get(pk=self.kwargs['player_id'])
-            return Attendance.objects.filter(player=player, event=event).exists()
+            character = Character.objects.get(pk=self.kwargs['character_id'])
+            return Attendance.objects.filter(character=character, event=event).exists()
         except Event.DoesNotExist:
             return False
         return True
@@ -724,28 +805,7 @@ class PELUpdateView(
         kwargs['request'] = self.request
         return kwargs
 
-    def get_object(self):
-        '''
-        get the object for this update, or create it.
-        Object is retrieved based on the current user and the 
-        sent event.  If it does not exist, it is created.
-        '''
-        event = Event.objects.get(pk=self.kwargs['event_id'])
-        player = Player.objects.get(user__pk=self.kwargs['player_id'])
-        pel_object, created = PEL.objects.get_or_create(event=event, player=player)
-        return pel_object
-
-    def form_valid(self, form):
-        '''
-        send the user back where they came from
-        Because they could have come from an event list
-        or the PEL list
-        '''
-        self.return_url = form.cleaned_data['return_url']
-        return super().form_valid(form)
-
     def get_success_url(self):
         if self.return_url:
             return self.return_url
-        return super().get_success_url()
-
+        return reverse("players:player_redirect_detail")

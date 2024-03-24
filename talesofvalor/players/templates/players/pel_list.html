@@ -29,20 +29,20 @@
 		<table id="player_list" class="list list-players">
 
         {% regroup object_list by event as pel_list %}
-		    {% for event in pel_list %}
-        <tr>
-          <td colspan="2"><h2>{{ event.grouper }}</h2></td>
-        </tr>
-         <tr>
-          <th>Player</th>
-          <th>&nbsp;</th>
-        </tr>
-        {% for pel in event.list%}
-          <tr>
-              <td><a href="{% url 'players:player_detail' pk=pel.player.pk %}">{{ pel.player }}</a></td>
-              <td><a href="{% url 'players:pel_detail' pk=pel.id %}">View</a></td>
-          </tr>
-        {% endfor %}
+  		    {% for event in pel_list %}
+            <tr>
+              <td colspan="2"><h2>{{ event.grouper }}</h2></td>
+            </tr>
+             <tr>
+              <th>Player</th>
+              <th>&nbsp;</th>
+            </tr>
+            {% for pel in event.list%}
+              <tr>
+                  <td><a href="{% url 'players:player_detail' pk=pel.player.pk %}">{{ pel.player }}</a></td>
+                  <td><a href="{% url 'players:pel_detail' pk=pel.id %}">View</a></td>
+              </tr>
+          {% endfor %}
         {% empty %}
         <tr><td colspan="2">No PELs Yet.</td></tr>
 		    {% endfor %}

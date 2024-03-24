@@ -43,7 +43,8 @@ ADMINS = [
 SERVER_EMAIL = 'webmaster@talesofvalor.com'
 # default email sender for production.  This email address must exist.
 DEFAULT_FROM_EMAIL = 'characterupdate@talesofvalor.com'
-
+# general staff email
+STAFF_EMAIL = 'Tov3staff@googlegroups.com'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
