@@ -281,7 +281,7 @@ class PELUpdateForm(forms.ModelForm):
 
         # We want all fields to be 80 cols wide, but rows are either 3 or 5.
         widgets = {
-            'player': forms.HiddenInput(),
+            'character': forms.HiddenInput(),
             'event': forms.HiddenInput(),
             'donations_time': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
             'donations_props': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),

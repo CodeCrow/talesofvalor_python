@@ -701,6 +701,7 @@ class PELRedirectView(RedirectView):
             kwargs['pk'] = PEL.objects.get(event=event, character=character).id
             del(kwargs['event_id'])
             del(kwargs['character_id'])
+            return reverse("players:pel_update", kwargs=kwargs)
         except PEL.DoesNotExist:
             return reverse("players:pel_create", kwargs=kwargs)
         return super().get_redirect_url(*args, **kwargs)
@@ -711,6 +712,7 @@ class PELCreateView(
         UserPassesTestMixin,
         CreateView
         ):
+    model = PEL
     form_class = PELUpdateForm
     return_url = None
 
@@ -786,6 +788,7 @@ class PELUpdateView(
         UserPassesTestMixin,
         UpdateView
         ):
+    model = PEL
     form_class = PELUpdateForm
     return_url = None
 
@@ -793,9 +796,9 @@ class PELUpdateView(
         if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
-            event = Event.objects.get(pk=self.kwargs['event_id'])
-            character = Character.objects.get(pk=self.kwargs['character_id'])
-            return Attendance.objects.filter(character=character, event=event).exists()
+            pel = PEL.objects.get(pk=self.kwargs['pk'])
+            player = pel.character.player
+            return (player.user == self.request.user)
         except Event.DoesNotExist:
             return False
         return True
