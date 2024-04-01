@@ -590,14 +590,17 @@ class PELListView(PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super(PELListView, self).get_queryset()
-        groups = self.request.GET.get('group', None)
-        if groups:
-            queryset = queryset.filter(user__groups__name__in=[groups])
         name = self.request.GET.get('name', '')
         if (name.strip()):
             entry_query = get_query(
                 name,
-                ['player__user__username', 'player__user__first_name', 'player__user__last_name', 'player__user__email', 'player__player_pronouns']
+                [
+                    'character__name',
+                    'character__player__user__username',
+                    'character__player__user__first_name',
+                    'character__player__user__last_name', 
+                    'character__player__user__email', 
+                ]
             )
             queryset = queryset.filter(entry_query)
 
@@ -735,11 +738,10 @@ class PELCreateView(
     def get_initial(self):
         # Get the initial dictionary from the superclass method
         initial = super().get_initial()
-        try:
-            initial['event'] = Event.objects.get(pk=self.kwargs['event_id'])
-            initial['character'] = Character.objects.get(pk=self.kwargs['character_id'])
-        except Event.DoesNotExist:
-            raise
+        initial['event'] = Event.objects.get(pk=self.kwargs['event_id'])
+        initial['character'] = Character.objects.get(pk=self.kwargs['character_id'])
+
+        return initial
 
     def form_valid(self, form):
         '''
@@ -752,7 +754,7 @@ class PELCreateView(
         '''
         result = super().form_valid(form)
         # if the user has submitted in time, add point to the player.
-        if timezone.now() <= form.instance.pel_due_date:
+        if timezone.now().date() <= form.cleaned_data.get('event').pel_due_date:
             form.instance.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
         # Alert the staff
         message = """
@@ -773,7 +775,7 @@ class PELCreateView(
                 )
             )
         email_message = mail.EmailMessage(
-            f"PEL submitted by {form.instance.player}",
+            f"PEL submitted by {form.cleaned_data.get('character').player}",
             message,
             settings.DEFAULT_FROM_EMAIL,
             (settings.STAFF_EMAIL, )
@@ -781,6 +783,11 @@ class PELCreateView(
         email_message.send()
         self.return_url = form.cleaned_data['return_url']
         return result
+
+    def get_success_url(self):
+        if self.return_url:
+            return self.return_url
+        return reverse("players:player_redirect_detail")
 
 
 class PELUpdateView(

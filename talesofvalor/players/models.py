@@ -543,3 +543,6 @@ class PEL(models.Model):
         ordering = (
             "-event",
         )
+
+    def __str__(self):
+        return f"{self.character} | {self.event}"
