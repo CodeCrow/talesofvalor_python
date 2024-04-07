@@ -48,7 +48,7 @@ class Comment(models.Model):
     modified_by = models.ForeignKey(User, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return self.comment.split(" ")[:5].join(" ")
+        return " ".join(self.comment.split(" ")[:5])
 
     class Meta:
         ordering = ('created', )

@@ -18,11 +18,14 @@ t = get_template("comments/includes/comment_list.html")
 
 @register.inclusion_tag(t)
 def comments_display(obj):
-    obj_type = ContentType.objects.get_for_model(obj)
-    comments = Comment.objects.filter(content_type=obj_type, object_id=obj.id)
+    print(f"OBJECT:{obj}")
+    obj_type = ContentType.objects.get_for_model(obj).model
+    print(f"OBJECT TYPE:{obj_type}")
+    comments = Comment.objects.filter(content_type__model=obj_type, object_id=obj.id)
     return {
         'object': obj,
-        'comments': comments
+        'comments': comments,
+        'object_type': obj_type
     }
 
 
