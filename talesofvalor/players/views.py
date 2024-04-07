@@ -31,14 +31,13 @@ from rest_framework.views import APIView
 from talesofvalor import get_query
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
-from talesofvalor.comments.forms import CommentForm
-from talesofvalor.comments.models import Comment
 from talesofvalor.events.models import Event
 
 from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     PlayerViewable_PlayerForm, \
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
-    MassGrantCPForm, TransferCPForm, PELUpdateForm
+    MassGrantCPForm, TransferCPForm, PELUpdateForm,\
+    TagUpdateForm
 from .models import Player, Registration, RegistrationRequest, PEL
 
 
@@ -638,7 +637,7 @@ class PELDetailView(
     Show a particular PEL
     '''
     model = PEL
-    form_class = CommentForm
+    form_class = TagUpdateForm
     permission_required = ('pels.view_pel', )
 
     def test_func(self):
@@ -650,6 +649,19 @@ class PELDetailView(
         except PEL.DoesNotExist:
             return False
         return False
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        self.object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:                
+            context['form'] = self.form_class(
+                instance=self.object,
+                data=self.request.POST
+            )
+        else:
+            context['form'] = self.form_class(instance=self.object)
+        return context
 
     def get(self, request, *args, **kwargs):
         '''
@@ -665,23 +677,15 @@ class PELDetailView(
             }))
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form(self.request.POST)
+        context = self.get_context_data(**kwargs)
+        form = context['form']
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
-    def form_invalid(self, form):
-        for error in form.errors:
-            messages.error(self.request, form.errors[error])
-        messages.warning(self.request, 'Error transferring points.')
-        return super().form_invalid(form)
-
     def form_valid(self, form):
-        if not form.instance.created_by:
-            form.instance.created_by = self.request.user
-        form.instance.modified_by = self.request.user
+        form.save()
         return super().form_valid(form)
 
     def get_success_url(self):

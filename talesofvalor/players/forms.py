@@ -1,10 +1,12 @@
+from dal import autocomplete
+
 from django import forms
 from django.conf import settings
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -277,6 +279,7 @@ class PELUpdateForm(forms.ModelForm):
     class Meta:
         model = PEL
         fields = '__all__'
+        exclude = ('tags', )
         events = ['event']
 
         # We want all fields to be 80 cols wide, but rows are either 3 or 5.
@@ -291,5 +294,19 @@ class PELUpdateForm(forms.ModelForm):
             'devout': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
             'new_rule_likes': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
             'new_rule_dislikes': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
-            'learned': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
+            'learned': forms.Textarea(attrs={'cols': '80', 'rows': '3'})
+        }
+
+
+class TagUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = PEL
+        fields = ('tags', )
+
+        # We want all fields to be 80 cols wide, but rows are either 3 or 5.
+        widgets = { 
+            'tags': autocomplete.TaggitSelect2(
+                reverse_lazy("services:tag_autocomplete")
+            )
         }

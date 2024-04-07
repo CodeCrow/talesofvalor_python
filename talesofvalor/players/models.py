@@ -4,6 +4,8 @@ Describes the player models.
 These models describe the player and its relationship to the
 django authentication user models.
 """
+from taggit.managers import TaggableManager
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
@@ -536,6 +538,8 @@ class PEL(models.Model):
         _("What did you do during this event?"),
         blank=True, default=''
     )
+    # taggit tags
+    tags = TaggableManager()
 
     class Meta:
         """Ordering for grouping."""
