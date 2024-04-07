@@ -218,6 +218,7 @@ input[type=checkbox] {
 
 .list-comment {
   list-style: none;
+  padding-left: 0.5rem;
 }
 .list-comment h4 {
   font-size: 1rem;

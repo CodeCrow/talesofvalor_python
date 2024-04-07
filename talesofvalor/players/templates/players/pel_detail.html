@@ -6,6 +6,7 @@
 
 {% block content %}
 
+<div class="detail pel-detail">
 <p><strong>Donations (Time spent doing set up / breakdown):</strong><br />{{ object.donations_time }} </p>
 
 <p><strong>Donations (Props/funds/or other materials):</strong><br />{{ object.donations_props }} </p>
@@ -33,9 +34,12 @@
 <p><strong>What did you do during this event?:</strong><br />{{ object.what_did_you_do }} </p>
 
 {% if request.user.player == object.player%}<a href="{% url 'players:pel_update' pk=object.pk %}" class="btn btn-primary">Edit</a>{% endif %}
-
-{% comments_display object %}
-
+<hr />
+	<div class="pel-comments">
+	<h2>Comments</h2>
+	{% comments_display object %}
+	</div>
+</div>
 {% endblock content %}
 {% block js %}
     {{ block.super }}
