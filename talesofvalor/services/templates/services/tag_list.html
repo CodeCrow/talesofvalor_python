@@ -12,7 +12,7 @@
     {% for tag in object_list %}
     <tr>
         <td>{{ tag }}</td>
-        <td>{% for item in tag.taggit_taggeditem_items.all %}<a href="{{ item.content_object.get_absolute_url }}">{{ item.content_object }}</a>{% endfor %}</td>
+        <td>{% for item in tag.taggit_taggeditem_items.all %}<a href="{{ item.content_object.get_absolute_url }}">{{ item.content_object }}</a>{% if not forloop.last %}<br />{% endif %}{% endfor %}</td>
     </tr>
     {% endfor %}
 </table>

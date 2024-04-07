@@ -550,3 +550,9 @@ class PEL(models.Model):
 
     def __str__(self):
         return f"{self.character} | {self.event}"
+
+    def get_absolute_url(self):
+        """
+        Get to the specific display for an instance.
+        """
+        return reverse('players:pel_detail', kwargs={'pk': self.pk})
