@@ -1,37 +1,45 @@
 {% extends "base.html" %}
-{% load cms_tags sekizai_tags %}
+{% load cms_tags comment_tags sekizai_tags %}
 
 {% block bar_title %}{{ object.event }} | {{ object.character }} | {{ block.super }}{% endblock bar_title %}
 {% block title %}{{ object.event }} | {{ object.character }}{% endblock title %}
 
 {% block content %}
 
-<p>Donations (time): {{ object.donations_time }} </p>
+<p><strong>Donations (Time spent doing set up / breakdown):</strong><br />{{ object.donations_time }} </p>
 
-<p>Donations (props): {{ object.donations_props }} </p>
+<p><strong>Donations (Props/funds/or other materials):</strong><br />{{ object.donations_props }} </p>
 
-<p>Rating: {{ object.rating }} </p>
+<p><strong>Rating:</strong> {{ object.rating }} </p>
 
-<p>Event Favorites: {{ object.favorites }} </p>
+<p><strong>What did you enjoy?:</strong><br />{{ object.favorites }} </p>
 
-<p>Suggestions: {{ object.suggestions }} </p>
+<p><strong>What do you think could be improved?:</strong><br />{{ object.suggestions }} </p>
 
-<p>Plans: {{ object.plans }} </p>
+<p><strong>What are you character's current interests and plans? What do you think you'll be working on moving forward?:</strong><br />{{ object.plans }} </p>
 
-<p>Devout: {{ object.devout }} </p>
+<p><strong>If you are Devout or Supplicant to a faith, please tell us 
+        how you practiced and demonstrated your beliefs:</strong><br />{{ object.devout }} </p>
 
-<p>New rule likes: {{ object.new_rule_likes }} </p>
+<p><strong>Is there anything you really liked about the new rules and
+        systems we've implemented?:</strong><br />{{ object.new_rule_likes }} </p>
 
-<p>New rule dislikes: {{ object.new_rule_dislikes }} </p>
+<p><strong>Is there anything you didn't care for about the new rules and systems and what do you think would improve it?:</strong><br />{{ object.new_rule_dislikes }} </p>
 
-<p>Skills or spells learned: {{ object.learned }} </p>
+<p><strong>Did your character learn new skills or spells during game? If so, list them here:</strong><br />{{ object.learned }} </p>
 
-<p>Heavy armor worn: {{ object.heavy_armor_worn_flag}} </p>
+<p><strong>Did you wear heavy armor this event?:</strong>{% if object.heavy_armor_worn_flag %}Yes{% else %}No{% endif %}</p>
 
-<p>What did you do: {{ object.what_did_you_do }} </p>
+<p><strong>What did you do during this event?:</strong><br />{{ object.what_did_you_do }} </p>
 
 {% if request.user.player == object.player%}<a href="{% url 'players:pel_update' pk=object.pk %}" class="btn btn-primary">Edit</a>{% endif %}
 
-{{ form.as_p }}
+{% comments_display object %}
 
 {% endblock content %}
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript">
+    {% comment_add %}
+    </script>
+{% endblock %}

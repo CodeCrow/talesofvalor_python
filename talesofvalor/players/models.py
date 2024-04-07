@@ -478,12 +478,12 @@ class PEL(models.Model):
         editable=False
     )
     donations_time = models.TextField(
-        _('Donations (Time spent doing set up / breakdown'),
+        _('Donations (Time spent doing set up / breakdown.'),
         blank=True,
         default=''
     )
     donations_props = models.TextField(
-        _('Donations (Props/funds/or other materials'),
+        _('Donations (Props/funds/or other materials.'),
         blank=True,
         default=''
     )
