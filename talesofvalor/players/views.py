@@ -37,7 +37,8 @@ from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     PlayerViewable_PlayerForm, \
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm,\
-    TagUpdateForm
+    TagUpdateForm,\
+    REQUESTED
 from .models import Player, Registration, RegistrationRequest, PEL
 
 
@@ -210,10 +211,45 @@ class PlayerDetailView(
                 try:
                     event.registration_request = RegistrationRequest.objects.get(
                         event_registration_item__events=event,
-                        player=self.object
+                        player=self.object,
+                        status=REQUESTED
                     )
+                except RegistrationRequest.MultipleObjectsReturned:
+                    # this is a result of old code bouble requesting things or Paypal taking too long.
+                    # take the latest, and send an email to the admins about the problem.
+                    event.registration_request = RegistrationRequest.objects.filter(
+                        event_registration_item__events=event,
+                        player=self.object,
+                        status=REQUESTED
+                    ).order_by('-requested').first()
+                    message = """
+                    Hello Administrators!
+
+                    Multiple Registration Requests for user {}
+
+                    Click here to figure out which one is valid:
+                    {}
+
+                    --ToV MechCrow
+                    """.format(
+                            self.object,
+                            self.request.build_absolute_uri(
+                                reverse("players:player_detail", kwargs={
+                                    'pk': self.object.id
+                                })
+                            ),
+                            (f"{reverse('registration:request_list')}?"),
+                        )
+                    email_message = mail.EmailMessage(
+                        "Multiple Registration Requests",
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        ("rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com" )
+                    )
+                    email_message.send()
                 except RegistrationRequest.DoesNotExist:
                     event.registration_request = None 
+
                 event.registration = None
         context['future_event_list'] = future_event_list
         # for each event, indicate if the user is registered for it or attended.
