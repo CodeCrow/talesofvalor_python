@@ -21,7 +21,7 @@ DATABASES = {
     }
 }
 
-FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp_upload")
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp")
 STATIC_ROOT = BASE_DIR + '/public/static/'
 MEDIA_ROOT = BASE_DIR + '/public/media/'
 
