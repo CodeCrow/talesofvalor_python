@@ -740,7 +740,16 @@ class PELRedirectView(RedirectView):
         try: 
             event = Event.objects.get(pk=self.kwargs['event_id'])
             character = Character.objects.get(pk=self.kwargs['character_id'])
-            kwargs['pk'] = PEL.objects.filter(event=event, character=character).last().id
+            try:
+                kwargs['pk'] = PEL.objects.get(event=event, character=character).id
+            except PEL.MultipleObjectsReturned:
+                kwargs['pk'] = PEL.objects.filter(event=event, character=character).last().id
+                PEL.objects.filter(
+                    event=event,
+                    character=character
+                ).exclude(
+                    id=kwargs['pk']
+                ).delete()
             del(kwargs['event_id'])
             del(kwargs['character_id'])
             return reverse("players:pel_update", kwargs=kwargs)
