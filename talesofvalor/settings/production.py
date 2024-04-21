@@ -10,13 +10,13 @@ ALLOWED_HOSTS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'talesof_rhiven',
         'USER': 'fodder',
         'PASSWORD': 'wereunicorn',
         'HOST': 'mysql.talesofvalor.com',
         'OPTIONS': {
-            'use_pure': True
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         },
     }
 }
