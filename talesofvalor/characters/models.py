@@ -12,8 +12,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from djangocms_text_ckeditor.fields import HTMLField
 
-from talesofvalor.players.models import Player
+from talesofvalor.players.models import PEL, Player
 from talesofvalor.rules.models import Prerequisite, Rule
+from talesofvalor.skills import HEAVY_ARMOR_SKILL_ID
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
 from talesofvalor.origins.models import Origin
 
@@ -188,6 +189,12 @@ class Character(models.Model):
             universal_flag=True
         ).values_list('skill', flat=True)
         skill_grants = list(tradition_grants) + list(people_grants) + list(universal_grants)
+        # figure out if this character gets the heavy armor grant.
+        # are there 4 PELS with the heavy armor flag and all PELS have them for that character?
+        heavy_armor_count = PEL.objects.filter(character=self, heavy_armor_worn_flag=True).count()
+        total_PEL_count = PEL.objects.filter(character=self)
+        if ((heavy_armor_count > 4) and (heavy_armor_count >= total_PEL_count)):
+            skill_grants.append(Skill.objects.get(id=HEAVY_ARMOR_SKILL_ID))
         return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def skill_cost(self, header_skill):
