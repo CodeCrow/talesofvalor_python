@@ -37,9 +37,8 @@ from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     PlayerViewable_PlayerForm, \
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm,\
-    TagUpdateForm,\
-    REQUESTED
-from .models import Player, Registration, RegistrationRequest, PEL
+    TagUpdateForm
+from .models import Player, Registration, RegistrationRequest, PEL, REQUESTED
 
 
 class PlayerUpdateView(
