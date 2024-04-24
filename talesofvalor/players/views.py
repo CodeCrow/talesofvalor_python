@@ -800,6 +800,7 @@ class PELCreateView(
         Send an email to the staff.
         Add the CP if the player has submitted it in time.
         '''
+        self.return_url = form.cleaned_data['return_url']
         result = super().form_valid(form)
         # if the user has submitted in time, add point to the player.
         if timezone.now().date() <= form.cleaned_data.get('event').pel_due_date:
@@ -829,7 +830,6 @@ class PELCreateView(
             (settings.STAFF_EMAIL, )
         )
         email_message.send()
-        self.return_url = form.cleaned_data['return_url']
         return result
 
     def get_success_url(self):
@@ -863,7 +863,13 @@ class PELUpdateView(
         kwargs['request'] = self.request
         return kwargs
 
+    def form_valid(self, form):
+        self.return_url = form.cleaned_data['return_url']
+        result = super().form_valid(form)
+        return result
+
     def get_success_url(self):
+        print(f"FORM RETURN URL:{self.return_url}")
         if self.return_url:
             return self.return_url
         return reverse("players:player_redirect_detail")
