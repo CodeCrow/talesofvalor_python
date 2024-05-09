@@ -1,7 +1,7 @@
 """
 These are views that are used for viewing and editing Between game skills.
 
-BGS are written by players and .
+BGA are written by players and .
 """
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, \
