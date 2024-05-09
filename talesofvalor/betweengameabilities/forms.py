@@ -74,7 +74,6 @@ class BetweenGameAbilityForm(forms.ModelForm):
             event = Event.objects.get(pk=event)
         else:
             event = self.initial['event']
-
         # Testing the character having the right number of purchases.
         count = cleaned_data.get('count', 0)
         ability = cleaned_data.get('ability', None)
