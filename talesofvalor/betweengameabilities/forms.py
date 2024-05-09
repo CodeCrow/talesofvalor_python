@@ -5,6 +5,7 @@ from django.db.models import Sum
 from django.urls import reverse_lazy
 
 from talesofvalor.characters.models import Character
+from talesofvalor.events.models import Event
 from talesofvalor.skills.models import HeaderSkill
 
 from .models import BetweenGameAbility
@@ -69,8 +70,11 @@ class BetweenGameAbilityForm(forms.ModelForm):
         if type(character) == int:
             character = Character.objects.get(pk=character)
         event = cleaned_data.get("event")
-        if not event:
+        if event:
+            event = Event.objects.get(pk=event)
+        else:
             event = self.initial['event']
+
         # Testing the character having the right number of purchases.
         count = cleaned_data.get('count', 0)
         ability = cleaned_data.get('ability', None)
