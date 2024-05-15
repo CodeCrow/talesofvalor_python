@@ -70,9 +70,17 @@ class BetweenGameAbility(models.Model):
     created_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
-    @classmethod
-    def limit_assigned_to(cls):
-        return {"pub_date__lte": datetime.date.today()}
+    class Meta:
+        verbose_name = "Between Game Ability"
+        verbose_name_plural = "Between Game Abilities"
+
+        ordering = (
+            "-event",
+            "character__name",
+        )
+
+    def __str__(self):
+        return f"{self.character} -> {self.event}"
 
     def answer_available(self):
         """
@@ -91,10 +99,3 @@ class BetweenGameAbility(models.Model):
         """
         return reverse('betweengameabilities:betweengameability_detail', kwargs={'pk': self.pk})
 
-
-    def __str__(self):
-        return f"{self.character} -> {self.event}"
-
-    class Meta:
-        verbose_name = "Between Game Ability"
-        verbose_name_plural = "Between Game Abilities"
