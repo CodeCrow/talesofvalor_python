@@ -42,7 +42,7 @@ REGISTRATION_TYPE_CHOICES = (
 
 
 def limit_to_staff():
-    return {"user__groups__name": "Staff"}
+    return {"user__groups__name__in": ("Staff", "Admin")}
 
 
 class Player(models.Model):
