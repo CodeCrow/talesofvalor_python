@@ -17,6 +17,9 @@
             <th>Event:</th> <td>{{ object.event }}</td>
         </tr>
         <tr>
+            <th>Source:</th><td>{% if object.non_ability_source_flag %}Non-ability source.{% else %}{{ object.ability }}{% endif %}</td>
+        </tr>
+        <tr>
             <th>Question:</th><td>{{ object.question }}</td>
         </tr>
 

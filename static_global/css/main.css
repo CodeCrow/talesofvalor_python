@@ -190,6 +190,7 @@ input[type=checkbox] {
 }
 
 .bga-item-right {
+  max-width: 66%;
   padding-left: 0.5em;
 }
 
