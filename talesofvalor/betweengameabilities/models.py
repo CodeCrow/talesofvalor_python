@@ -20,7 +20,7 @@ from taggit.managers import TaggableManager
 
 from talesofvalor.attendance.models import Attendance
 from talesofvalor.characters.models import Character
-from talesofvalor.players.models import Player
+from talesofvalor.players.models import Player, limit_to_staff
 from talesofvalor.skills.models import HeaderSkill
 from talesofvalor.events.models import Event
 
@@ -53,7 +53,7 @@ class BetweenGameAbility(models.Model):
     assigned_to = models.ForeignKey(
         Player,
         null=True,
-        limit_choices_to={"user__is_staff": True},
+        limit_choices_to=limit_to_staff,
         on_delete=models.SET_NULL
     )
     answer_date = models.DateTimeField(
@@ -62,13 +62,17 @@ class BetweenGameAbility(models.Model):
         null=True
     )
     # taggit tags
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     created = models.DateTimeField(
         _('submitted'),
         auto_now_add=True, editable=False)
     modified = models.DateTimeField(_('last updated'), auto_now=True, editable=False)
     created_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(Player, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
+
+    @classmethod
+    def limit_assigned_to(cls):
+        return {"pub_date__lte": datetime.date.today()}
 
     def answer_available(self):
         """
@@ -86,6 +90,7 @@ class BetweenGameAbility(models.Model):
         Get to the specific display for an instance.
         """
         return reverse('betweengameabilities:betweengameability_detail', kwargs={'pk': self.pk})
+
 
     def __str__(self):
         return f"{self.character} -> {self.event}"

@@ -41,6 +41,10 @@ REGISTRATION_TYPE_CHOICES = (
 )
 
 
+def limit_to_staff():
+    return {"user__groups__name": "Staff"}
+
+
 class Player(models.Model):
     """
     Player of a game.
@@ -546,6 +550,7 @@ class PEL(models.Model):
 
         ordering = (
             "-event",
+            "-created",
         )
 
     def __str__(self):
