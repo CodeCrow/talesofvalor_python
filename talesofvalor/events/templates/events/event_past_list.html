@@ -22,7 +22,7 @@
 		<th>Date</th>
 		<th>Deadlines</th>
 		<th>OOG</th>
-		<th>BGS</th>
+		<th>BGA</th>
 		<th colspan="2"></th>
 	</tr>
 {% for event in object_list %}
@@ -31,7 +31,7 @@
         <td>{{ event.event_date|date:'m-d-Y'}}</td>
         <td>BGS by {{ event.bgs_due_date|date:"m-d-Y"}}<br />PEL by {{ event.pel_due_date|date:'m-d-Y'}}</td>
         <td>{% if event.oog_p %}&#x2714;{% endif %}</td>
-        <td>{% if event.bgs_p %}<a href="{% url "betweengameabilities:betweengameability_list" event_id=event.pk %}">BGS</a>{% endif %}</td>
+        <td>{% if event.bgs_p %}<a href="{% url "betweengameabilities:betweengameability_list" %}?event_id={{ event.id}}">BGA</a>{% endif %}</td>
         <td>{% if perms.events.change_event %}<a href="{% url "events:event_update" pk=event.pk %}">edit</a>{% else %}&nbsp;{% endif %}</td>
     </tr>
 {% empty %}

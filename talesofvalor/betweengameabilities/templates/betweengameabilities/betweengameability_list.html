@@ -63,7 +63,7 @@
     {% endif %}
     <div class="bga-item-right bga-item-internal">
         <h4>Questions</h4>
-        {{ bga.question|truncatewords_html:10 }}<br />
+        {{ bga.question }}<br />
         {% if perms.players.change_any_player or not bga.answer %}
         <nav class="item-navigation">
             {% if bga.created_by == request.user.player %}

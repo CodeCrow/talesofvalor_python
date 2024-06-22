@@ -28,7 +28,7 @@ class SideBar(object):
     BasicInfoSkillsRules = (By.XPATH, ".//a[text()='Skill Rules']")
     StaffInfo = (By.XPATH, ".//ul[@id='navigation_action_staff']")
     PELS = (By.XPATH, ".//a[text()='PELS']")
-    BGS = (By.XPATH, ".//a[text()='BGS']")
+    BGS = (By.XPATH, ".//a[text()='BGA']")
     Characters_New = (
         By.XPATH, ".//li[text()='Characters']/following-sibling::li[1]/a[text()='New']")
     Characters_List = (

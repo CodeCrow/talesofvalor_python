@@ -38,7 +38,7 @@ from .forms import UserForm, PlayerViewable_UserForm, PlayerForm,\
     RegistrationForm, MassRegistrationForm, MassAttendanceForm, MassEmailForm,\
     MassGrantCPForm, TransferCPForm, PELUpdateForm,\
     TagUpdateForm
-from .models import Player, Registration, RegistrationRequest, PEL
+from .models import Player, Registration, RegistrationRequest, PEL, REQUESTED
 
 
 class PlayerUpdateView(
@@ -210,10 +210,45 @@ class PlayerDetailView(
                 try:
                     event.registration_request = RegistrationRequest.objects.get(
                         event_registration_item__events=event,
-                        player=self.object
+                        player=self.object,
+                        status=REQUESTED
                     )
+                except RegistrationRequest.MultipleObjectsReturned:
+                    # this is a result of old code bouble requesting things or Paypal taking too long.
+                    # take the latest, and send an email to the admins about the problem.
+                    event.registration_request = RegistrationRequest.objects.filter(
+                        event_registration_item__events=event,
+                        player=self.object,
+                        status=REQUESTED
+                    ).order_by('-requested').first()
+                    message = """
+                    Hello Administrators!
+
+                    Multiple Registration Requests for user {}
+
+                    Click here to figure out which one is valid:
+                    {}
+
+                    --ToV MechCrow
+                    """.format(
+                            self.object,
+                            self.request.build_absolute_uri(
+                                reverse("players:player_detail", kwargs={
+                                    'pk': self.object.id
+                                })
+                            ),
+                            (f"{reverse('registration:request_list')}?"),
+                        )
+                    email_message = mail.EmailMessage(
+                        "Multiple Registration Requests",
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        ("rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com" )
+                    )
+                    email_message.send()
                 except RegistrationRequest.DoesNotExist:
                     event.registration_request = None 
+
                 event.registration = None
         context['future_event_list'] = future_event_list
         # for each event, indicate if the user is registered for it or attended.
@@ -705,7 +740,16 @@ class PELRedirectView(RedirectView):
         try: 
             event = Event.objects.get(pk=self.kwargs['event_id'])
             character = Character.objects.get(pk=self.kwargs['character_id'])
-            kwargs['pk'] = PEL.objects.get(event=event, character=character).id
+            try:
+                kwargs['pk'] = PEL.objects.get(event=event, character=character).id
+            except PEL.MultipleObjectsReturned:
+                kwargs['pk'] = PEL.objects.filter(event=event, character=character).last().id
+                PEL.objects.filter(
+                    event=event,
+                    character=character
+                ).exclude(
+                    id=kwargs['pk']
+                ).delete()
             del(kwargs['event_id'])
             del(kwargs['character_id'])
             return reverse("players:pel_update", kwargs=kwargs)
@@ -756,10 +800,11 @@ class PELCreateView(
         Send an email to the staff.
         Add the CP if the player has submitted it in time.
         '''
+        self.return_url = form.cleaned_data['return_url']
         result = super().form_valid(form)
         # if the user has submitted in time, add point to the player.
         if timezone.now().date() <= form.cleaned_data.get('event').pel_due_date:
-            form.instance.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
+            form.instance.character.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
         # Alert the staff
         message = """
         Hello Staff!
@@ -785,7 +830,6 @@ class PELCreateView(
             (settings.STAFF_EMAIL, )
         )
         email_message.send()
-        self.return_url = form.cleaned_data['return_url']
         return result
 
     def get_success_url(self):
@@ -819,7 +863,13 @@ class PELUpdateView(
         kwargs['request'] = self.request
         return kwargs
 
+    def form_valid(self, form):
+        self.return_url = form.cleaned_data['return_url']
+        result = super().form_valid(form)
+        return result
+
     def get_success_url(self):
+        print(f"FORM RETURN URL:{self.return_url}")
         if self.return_url:
             return self.return_url
         return reverse("players:player_redirect_detail")

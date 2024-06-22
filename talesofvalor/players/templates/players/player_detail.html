@@ -41,7 +41,7 @@
             <h2>Past Events</h2>
             <ul>
             {% for event in past_event_list %}
-                <li>{{ event }}{% if event.registration %} - <a href="{% url 'registration:detail' pk=event.registration.id %}">Registration</a><br />{% else %}&nbsp;{% endif %}{% if event.registration_request %} - <a href="{% url 'registration:request_detail' pk=event.registration_request.id %}">Registration Request</a><br />{% else %}&nbsp;{% endif %}{% if event.attended %}<a href="{% url 'players:pel_redirect' event_id=event.id character_id=event.attendance.character.id %}">PEL</a> - <a href="{% url 'betweengameabilities:betweengameability_list' %}?event_id={{ event.id}}&player_id={{ object.pk }}">BGS</a>{% endif %}</li>
+                <li>{{ event }}{% if event.registration %} - <a href="{% url 'registration:detail' pk=event.registration.id %}">Registration</a><br />{% else %}&nbsp;{% endif %}{% if event.registration_request %} - <a href="{% url 'registration:request_detail' pk=event.registration_request.id %}">Registration Request</a><br />{% else %}&nbsp;{% endif %}{% if event.attended %}{% if event.attended.character %}<a href="{% url 'players:pel_redirect' event_id=event.id character_id=event.attendance.character.id %}">{% elif event.attendance.player.active_character%}<a href="{% url 'players:pel_redirect' event_id=event.id character_id=event.attendance.player.active_character.id %}">{% endif %}PEL</a> - <a href="{% url 'betweengameabilities:betweengameability_list' %}?event_id={{ event.id}}&player_id={{ object.pk }}">BGA</a>{% endif %}</li>
             {% endfor %}
             </ul>
         </div>

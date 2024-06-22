@@ -41,6 +41,10 @@ REGISTRATION_TYPE_CHOICES = (
 )
 
 
+def limit_to_staff():
+    return {"user__groups__name__in": ("Staff", "Admin")}
+
+
 class Player(models.Model):
     """
     Player of a game.
@@ -463,7 +467,7 @@ class PEL(models.Model):
         (1, 'Poor'),
     )
     # number of points players get for submitting a pel on time
-    ON_TIME_BONUS = 3
+    ON_TIME_BONUS = 2
 
     character = models.ForeignKey('characters.Character', on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -546,6 +550,7 @@ class PEL(models.Model):
 
         ordering = (
             "-event",
+            "-created",
         )
 
     def __str__(self):
