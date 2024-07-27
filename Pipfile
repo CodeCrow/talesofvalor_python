@@ -26,6 +26,7 @@ names = "*"
 wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
 django-hijack = "*"
 django-autocomplete-light = "*"
+gunicorn = "*"
 
 [dev-packages]
 autopep8 = "*"
