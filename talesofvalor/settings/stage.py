@@ -6,7 +6,7 @@ FILER_DEBUG = DEBUG
 
 ALLOWED_HOSTS = [
     'rhiven.stage.talesofvalor.com',
-    'https://rhiven.stage.static.talesofvalor.com/',
+    'rhiven.stage.static.talesofvalor.com',
 ]
 
 DATABASES = {
