@@ -6,6 +6,7 @@ FILER_DEBUG = DEBUG
 
 ALLOWED_HOSTS = [
     'rhiven.talesofvalor.com',
+    'rhiven.static.talesofvalor.com',
 ]
 
 DATABASES = {
@@ -24,6 +25,7 @@ DATABASES = {
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp")
 STATIC_ROOT = BASE_DIR + '/public/static/'
 MEDIA_ROOT = BASE_DIR + '/public/media/'
+STATIC_URL = 'https://rhiven.static.talesofvalor.com/'
 
 # Paypal integration.  This is the live account
 PAYPAL_CLIENT_ID = "AQah38pnBKTKUrULYNTc-XyA6C5UxDQk4m9DiAihBZ3H3o_Uey2TbQaGAMw_zLi5SWJQxheJ_nmCKZWN"
