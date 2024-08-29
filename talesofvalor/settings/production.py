@@ -9,6 +9,8 @@ ALLOWED_HOSTS = [
     'rhiven.static.talesofvalor.com',
 ]
 
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
