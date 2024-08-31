@@ -25,7 +25,7 @@
 </table>
 
 <h3>Event Details</h3>
-{% if perms.players.view_any_player or object.player.user is request.user %}
+{% if perms.players.view_any_player or object.player.user == request.user %}
 <p><strong>On-site Contact:</strong> {{ object.local_contact }}</p>
 <p><strong>Mealplan?</strong> {% if object.mealplan_flag %}&#x2714;{% else %}&#x2717;{% endif %}<br />
 {% if object.vegetarian_flag%}Vegetarian{% endif %}{% if object.vegan_flag%}Vegan{% endif %}</p>

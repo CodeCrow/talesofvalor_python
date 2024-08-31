@@ -8,9 +8,12 @@
 <h2><a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ object.player.user.first_name }} {{ object.player.user.last_name }}</a> -- <a href="{% url 'events:event_detail' pk=object.event.id %}">{{ object.event }}</a></h2>
 
 <p><strong>Event:</strong> {{ object.event }}</p>
-{% if perms.players.view_any_player %}<p><strong>Registration Type:</strong> {{ object.registration_type }}</p>{% endif %}
-{% if perms.players.view_any_player or object.player.user is request.user %}
-<p><a href="{% url 'registration:edit' pk=object.pk %}">edit</a></p>
+{% if perms.players.view_any_player %}
+<p><strong>Registration Type:</strong> {{ object.registration_type }}</p>
+
+<p><a class="btn btn-primary" href="{% url 'registration:edit' pk=object.pk %}">edit registration</a></p>
+{% endif %}
+{% if perms.players.view_any_player or object.player.user == request.user %}
 <p><strong>Cabin:</strong> {{ object.cabin }}</p>
 <p><strong>On-site Contact:</strong> {{ object.local_contact }}</p>
 <p>
