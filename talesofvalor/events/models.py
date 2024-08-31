@@ -81,6 +81,9 @@ class Event(models.Model):
     def attended_player(self, player):
         return self.attendance_set.filter(player=player).exists()
 
+    def registered_player(self, player):
+        return self.attendance_set.filter(player=player).exists()
+
     def get_absolute_url(self):
         """
         Return the absolute URL.

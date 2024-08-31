@@ -25,13 +25,13 @@ SECRET_KEY = '-a=ywh5ngvis#gf195lq&j6cd$8j0)i&gb=s&&a6_8eh@mx%)5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+"""
 ALLOWED_HOSTS = [
     'rhiven.talesofvalor.com',
     'rhiven.static.talesofvalor.com',
     # Add any additional domains as needed
 ]
-
-
+"""
 
 CSRF_TRUSTED_ORIGINS = [
     'https://rhiven.talesofvalor.com',
