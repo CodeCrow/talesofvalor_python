@@ -61,6 +61,20 @@ class EventListView(ListView):
         next_event = Event.next_event()
         if next_event:
             qs = qs.filter(event_date__gte=next_event.event_date)
+        # update each event to indicate of there is a request or registration
+        if self.request.user.is_authenticated:
+            for event in qs:
+                event.registration = Registration.objects.filter(
+                    event=event,
+                    player=self.request.user.player
+                ).last()
+                event.registration_request = RegistrationRequest.objects.filter(
+                    event_registration_item__events=event,
+                    player=self.request.user.player,
+                ).exclude(
+                    status=DENIED
+                ).last()
+
         return qs
 
 
