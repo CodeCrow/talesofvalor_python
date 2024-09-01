@@ -3,6 +3,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
 from django.urls import reverse_lazy
+from django.utils.html import strip_tags
 
 from talesofvalor.characters.models import Character
 from talesofvalor.events.models import Event
@@ -128,3 +129,12 @@ class BetweenGameAbilityAnswerForm(forms.ModelForm):
                 reverse_lazy("services:tag_autocomplete")
             )
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        stripped_answer = strip_tags(cleaned_data.get('answer', ''))
+        if len(stripped_answer) == 0:
+            cleaned_data['answer'] = ''
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return cleaned_data
