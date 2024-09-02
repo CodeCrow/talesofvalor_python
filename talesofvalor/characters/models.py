@@ -59,6 +59,11 @@ class Character(models.Model):
     staff_attention_flag = models.BooleanField(default=False)
     npc_flag = models.BooleanField(default=False)
     active_flag = models.BooleanField(_("Active"), default=False)
+    reset_occurred_flag = models.BooleanField(
+        _("Skills have been reset"),
+        default=False,
+        help_text=_("The skills for this character have already been reset, and can't be again.")
+    )
     concept_approved_flag = models.BooleanField(_("Concept Approved"), default=False)
     history_approved_flag = models.BooleanField(_("History Approved"), default=False)
     cp_initial = models.PositiveIntegerField(

@@ -122,7 +122,6 @@ class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class CharacterDeleteView(
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         DeleteView
         ):
@@ -133,7 +132,6 @@ class CharacterDeleteView(
     """
 
     model = Character
-    permission_required = ('characters.change_character', )
     success_url = reverse_lazy('characters:character_list')
 
     def test_func(self):
@@ -148,7 +146,6 @@ class CharacterDeleteView(
 
 
 class CharacterResetView(
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         View
         ):
@@ -157,7 +154,6 @@ class CharacterResetView(
     """
 
     model = Character
-    permission_required = ('characters.change_character', )
     success_url = reverse_lazy('characters:character_list')
 
     def test_func(self):
@@ -173,19 +169,29 @@ class CharacterResetView(
     def get(self, request, *args, **kwargs):
         """
         Send the user back to the the originating page or back to the
-        character they are setting active
+        character they are setting active.
+
+        Reset the skills of the character if they have not been already.
         """
 
         with transaction.atomic():
             character = self.model.objects.get(pk=self.kwargs['pk'])
-            character.cp_available += character.cp_spent
-            character.cp_spent = 0
-            character.save(update_fields=['cp_available', 'cp_spent'])
-            character.characterskills_set.all().delete()
-            character.headers.clear()
-        messages.info(self.request, 'Character skills reset for {}.'.format(
-            character.name
-        ))
+            # have the skills already been reset or is the user an admin?
+            if not character.reset_occurred_flag or self.request.user.has_perm('players.view_any_player'):    
+                character.cp_available += character.cp_spent
+                character.cp_spent = 0
+                character.reset_occurred_flag = True
+                character.save(update_fields=['cp_available', 'cp_spent', 'reset_occurred_flag'])
+                character.characterskills_set.all().delete()
+                character.headers.clear() 
+                messages.info(self.request, 'Character skills reset for {}.'.format(
+                    character.name
+                ))
+            else:
+                messages.error(self.request, 'Character skills was previously reset for {}.'.format(
+                    character.name
+                ))
+
         return HttpResponseRedirect(
             self.request.META.get(
                 'HTTP_REFERER',
