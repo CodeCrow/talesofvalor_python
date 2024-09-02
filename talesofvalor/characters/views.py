@@ -26,7 +26,8 @@ from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm,\
-    CharacterConceptApproveForm, CharacterHistoryApproveForm
+    CharacterConceptApproveForm, CharacterHistoryApproveForm,\
+    ResetPointsForm
 
 
 class OwnsCharacter(BasePermission):
@@ -308,27 +309,32 @@ class CharacterSkillUpdateView(
 
 class ResetPointsView(
         PermissionRequiredMixin,
-        View
+        FormView
         ):
     """
     Resets the points for the season.
     """
-
+    template_name = "characters/reset_points_form.html"
+    form_class = ResetPointsForm
     permission_required = ('characters.reset_points', )
 
-    def get(self, request, *args, **kwargs):
-        """
-        Send the user back to the the originating page or back to the main 
-        page if the referrer isn't set.
-        """
-        Character.objects.all().update(cp_transferred=0)
-        messages.info(self.request, 'Point cap reset!')
-        return HttpResponseRedirect(
-            self.request.META.get(
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['return_url'] = self.request.META.get(
                 'HTTP_REFERER',
                 '/'
             )
-        )
+        return initial
+
+    def form_valid(self, form):
+        """
+        Form is valid.   Reset the character transfer points for all characters
+        to zero.
+        """
+        self.success_url = form.cleaned_data['return_url']
+        Character.objects.all().update(cp_transferred=0)
+        messages.info(self.request, 'Point cap reset!')
+        return super().form_valid(form)
 
 
 '''

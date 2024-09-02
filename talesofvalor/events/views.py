@@ -61,6 +61,20 @@ class EventListView(ListView):
         next_event = Event.next_event()
         if next_event:
             qs = qs.filter(event_date__gte=next_event.event_date)
+        # update each event to indicate of there is a request or registration
+        if self.request.user.is_authenticated:
+            for event in qs:
+                event.registration = Registration.objects.filter(
+                    event=event,
+                    player=self.request.user.player
+                ).last()
+                event.registration_request = RegistrationRequest.objects.filter(
+                    event_registration_item__events=event,
+                    player=self.request.user.player,
+                ).exclude(
+                    status=DENIED
+                ).last()
+
         return qs
 
 
@@ -81,6 +95,33 @@ class EventPastListView(ListView):
 
 class EventDetailView(DetailView):
     model = Event
+
+    def get_context_data(self, **kwargs):
+        """
+        See if the user has a registration request or registration in the
+        in the database.
+
+        This allows us to update the URL at the top of the detail page to help
+        players understand where they are.
+        """
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            context['existing_registration'] = Registration.objects.filter(
+                event=kwargs.get('object'),
+                player=self.request.user.player
+            ).last()
+            context['existing_registration_request'] = RegistrationRequest.objects.filter(
+                event_registration_item__events=kwargs.get('object'),
+                player=self.request.user.player,
+            ).exclude(
+                status=DENIED
+            ).last()
+        else:
+            context['existing_registration'] = None
+            context['existing_registration_request'] = None
+        return context
 
 
 class EventCharacterPrintListView(PermissionRequiredMixin, ListView):

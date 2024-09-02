@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin, UserPassesTestMixin
 from django.core import mail
+from django.db.models import Q
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, FormMixin,\
@@ -216,7 +217,10 @@ class BetweenGameAbilityDetailView(
 
     def form_valid(self, form):
         bga = form.save(commit=False)
-        bga.answer_date = timezone.now()
+        if len(form.cleaned_data.get('answer', '')) == 0:
+            bga.answer_date = None
+        else:
+            bga.answer_date = timezone.now()
         bga.save()
         # save the tags
         form.save_m2m()
@@ -325,6 +329,14 @@ class BetweenGameAbilityListView(
         assigned = int(self.request.GET.get('assigned', 0))
         if assigned:
             queryset = queryset.filter(assigned_to=self.request.user.player)
+        # show only bga without an answer
+        unanswered = True if int(self.request.GET.get('unanswered', 0)) > 0 else False
+        if unanswered:
+            queryset = queryset.filter(
+                Q(answer_date__isnull=True) |
+                Q(answer__isnull=True) |
+                Q(answer__regex=r"\S+")
+            )
         # filter by character/player name
         name = self.request.GET.get('name', '')
         if (name.strip()):
