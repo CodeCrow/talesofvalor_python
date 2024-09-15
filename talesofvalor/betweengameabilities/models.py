@@ -84,7 +84,7 @@ class BetweenGameAbility(models.Model):
 
     def answer_available(self):
         """
-        an available answer is one whose relavent event is in the past 
+        an available answer is one whose relevent event is in the past 
         and the player has attended an event since.
         """
         return Attendance.objects.filter(

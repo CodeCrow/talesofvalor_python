@@ -32,3 +32,7 @@ STATIC_URL = 'https://rhiven.static.talesofvalor.com/'
 # Paypal integration.  This is the live account
 PAYPAL_CLIENT_ID = "AQah38pnBKTKUrULYNTc-XyA6C5UxDQk4m9DiAihBZ3H3o_Uey2TbQaGAMw_zLi5SWJQxheJ_nmCKZWN"
 PAYPAL_CLIENT_SECRET = "EDSa1OH9G7mGo2wlC7LFpEvTpBqlJ2RtHFq_Mv4HReD5f4_ps0H2u3eIzrDQ7WtyAwOEK-jU75Zt3eT5"
+
+# Recaptcha key
+RECAPTCHA_PUBLIC_KEY = '6LdUx0QqAAAAAHovjL_yv358LCCW3RXAgu1_ESNx'
+RECAPTCHA_PRIVATE_KEY = '6LdUx0QqAAAAADbFpf5LGB28z-t1FkJ1aIZ3IQLj'
