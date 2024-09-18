@@ -24,9 +24,15 @@ class PlayerAdmin(BaseUserAdmin):
     inlines = (PlayerInline, )
 
 
+# sure we can see the modified and created dates
+class PELAdmin(admin.ModelAdmin):
+    
+    readonly_fields = ['created', 'modified']
+
+
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, PlayerAdmin)
 admin.site.register(Registration)
 admin.site.register(RegistrationRequest)
-admin.site.register(PEL)
+admin.site.register(PEL, PELAdmin)
