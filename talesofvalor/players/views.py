@@ -800,10 +800,12 @@ class PELCreateView(
         Send an email to the staff.
         Add the CP if the player has submitted it in time.
         '''
+        # set up current date
+        now = timezone.localtime(timezone.now())
         self.return_url = form.cleaned_data['return_url']
         result = super().form_valid(form)
         # if the user has submitted in time, add point to the player.
-        if timezone.now().date() <= form.cleaned_data.get('event').pel_due_date:
+        if now.date() <= form.cleaned_data.get('event').pel_due_date:
             form.instance.character.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
             form.instance.character.player.save(update_fields=['cp_available'])
         # Alert the staff

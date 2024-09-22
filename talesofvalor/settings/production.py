@@ -1,6 +1,6 @@
 from .common import *
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 FILER_DEBUG = DEBUG
 
@@ -8,8 +8,6 @@ ALLOWED_HOSTS = [
     'rhiven.talesofvalor.com',
     'rhiven.static.talesofvalor.com',
 ]
-
-
 
 DATABASES = {
     'default': {
