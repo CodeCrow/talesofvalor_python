@@ -39,7 +39,21 @@ class Skill(models.Model):
             """),
         default=False
     )
-    bgs_flag = models.BooleanField(default=False)
+    bgs_flag = models.BooleanField(
+        _("Between Game Ability"),
+        help_text=_("""
+            An ability that is typically used between events instead of during them.
+            """),
+        default=False
+    )
+    perk_flag = models.BooleanField(
+        _("This is a Perk"),
+        help_text=_("""
+            A permanent ability that typically takes the form of a passive 
+            benefit that permanently enhances a player’scapabilities.
+            """),
+        default=False
+    )
 
     rules = GenericRelation('rules.Rule', related_query_name='rules')
     
