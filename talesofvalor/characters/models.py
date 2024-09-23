@@ -273,7 +273,12 @@ class Character(models.Model):
                 # figure out the total skill points
                 total = 0
                 for skill in purchased_skills:
-                    total += skill.header.cost * skill.characterskills_set.get(character=self).count
+                    try:
+                        total += skill.header.cost * skill.characterskills_set.get(character=self).count
+                    except CharacterSkills.DoesNotExist:
+                        continue
+                if prereq.points > total:
+                    return False, f"Requires {prereq.points} of {prereq.number_of_different_skills} in {prereq.header}."
             # check for skill requirements
             if prereq.skill:
                 try:
