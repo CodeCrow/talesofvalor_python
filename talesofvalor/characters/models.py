@@ -269,7 +269,7 @@ class Character(models.Model):
                     skill__id__in=self.skills.values_list('skill__id', flat=True)
                 )
                 if prereq.number_of_different_skills > purchased_skills.count(): 
-                    return False, f"Requires {prereq.number_of_different_skills} in {prereq.header}."
+                    return False, f"Requires {prereq.number_of_different_skills} different skill in {prereq.header}."
                 # figure out the total skill points
                 total = 0
                 for skill in purchased_skills:
@@ -278,7 +278,7 @@ class Character(models.Model):
                     except CharacterSkills.DoesNotExist:
                         continue
                 if prereq.points > total:
-                    return False, f"Requires {prereq.points} of {prereq.number_of_different_skills} in {prereq.header}."
+                    return False, f"Requires {prereq.points} points of {prereq.number_of_different_skills} in {prereq.header}."
             # check for skill requirements
             if prereq.skill:
                 try:
