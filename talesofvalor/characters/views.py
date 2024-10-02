@@ -290,9 +290,10 @@ class CharacterSkillUpdateView(
         context = super().get_context_data(**self.kwargs)
 
         # remove skills not in the hash.
-        available_skills = self.object.skillhash.keys()
+        skill_hash = self.object.skillhash
+        available_skills = skill_hash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills or self.request.user.has_perm('player.view_any_player'), self.skills)
-        context['skill_hash'] = self.object.skillhash
+        context['skill_hash'] = skill_hash
         # add the bare skills granted by the rules
         context['granted_skills'] = self.object.skill_grants
         return context

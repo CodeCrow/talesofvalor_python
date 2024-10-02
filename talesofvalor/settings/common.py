@@ -59,7 +59,6 @@ STAFF_EMAIL = 'Tov3staff@googlegroups.com'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Internationalization
@@ -249,6 +248,14 @@ DATABASES = {
 
 MIGRATION_MODULES = {
 
+}
+
+# caching
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/var/tmp/django_cache",
+    }
 }
 
 '''

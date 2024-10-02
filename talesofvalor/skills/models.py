@@ -13,6 +13,7 @@ they can purchase the skills that belong to that header.
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -116,6 +117,8 @@ class Skill(models.Model):
         }
         It will be updated by the character.
         """
+        if skill_hash := cache.get("skill_hash"):
+            return skill_hash
         headers = Header.objects.all().order_by('-open_flag')
         skill_hash = {
             h.id: {
@@ -134,6 +137,8 @@ class Skill(models.Model):
         for h in headers:
             skill_hash[h.id]['cost'] = h.cost
 
+        # cache until a skill or header is updated
+        cache.set("skill_hash", skill_hash, None)
         return skill_hash
 
 
