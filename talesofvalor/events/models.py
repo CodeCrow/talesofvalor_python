@@ -30,6 +30,10 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['event_date']
+        permissions = (
+            ("cast_registration", "Can register as a cast member."),
+        )
+
 
     def __str__(self):
         return "{} - {}".format(
