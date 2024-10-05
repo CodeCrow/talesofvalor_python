@@ -284,6 +284,9 @@ class CastRegistrationView(
         """
         Make sure that the user hasn't already registered for this event.
         """
+        if not request.user.is_authenticated:
+            return super().dispatch(request, args, kwargs)
+
         existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
         
         if existing_registration:
