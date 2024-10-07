@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from djangocms_text_ckeditor.fields import HTMLField
 
@@ -342,30 +343,6 @@ class CharacterSkills(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     skill = models.ForeignKey(HeaderSkill, on_delete=models.CASCADE)
     count = models.PositiveIntegerField(null=False, default=0)
-
-
-class CharacterLog(models.Model):
-    """
-    Log of changes to character.
-
-    Whenever anyone makes a change to a character, an entry to
-    this log should be added so any problems or bad actions can be traced.
-    """
-
-    character = models.ForeignKey(Character, on_delete=models.CASCADE)
-    message = models.TextField(_("Log Message"))
-    created = models.DateTimeField(
-        _('date created'),
-        auto_now_add=True,
-        editable=False
-    )
-    created_by = models.ForeignKey(
-        User,
-        editable=False,
-        related_name='%(app_label)s_%(class)s_author',
-        null=True,
-        on_delete=models.SET_NULL
-    )
 
 
 class CharacterGrant(models.Model):

@@ -9,10 +9,12 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login
+from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import F
@@ -294,6 +296,23 @@ class PlayerDetailView(
         form.cleaned_data['character'].cp_available = form.cleaned_data['character'].cp_available + form.cleaned_data['amount']
         form.cleaned_data['character'].save()
         self.object.save()
+        log_message = f"\"{form.cleaned_data['amount']}\" CP transferred from \"{self.object}\" to \"{form.cleaned_data['character']}\"."
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.object.id,
+            object_repr=self.object.__str__(),
+            action_flag=CHANGE,
+            change_message=log_message
+        )
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Character),
+            object_id=form.cleaned_data['character'].id,
+            object_repr=form.cleaned_data['character'].__str__(),
+            action_flag=CHANGE,
+            change_message=log_message
+        )
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -607,6 +626,20 @@ class MassGrantCPView(FormView):
                 .filter(id__in=selected_players)\
                 .update(cp_available=F('cp_available') + form.cleaned_data['amount'])
             messages.info(self.request, 'Bulk CP updated!')
+            log_entries = []
+            player_content_type = ContentType.objects.get_for_model(Player)
+            for player_id in selected_players:
+                player = Player.objects.get(pk=player_id)
+                log_entry = LogEntry(
+                    user=self.request.user,
+                    content_type=player_content_type,
+                    object_id=player_id,
+                    object_repr=player.__str__(),
+                    action_flag=CHANGE,
+                    change_message=f"{form.cleaned_data['amount']} added to {player} because {form.cleaned_data['reason']}."
+                )
+                log_entries.append(log_entry)
+            LogEntry.objects.bulk_create(log_entries)
 
         else:
             # we should raise an error here so users know there is a problem.
@@ -808,6 +841,14 @@ class PELCreateView(
         if now.date() <= form.cleaned_data.get('event').pel_due_date:
             form.instance.character.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
             form.instance.character.player.save(update_fields=['cp_available'])
+            LogEntry.objects.create(
+                user=self.request.user,
+                content_type=ContentType.objects.get_for_model(self.model),
+                object_id=form.instance.id,
+                object_repr=form.instance.__str__(),
+                action_flag=CHANGE,
+                change_message=f"\"{form.instance.character.player}\" granted {PEL.ON_TIME_BONUS} CP for submitting PEL before the deadline {form.cleaned_data.get('event').pel_due_date.strftime('%A %m-%d-%Y, %H:%M:%S')}"
+            )
         # Alert the staff
         message = """
         Hello Staff!
