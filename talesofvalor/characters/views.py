@@ -622,6 +622,18 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             return False
         return False
 
+    def get_context_data(self, **kwargs):
+        """
+        Add context: The character log
+        """
+        context = super().get_context_data(**kwargs)
+        # Set up the log display for the player
+        context['character_log'] = LogEntry.objects.filter(
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.object.id
+        )
+        return context
+
 
 class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
     """
