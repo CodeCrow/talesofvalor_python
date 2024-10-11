@@ -333,10 +333,19 @@ class BetweenGameAbilityListView(
         unanswered = True if int(self.request.GET.get('unanswered', 0)) > 0 else False
         if unanswered:
             queryset = queryset.filter(
+                Q(answer_date__isnull=True)
+            )
+            # more complicated query that deals with situaltions 
+            # where people submit without entering information.
+            '''
+            queryset = queryset.filter(
                 Q(answer_date__isnull=True) |
                 Q(answer__isnull=True) |
                 Q(answer__regex=r"\S+")
             )
+            '''
+        print(f"UNANSWERED:{unanswered}")
+        print(f"QUERYSET:{queryset}")
         # filter by character/player name
         name = self.request.GET.get('name', '')
         if (name.strip()):
