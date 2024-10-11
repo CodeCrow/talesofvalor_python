@@ -274,6 +274,11 @@ class PlayerDetailView(
                     .first()
             event.attended = event.attended_player(self.object)
         context['past_event_list'] = past_event_list
+        # Set up the log display for the player
+        context['player_log'] = LogEntry.objects.filter(
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.object.id
+        )
         return context
 
     def post(self, request, *args, **kwargs):

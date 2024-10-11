@@ -46,4 +46,16 @@
             </ul>
         </div>
     </div>
+    {% if perms.players.change_any_player %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Player Log</h2>
+            <ul>
+            {% for log in player_log %}
+                <li>{{ log }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
 {% endblock content %}
