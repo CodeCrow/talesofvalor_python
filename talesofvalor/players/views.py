@@ -848,7 +848,7 @@ class PELCreateView(
             form.instance.character.player.save(update_fields=['cp_available'])
             LogEntry.objects.create(
                 user=self.request.user,
-                content_type=ContentType.objects.get_for_model(self.model),
+                content_type=ContentType.objects.get_for_model(Player),
                 object_id=form.instance.id,
                 object_repr=form.instance.__str__(),
                 action_flag=CHANGE,
