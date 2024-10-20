@@ -38,7 +38,11 @@ class BetweenGameAbilityCreateView(
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
             return True
+        # set up current time
+        now = timezone.localtime(timezone.now())
         event = Event.objects.get(pk=self.request.GET.get('event_id', 0))
+        if now.date() > event.bgs_due_date:
+            return False
         character = Character.objects.get(
             pk=self.request.GET.get(
                 'character_id',
@@ -119,12 +123,17 @@ class BetweenGameAbilityUpdateView(
             return True
         try:
             bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
+            # set up current time
+            now = timezone.localtime(timezone.now())
+            if now.date() > bga.event.bgs_due_date:
+                return False
             return (
                 (bga.character.player.user == self.request.user) and
                 (bga.created_by == self.request.user.player)
             )
         except BetweenGameAbility.DoesNotExist:
             return False
+
         return False
 
     def get_form_kwargs(self):
@@ -344,8 +353,6 @@ class BetweenGameAbilityListView(
                 Q(answer__regex=r"\S+")
             )
             '''
-        print(f"UNANSWERED:{unanswered}")
-        print(f"QUERYSET:{queryset}")
         # filter by character/player name
         name = self.request.GET.get('name', '')
         if (name.strip()):

@@ -57,10 +57,10 @@ class EventListView(ListView):
                 .filter(character=self.kwargs['character'])\
                 .values_list('id', flat=True)
             qs = qs.filter(id__in=attendances)
-        # if there is a next event start the list there
-        next_event = Event.next_event()
-        if next_event:
-            qs = qs.filter(event_date__gte=next_event.event_date)
+        # if there is a previous event start the list there
+        previous_event = Event.previous_event()
+        if previous_event:
+            qs = qs.filter(event_date__gte=previous_event.event_date)
         # update each event to indicate of there is a request or registration
         if self.request.user.is_authenticated:
             for event in qs:
@@ -74,7 +74,7 @@ class EventListView(ListView):
                 ).exclude(
                     status=DENIED
                 ).last()
-
+        qs = qs.order_by('event_date')
         return qs
 
 

@@ -7,6 +7,7 @@ from datetime import date, timedelta
 
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
@@ -29,7 +30,7 @@ class Event(models.Model):
     summary = HTMLField(blank=True, default='')
 
     class Meta:
-        ordering = ['event_date']
+        ordering = ['-event_date']
         permissions = (
             ("cast_registration", "Can register as a cast member."),
         )
@@ -78,6 +79,16 @@ class Event(models.Model):
                 .order_by('event_date').first()
         except self.DoesNotExist:
             return None
+
+    @property
+    def bga_past_due(self):
+        """
+        Has the past due date passed?
+        """
+        now = timezone.localtime(timezone.now())
+        if now.date() > self.bgs_due_date:
+            return True
+        return False
 
     def attended(self, character):
         return self.attendance_set.filter(player=character.player).exists()

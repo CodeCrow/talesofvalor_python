@@ -918,7 +918,6 @@ class PELUpdateView(
         return result
 
     def get_success_url(self):
-        print(f"FORM RETURN URL:{self.return_url}")
         if self.return_url:
             return self.return_url
         return reverse("players:player_redirect_detail")

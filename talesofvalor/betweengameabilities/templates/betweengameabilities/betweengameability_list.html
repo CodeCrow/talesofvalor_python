@@ -42,9 +42,11 @@
         </div>
     </div>
     <div id="bga_list_actions" class="col-sm-5">
+        {% if not event.bga_past_due or perms.player.change_any_player %}
         <div class="box">    
             <a href="{% url "betweengameabilities:betweengameability_create" %}?character_id={{ character.id}}&event_id={{event.id}}" class="btn btn-primary">Add Between Game Ability</a>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -67,12 +69,15 @@
         <h4>Questions</h4>
         {{ bga.question }}<br />
         {% if perms.players.change_any_player or not bga.answer %}
+        {% comment %}Can't use parenthesis in if statments . . .{% endcomment %}
+        {% if perms.players.change_any_player or not bga.event.bga_past_due %}
         <nav class="item-navigation">
-            {% if bga.created_by == request.user.player %}
+            {% if bga.created_by == request.user.player or perms.players.change_any_player %}
                 <a href="{% url 'betweengameabilities:betweengameability_update' pk=bga.id %}">Edit</a>&nbsp;|&nbsp;
                 <a href="{% url 'betweengameabilities:betweengameability_delete' pk=bga.id %}">Destroy</a>
             {% endif %}
         </nav>
+        {% endif %}
         {% endif %}
         {% if bga.answer %}
         {% if perms.players.change_any_player or bga.created_by.user == request.user and bga.answer_available %}
