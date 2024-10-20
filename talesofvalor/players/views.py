@@ -277,7 +277,7 @@ class PlayerDetailView(
         # Set up the log display for the player
         context['player_log'] = LogEntry.objects.filter(
             content_type=ContentType.objects.get_for_model(self.model),
-            object_id=self.object.id
+            object_id=self.object.user.id
         )
         return context
 
