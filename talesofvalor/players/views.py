@@ -277,7 +277,7 @@ class PlayerDetailView(
         # Set up the log display for the player
         context['player_log'] = LogEntry.objects.filter(
             content_type=ContentType.objects.get_for_model(self.model),
-            object_id=self.object.user.id
+            object_id=self.object.id
         )
         return context
 
@@ -849,8 +849,8 @@ class PELCreateView(
             LogEntry.objects.create(
                 user=self.request.user,
                 content_type=ContentType.objects.get_for_model(Player),
-                object_id=form.instance.id,
-                object_repr=form.instance.__str__(),
+                object_id=form.instance.character.player.id,
+                object_repr=form.instance.character.player.__str__(),
                 action_flag=CHANGE,
                 change_message=f"\"{form.instance.character.player}\" granted {PEL.ON_TIME_BONUS} CP for submitting PEL before the deadline {form.cleaned_data.get('event').pel_due_date.strftime('%A %m-%d-%Y, %H:%M:%S')}"
             )
