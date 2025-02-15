@@ -43,11 +43,6 @@ Player: <a href="{% url 'players:player_detail' pk=object.player.pk %}">{{ objec
         {% include "characters/includes/character_skill_item.html" with skill=skill %}</br>
     {% endfor %}
     {% endif %}
-        <tr>
-            <td colspan="2" class="text-right">
-                <input type="submit" value="Update" />
-            </td>
-        </tr>
     </table>
 </form>
 {% endblock content %}
