@@ -12,6 +12,8 @@
         <div class="box">
           <h3>Filters</h3>
           <form method="GET" action="">
+
+            {% if perms.players.change_any_player %}
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
               <label class="btn btn-secondary{% if request.GET.bgs_flag == '1' %} active{% endif %}"">
                 <input type="checkbox" name="bgs_flag" id="bgs_flag" autocomplete="off" value="1"{% if request.GET.bgs_flag == '1' %} checked{% endif %}> BGA
@@ -23,6 +25,7 @@
                 <input type="checkbox" name="unlinked_flag" id="unlinked_flag" autocomplete="off" value="1"{% if request.GET.unlinked_flag == '1' %} checked{% endif %}> Unlinked
               </label>
             </div>
+            {%  endif  %}
             <table class="data">
               <tr>
                 <th><label for="name">Name:</label></th><td><input type="text" value="{{request.GET.name}}" name="name"/></td>
