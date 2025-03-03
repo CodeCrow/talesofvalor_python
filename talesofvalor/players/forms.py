@@ -1,5 +1,7 @@
 from dal import autocomplete
 
+from django_recaptcha.fields import ReCaptchaField
+
 from django import forms
 from django.conf import settings
 from django.core import mail
@@ -90,6 +92,8 @@ class RegistrationForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
     password_confirm = forms.CharField(widget=forms.PasswordInput)
+    
+    captcha = ReCaptchaField()
 
     def clean_email(self):
         """

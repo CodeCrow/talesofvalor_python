@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin, UserPassesTestMixin
 from django.core import mail
+from django.db.models import Q
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, FormMixin,\
@@ -37,7 +38,11 @@ class BetweenGameAbilityCreateView(
     def test_func(self):
         if self.request.user.has_perm('players.change_any_player'):
             return True
+        # set up current time
+        now = timezone.localtime(timezone.now())
         event = Event.objects.get(pk=self.request.GET.get('event_id', 0))
+        if now.date() > event.bgs_due_date:
+            return False
         character = Character.objects.get(
             pk=self.request.GET.get(
                 'character_id',
@@ -118,12 +123,17 @@ class BetweenGameAbilityUpdateView(
             return True
         try:
             bga = BetweenGameAbility.objects.get(pk=self.kwargs.get('pk'))
+            # set up current time
+            now = timezone.localtime(timezone.now())
+            if now.date() > bga.event.bgs_due_date:
+                return False
             return (
                 (bga.character.player.user == self.request.user) and
                 (bga.created_by == self.request.user.player)
             )
         except BetweenGameAbility.DoesNotExist:
             return False
+
         return False
 
     def get_form_kwargs(self):
@@ -216,7 +226,10 @@ class BetweenGameAbilityDetailView(
 
     def form_valid(self, form):
         bga = form.save(commit=False)
-        bga.answer_date = timezone.now()
+        if len(form.cleaned_data.get('answer', '')) == 0:
+            bga.answer_date = None
+        else:
+            bga.answer_date = timezone.now()
         bga.save()
         # save the tags
         form.save_m2m()
@@ -325,6 +338,21 @@ class BetweenGameAbilityListView(
         assigned = int(self.request.GET.get('assigned', 0))
         if assigned:
             queryset = queryset.filter(assigned_to=self.request.user.player)
+        # show only bga without an answer
+        unanswered = True if int(self.request.GET.get('unanswered', 0)) > 0 else False
+        if unanswered:
+            queryset = queryset.filter(
+                Q(answer_date__isnull=True)
+            )
+            # more complicated query that deals with situaltions 
+            # where people submit without entering information.
+            '''
+            queryset = queryset.filter(
+                Q(answer_date__isnull=True) |
+                Q(answer__isnull=True) |
+                Q(answer__regex=r"\S+")
+            )
+            '''
         # filter by character/player name
         name = self.request.GET.get('name', '')
         if (name.strip()):

@@ -25,8 +25,8 @@
             <form method="GET">
             {% if perms.players.change_any_player %}
             <p>Filter: 
-              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=0{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">All</a> | 
-              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=1{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Assigned to Me</a>
+              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=0&unanswered=0{% for key, value in request.GET.items %}{% if key != 'assigned' and key != 'unanswered' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">All</a> | 
+              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=1{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Assigned to Me</a> 
             </p>
             <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
             {% endif %}
@@ -36,14 +36,17 @@
                 <option value="{{ e.id }}"{% if e.id == event.id %} selected{% endif %}>{{ e }}</option>
               {% endfor %}
             </select></p>
+            <p><input type="checkbox" name="unanswered" value="1"{% if request.GET.unanswered %} checked="checked"{% endif %}>&nbsp;Not Answered</p>
             <button id="bga_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
             </form>
         </div>
     </div>
     <div id="bga_list_actions" class="col-sm-5">
+        {% if not event.bga_past_due or perms.player.change_any_player %}
         <div class="box">    
             <a href="{% url "betweengameabilities:betweengameability_create" %}?character_id={{ character.id}}&event_id={{event.id}}" class="btn btn-primary">Add Between Game Ability</a>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -52,6 +55,7 @@
 {% for bga in object_list %}
 <div class="list bga-item">
     <h3><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}">{{ bga.character }}</a>&nbsp;|&nbsp;{% if bga.non_ability_source_flag %}Non Ability Source{% else %}{{ bga.ability }}{% endif %}:&nbsp;{{ bga.count }}</h3>
+    <div class="w-100"><a href="{% url 'betweengameabilities:betweengameability_detail' pk=bga.id %}" class="btn btn-primary">View{% if perms.players.change_any_player %}&nbsp;/&nbsp;Answer{% endif %}</a></div>
     {% if perms.players.change_any_player %}
         <div class="bga-item-left bga-item-internal">
         <h5>Assigned To: {% if bga.assigned_to %}{{ bga.assigned_to }}{% endif %}</h5><br />
@@ -65,12 +69,15 @@
         <h4>Questions</h4>
         {{ bga.question }}<br />
         {% if perms.players.change_any_player or not bga.answer %}
+        {% comment %}Can't use parenthesis in if statments . . .{% endcomment %}
+        {% if perms.players.change_any_player or not bga.event.bga_past_due %}
         <nav class="item-navigation">
-            {% if bga.created_by == request.user.player %}
+            {% if bga.created_by == request.user.player or perms.players.change_any_player %}
                 <a href="{% url 'betweengameabilities:betweengameability_update' pk=bga.id %}">Edit</a>&nbsp;|&nbsp;
                 <a href="{% url 'betweengameabilities:betweengameability_delete' pk=bga.id %}">Destroy</a>
             {% endif %}
         </nav>
+        {% endif %}
         {% endif %}
         {% if bga.answer %}
         {% if perms.players.change_any_player or bga.created_by.user == request.user and bga.answer_available %}

@@ -25,8 +25,19 @@ SECRET_KEY = '-a=ywh5ngvis#gf195lq&j6cd$8j0)i&gb=s&&a6_8eh@mx%)5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+"""
+ALLOWED_HOSTS = [
+    'rhiven.talesofvalor.com',
+    'rhiven.static.talesofvalor.com',
+    # Add any additional domains as needed
+]
+"""
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://rhiven.talesofvalor.com',
+    'https://rhiven.static.talesofvalor.com',
+
+]
 
 # Application definition
 WSGI_APPLICATION = 'talesofvalor.wsgi.application'
@@ -47,7 +58,6 @@ DEFAULT_FROM_EMAIL = 'characterupdate@talesofvalor.com'
 STAFF_EMAIL = 'Tov3staff@googlegroups.com'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -135,6 +145,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+    'django_recaptcha',
     'cms',
     'menus',
     'sekizai',
@@ -237,6 +248,14 @@ DATABASES = {
 
 MIGRATION_MODULES = {
 
+}
+
+# caching
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/var/tmp/django_cache",
+    }
 }
 
 '''

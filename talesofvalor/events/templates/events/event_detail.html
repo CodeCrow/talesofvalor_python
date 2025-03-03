@@ -6,17 +6,26 @@
 {% block content %}
 
 
-<a href="{% url "events:register" pk=event.pk %}">Register for this event &hellip;</a>
 
-<p><strong>Event Date:</strong>{{ object.event_date|date:'m-d-Y'}}</p>
+<h2><strong>Event Date:</strong>  {{ object.event_date|date:'m-d-Y'}}</h2>
+
+{% if existing_registration %}
+	<a href="{% url "registration:detail" pk=existing_registration.pk %}"><strong>You are registered for this event!</strong></a>
+{% elif existing_registration_request %}
+	<a href="{% url "registration:request_detail" pk=existing_registration_request.pk %}">You're <strong>requested a registration</strong> for this event.</a>
+{% else %}
+	<a href="{% url "events:register" pk=event.pk %}">Register for this event &hellip;</a>
+{% endif %}
 
 {% if object.summary %}
 <h2>Summary</h2>
 {{ object.summary }}
 {% endif %}
 
+{% if object.notes %}
 <h2>Important Information</h2>
 {{ object.notes }}
+{% endif %}
 
 {% if perms.players.view_any_player %}
 <h2>Registered Players</h2>

@@ -22,7 +22,7 @@
 
             <header class="row ">
                 <div class="col-sm-8">
-                    <h1>{% block title %}This is my new project home page{% endblock title %}</h1>
+                    <h1>{% block title %}Tales of Valor{% endblock title %}</h1>
                 </div>
                 <div class="col-sm-4 no-print">
                     <div class="box">
@@ -45,7 +45,7 @@
                 <div id="main_content" class="col-sm-10 main-content">
                     {% if messages %}
                         {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
                             <strong>{{ message.tags }}</strong> {{ message }} <button class="close close-alert" title="Close Alert" aria-label="Close Alert">&#x2715;</button>
                         </div>
                         {% endfor %}

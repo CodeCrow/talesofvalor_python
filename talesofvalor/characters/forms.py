@@ -151,3 +151,13 @@ class CharacterHistoryApproveForm(forms.Form):
         if character.history_approved_flag:
             raise ValidationError(f"The history for {character} has already been approved.")
         return super().clean()
+
+
+class ResetPointsForm(forms.Form):
+    """
+    Form for the approval of a reset points cap request to give some friction 
+    to that request.
+
+    Nothing really to do here at this time.
+    """
+    return_url = forms.CharField(widget=widgets.HiddenInput())

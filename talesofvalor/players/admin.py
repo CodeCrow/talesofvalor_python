@@ -1,5 +1,6 @@
 """Back end set up for Player."""
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
@@ -24,9 +25,15 @@ class PlayerAdmin(BaseUserAdmin):
     inlines = (PlayerInline, )
 
 
+# sure we can see the modified and created dates
+class PELAdmin(admin.ModelAdmin):
+    
+    readonly_fields = ['created', 'modified']
+
+
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, PlayerAdmin)
 admin.site.register(Registration)
 admin.site.register(RegistrationRequest)
-admin.site.register(PEL)
+admin.site.register(PEL, PELAdmin)

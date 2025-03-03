@@ -3,6 +3,7 @@ These are views that are used for viewing and editing headers and skills.
 """
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -41,6 +42,7 @@ class HeaderCreateView(PermissionRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        cache.delete("skill_hash")
         context = self.get_context_data()
         rule_formset = context['rule_formset']
         prerequisite_formset = context['prerequisite_formset']
@@ -81,6 +83,7 @@ class HeaderUpdateView(PermissionRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        cache.delete("skill_hash")
         context = self.get_context_data()
         rule_formset = context['rule_formset']
         prerequisite_formset = context['prerequisite_formset']
@@ -109,6 +112,11 @@ class HeaderDeleteView(PermissionRequiredMixin, DeleteView):
     model = Header
     permission_required = ('skills.delete_header', )
     success_url = reverse_lazy('skills:header_list')
+
+    def form_valid(self, form):
+        cache.delete("skill_hash")
+        return super().form_valid(form)
+
 
 
 class HeaderDetailView(LoginRequiredMixin, DetailView):
@@ -172,6 +180,7 @@ class SkillCreateView(PermissionRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        cache.delete("skill_hash")
         context = self.get_context_data()
         header_formset = context['headerskill_formset']
         rule_formset = context['rule_formset']
@@ -218,6 +227,7 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        cache.delete("skill_hash")
         context = self.get_context_data()
         header_formset = context['headerskill_formset']
         rule_formset = context['rule_formset']
@@ -248,7 +258,10 @@ class SkillDeleteView(PermissionRequiredMixin, DeleteView):
     model = Skill
     permission_required = ('skills.delete_skill', )
     success_url = reverse_lazy('skills:skill_list')
-
+    
+    def form_valid(self, form):
+        cache.delete("skill_hash")
+        return super().form_valid(form)
 
 class SkillDetailView(LoginRequiredMixin, DetailView):
     """

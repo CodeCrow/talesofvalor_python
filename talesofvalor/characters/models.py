@@ -9,11 +9,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from djangocms_text_ckeditor.fields import HTMLField
 
-from talesofvalor.players.models import Player
+from talesofvalor.players.models import PEL, Player
 from talesofvalor.rules.models import Prerequisite, Rule
+from talesofvalor.skills import HEAVY_ARMOR_SKILL_ID
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
 from talesofvalor.origins.models import Origin
 
@@ -58,6 +60,11 @@ class Character(models.Model):
     staff_attention_flag = models.BooleanField(default=False)
     npc_flag = models.BooleanField(default=False)
     active_flag = models.BooleanField(_("Active"), default=False)
+    reset_occurred_flag = models.BooleanField(
+        _("Skills have been reset"),
+        default=False,
+        help_text=_("The skills for this character have already been reset, and can't be again.")
+    )
     concept_approved_flag = models.BooleanField(_("Concept Approved"), default=False)
     history_approved_flag = models.BooleanField(_("History Approved"), default=False)
     cp_initial = models.PositiveIntegerField(
@@ -188,6 +195,12 @@ class Character(models.Model):
             universal_flag=True
         ).values_list('skill', flat=True)
         skill_grants = list(tradition_grants) + list(people_grants) + list(universal_grants)
+        # figure out if this character gets the heavy armor grant.
+        # are there 4 PELS with the heavy armor flag and all PELS have them for that character?
+        heavy_armor_count = PEL.objects.filter(character=self, heavy_armor_worn_flag=True).count()
+        total_PEL_count = PEL.objects.filter(character=self)
+        if ((heavy_armor_count > 4) and (heavy_armor_count >= total_PEL_count)):
+            skill_grants.append(Skill.objects.get(id=HEAVY_ARMOR_SKILL_ID))
         return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def skill_cost(self, header_skill):
@@ -257,11 +270,16 @@ class Character(models.Model):
                     skill__id__in=self.skills.values_list('skill__id', flat=True)
                 )
                 if prereq.number_of_different_skills > purchased_skills.count(): 
-                    return False, f"Requires {prereq.number_of_different_skills} in {prereq.header}."
+                    return False, f"Requires {prereq.number_of_different_skills} different skills in {prereq.header}."
                 # figure out the total skill points
                 total = 0
                 for skill in purchased_skills:
-                    total += skill.header.cost * skill.characterskills_set.get(character=self).count
+                    try:
+                        total += skill.cost * skill.characterskills_set.get(character=self).count
+                    except CharacterSkills.DoesNotExist:
+                        continue
+                if prereq.points > total:
+                    return False, f"Requires {prereq.points} points in {prereq.number_of_different_skills} skills in {prereq.header}."
             # check for skill requirements
             if prereq.skill:
                 try:
@@ -325,30 +343,6 @@ class CharacterSkills(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     skill = models.ForeignKey(HeaderSkill, on_delete=models.CASCADE)
     count = models.PositiveIntegerField(null=False, default=0)
-
-
-class CharacterLog(models.Model):
-    """
-    Log of changes to character.
-
-    Whenever anyone makes a change to a character, an entry to
-    this log should be added so any problems or bad actions can be traced.
-    """
-
-    character = models.ForeignKey(Character, on_delete=models.CASCADE)
-    message = models.TextField(_("Log Message"))
-    created = models.DateTimeField(
-        _('date created'),
-        auto_now_add=True,
-        editable=False
-    )
-    created_by = models.ForeignKey(
-        User,
-        editable=False,
-        related_name='%(app_label)s_%(class)s_author',
-        null=True,
-        on_delete=models.SET_NULL
-    )
 
 
 class CharacterGrant(models.Model):

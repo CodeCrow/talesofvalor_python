@@ -6,9 +6,9 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-4">
-		<a href="{% url "events:event_past_list" %}">Past Events</a>
+		<a href="{% url "events:event_list" %}">Current Events</a>
     </div>
-    {% if perms.skills.add_skill %}
+    {% if perms.events.add_event %}
     <div class="col-sm-8">
         <div class="text-right">
 		{% if perms.events.add_event and object_list %}<a href="{% url "events:event_create" %}">Add Event</a>{% endif %}
