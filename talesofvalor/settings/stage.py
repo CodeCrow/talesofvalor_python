@@ -1,12 +1,17 @@
 from .common import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 FILER_DEBUG = DEBUG
 
 ALLOWED_HOSTS = [
+    '208.113.158.227',
     'rhiven.stage.talesofvalor.com',
     'rhiven.stage.static.talesofvalor.com',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://rhiven.stage.talesofvalor.com',        
 ]
 
 DATABASES = {
