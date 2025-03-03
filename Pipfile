@@ -1,0 +1,37 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-cms = "<4"
+fabric = "*"
+djangocms-text-ckeditor = "*"
+djangocms-file = "*"
+djangocms-picture = "*"
+djangocms-link = "*"
+django-recaptcha = "*"
+djangocms-style = "*"
+djangocms-snippet = "*"
+djangocms-video = "*"
+djangorestframework = "*"
+django-taggit = "~=3.0"
+# djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
+mysql-connector-python = "*"
+mysqlclient = "*"
+paypal-checkout-serversdk = "*"
+selenium = "*"
+mailosaur = "*"
+names = "*"
+wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
+django-hijack = "*"
+django-autocomplete-light = "*"
+gunicorn = "*"
+
+[dev-packages]
+autopep8 = "*"
+black = "*"
+
+[requires]
+python_version = "3.9"
