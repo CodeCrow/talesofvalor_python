@@ -11,6 +11,7 @@ djangocms-text-ckeditor = "*"
 djangocms-file = "*"
 djangocms-picture = "*"
 djangocms-link = "*"
+django-recaptcha = "*"
 djangocms-style = "*"
 djangocms-snippet = "*"
 djangocms-video = "*"
@@ -27,7 +28,6 @@ wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
 django-hijack = "*"
 django-autocomplete-light = "*"
 gunicorn = "*"
-django-recaptcha = "*"
 
 [dev-packages]
 autopep8 = "*"

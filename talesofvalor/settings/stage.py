@@ -5,8 +5,13 @@ TEMPLATE_DEBUG = DEBUG
 FILER_DEBUG = DEBUG
 
 ALLOWED_HOSTS = [
+    '208.113.158.227',
     'rhiven.stage.talesofvalor.com',
     'rhiven.stage.static.talesofvalor.com',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://rhiven.stage.talesofvalor.com',
 ]
 
 DATABASES = {
@@ -29,3 +34,4 @@ STATIC_URL = 'https://rhiven.stage.static.talesofvalor.com/'
 # Paypal integration for test Tales of Valor account
 PAYPAL_CLIENT_ID = "AQcJGiNp_J8n2KU7hVoD8g4O52zT0x0zhMF_TLaooJjJsnexdUkDaHC8DtqE3vYtYfSqPKLZeJjUcItf"
 PAYPAL_CLIENT_SECRET = "EE_iU3H-8gfhyCfZcgTySn2aH1g0_PrcwdUN4TJd8IKh_xiBobv1brZpF5DbmyEp7dMYURNAtMe-o4mh"
+
