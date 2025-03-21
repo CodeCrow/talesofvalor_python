@@ -28,7 +28,14 @@ class Attendance(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     character = models.ForeignKey(Character, null=True, on_delete=models.SET_NULL)
+    
+    # number of points players get for submitting a pel on time
+    ATTENDANCE_CP = 3
 
+    def __str__(self):
+        return "{} -- {}".format(
+            self.player, self.event)
+    
     def save(self, *args, **kwargs):
         """
         Save the attendance.
@@ -42,5 +49,7 @@ class Attendance(models.Model):
             if not hasattr(self, 'character'):
                 # Now, check the current active character
                 self.character = self.player.active_character
+            # The user has been marked as attended:
+            self.player.cp_available = models.F('cp_available') + self.ATTENDANCE_CP
 
         super(Attendance, self).save(*args, **kwargs)

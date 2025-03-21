@@ -57,10 +57,24 @@ class EventListView(ListView):
                 .filter(character=self.kwargs['character'])\
                 .values_list('id', flat=True)
             qs = qs.filter(id__in=attendances)
-        # if there is a next event start the list there
-        next_event = Event.next_event()
-        if next_event:
-            qs = qs.filter(event_date__gte=next_event.event_date)
+        # if there is a previous event start the list there
+        previous_event = Event.previous_event()
+        if previous_event:
+            qs = qs.filter(event_date__gte=previous_event.event_date)
+        # update each event to indicate of there is a request or registration
+        if self.request.user.is_authenticated:
+            for event in qs:
+                event.registration = Registration.objects.filter(
+                    event=event,
+                    player=self.request.user.player
+                ).last()
+                event.registration_request = RegistrationRequest.objects.filter(
+                    event_registration_item__events=event,
+                    player=self.request.user.player,
+                ).exclude(
+                    status=DENIED
+                ).last()
+        qs = qs.order_by('event_date')
         return qs
 
 
@@ -81,6 +95,33 @@ class EventPastListView(ListView):
 
 class EventDetailView(DetailView):
     model = Event
+
+    def get_context_data(self, **kwargs):
+        """
+        See if the user has a registration request or registration in the
+        in the database.
+
+        This allows us to update the URL at the top of the detail page to help
+        players understand where they are.
+        """
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            context['existing_registration'] = Registration.objects.filter(
+                event=kwargs.get('object'),
+                player=self.request.user.player
+            ).last()
+            context['existing_registration_request'] = RegistrationRequest.objects.filter(
+                event_registration_item__events=kwargs.get('object'),
+                player=self.request.user.player,
+            ).exclude(
+                status=DENIED
+            ).last()
+        else:
+            context['existing_registration'] = None
+            context['existing_registration_request'] = None
+        return context
 
 
 class EventCharacterPrintListView(PermissionRequiredMixin, ListView):
@@ -180,7 +221,6 @@ class PlayerRegistrationView(
         if form.is_valid():
             return self.form_valid(form)
         else:
-            print(form.errors)
             return self.form_invalid(form)
 
     def form_valid(self, form):
@@ -244,6 +284,9 @@ class CastRegistrationView(
         """
         Make sure that the user hasn't already registered for this event.
         """
+        if not request.user.is_authenticated:
+            return super().dispatch(request, args, kwargs)
+
         existing_registration = Registration.objects.filter(event__id=kwargs['pk'], player=request.user.player).last()
         
         if existing_registration:
@@ -317,7 +360,6 @@ class CastRegistrationView(
         return response
 
     def get_success_url(self):
-        print(self.__dict__)
         return reverse(
             'registration:detail',
             kwargs={'pk': self.object.pk}

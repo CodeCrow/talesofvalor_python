@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.contenttypes.forms import generic_inlineformset_factory
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import BaseInlineFormSet
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 # these are the models that we can gather the requirements from
 from .models import Rule, Prerequisite, PrerequisiteGroup

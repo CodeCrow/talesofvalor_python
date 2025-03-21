@@ -1,13 +1,16 @@
 """These are views that are used for viewing and editing characters."""
 
 from django.contrib import messages
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DeleteView, DetailView, FormView, ListView
@@ -22,12 +25,17 @@ from rest_framework.views import APIView
 
 from talesofvalor import get_query
 from talesofvalor.events.models import Event
+<<<<<<< HEAD
 from talesofvalor.players.models import Registration, PLAYER
+=======
+from talesofvalor.players.models import Player, Registration
+>>>>>>> production
 from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm,\
-    CharacterConceptApproveForm, CharacterHistoryApproveForm
+    CharacterConceptApproveForm, CharacterHistoryApproveForm,\
+    ResetPointsForm
 
 
 class OwnsCharacter(BasePermission):
@@ -92,7 +100,19 @@ class CharacterCreateView(LoginRequiredMixin, CreateView):
         messages.info(self.request, 'New Character, "{}" created.'.format(
             form.instance.name
         ))
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # only add to the log if the response happens.
+        # form_valid sets the object so we can access it here.
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.object.id,
+            object_repr=self.object.__str__(),
+            action_flag=ADDITION,
+            change_message=f"New character \"{form.instance.name}\" CREATED by \"{self.request.user}\""
+        )
+        return response
 
 
 class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -120,9 +140,25 @@ class CharacterUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             kwargs={'pk': self.object.pk}
         )
 
+    def form_valid(self, form):
+        """
+        Log the fact the the character was updated.
+        """
+        response = super().form_valid(form)
+        # only add to the log if the response happens.
+        # form_valid sets the object so we can access it here.
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.object.id,
+            object_repr=self.object.__str__(),
+            action_flag=CHANGE,
+            change_message=f"\"{form.instance.name}\" UPDATED by \"{self.request.user}\""
+        )
+        return response
+
 
 class CharacterDeleteView(
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         DeleteView
         ):
@@ -133,7 +169,6 @@ class CharacterDeleteView(
     """
 
     model = Character
-    permission_required = ('characters.change_character', )
     success_url = reverse_lazy('characters:character_list')
 
     def test_func(self):
@@ -148,7 +183,6 @@ class CharacterDeleteView(
 
 
 class CharacterResetView(
-        PermissionRequiredMixin,
         UserPassesTestMixin,
         View
         ):
@@ -157,7 +191,6 @@ class CharacterResetView(
     """
 
     model = Character
-    permission_required = ('characters.change_character', )
     success_url = reverse_lazy('characters:character_list')
 
     def test_func(self):
@@ -173,19 +206,37 @@ class CharacterResetView(
     def get(self, request, *args, **kwargs):
         """
         Send the user back to the the originating page or back to the
-        character they are setting active
+        character they are setting active.
+
+        Reset the skills of the character if they have not been already.
         """
 
         with transaction.atomic():
             character = self.model.objects.get(pk=self.kwargs['pk'])
-            character.cp_available += character.cp_spent
-            character.cp_spent = 0
-            character.save(update_fields=['cp_available', 'cp_spent'])
-            character.characterskills_set.all().delete()
-            character.headers.clear()
-        messages.info(self.request, 'Character skills reset for {}.'.format(
-            character.name
-        ))
+            # have the skills already been reset or is the user an admin?
+            if not character.reset_occurred_flag or self.request.user.has_perm('players.view_any_player'):    
+                character.cp_available += character.cp_spent
+                character.cp_spent = 0
+                character.reset_occurred_flag = True
+                character.save(update_fields=['cp_available', 'cp_spent', 'reset_occurred_flag'])
+                character.characterskills_set.all().delete()
+                character.headers.clear() 
+                messages.info(self.request, 'Character skills reset for {}.'.format(
+                    character.name
+                ))
+                LogEntry.objects.create(
+                    user=request.user,
+                    content_type=ContentType.objects.get_for_model(self.model),
+                    object_id=character.id,
+                    object_repr=character.__str__(),
+                    action_flag=CHANGE,
+                    change_message=f"\"{character.name}\" RESET by \"{request.user}\"",
+                )
+            else:
+                messages.error(self.request, 'Character skills was previously reset for {}.'.format(
+                    character.name
+                ))
+
         return HttpResponseRedirect(
             self.request.META.get(
                 'HTTP_REFERER',
@@ -232,6 +283,14 @@ class CharacterSetActiveView(
         messages.info(self.request, 'Active Character changed to {}.'.format(
             character.name
         ))
+        LogEntry.objects.create(
+            user=request.user,
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=character.id,
+            object_repr=character.__str__(),
+            action_flag=CHANGE,
+            change_message=f"\"{character.name}\" SET TO ACTIVE by \"{request.user}\""
+        )
         return HttpResponseRedirect(
             self.request.META.get(
                 'HTTP_REFERER',
@@ -284,9 +343,10 @@ class CharacterSkillUpdateView(
         context = super().get_context_data(**self.kwargs)
 
         # remove skills not in the hash.
-        available_skills = self.object.skillhash.keys()
+        skill_hash = self.object.skillhash
+        available_skills = skill_hash.keys()
         context['skills'] = filter(lambda x:  x.id in available_skills or self.request.user.has_perm('player.view_any_player'), self.skills)
-        context['skill_hash'] = self.object.skillhash
+        context['skill_hash'] = skill_hash
         # add the bare skills granted by the rules
         context['granted_skills'] = self.object.skill_grants
         return context
@@ -309,27 +369,38 @@ class CharacterSkillUpdateView(
 
 class ResetPointsView(
         PermissionRequiredMixin,
-        View
+        FormView
         ):
     """
     Resets the points for the season.
     """
-
+    template_name = "characters/reset_points_form.html"
+    form_class = ResetPointsForm
     permission_required = ('characters.reset_points', )
 
-    def get(self, request, *args, **kwargs):
-        """
-        Send the user back to the the originating page or back to the main 
-        page if the referrer isn't set.
-        """
-        Character.objects.all().update(cp_transferred=0)
-        messages.info(self.request, 'Point cap reset!')
-        return HttpResponseRedirect(
-            self.request.META.get(
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['return_url'] = self.request.META.get(
                 'HTTP_REFERER',
                 '/'
             )
+        return initial
+
+    def form_valid(self, form):
+        """
+        Form is valid.   Reset the character transfer points for all characters
+        to zero.
+        """
+        self.success_url = form.cleaned_data['return_url']
+        Character.objects.all().update(cp_transferred=0)
+        messages.info(self.request, 'Point cap reset!')
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Player),
+            action_flag=CHANGE,
+            change_message=f"\"Character point cap reset by \"{self.request.user}\""
         )
+        return super().form_valid(form)
 
 
 '''
@@ -410,7 +481,15 @@ class CharacterAddHeaderView(APIView):
                 content = {
                     'success': header.cost * -1,
                     'skills': skill_item_template_string
-                }
+                }        
+                LogEntry.objects.create(
+                    user=request.user,
+                    content_type=ContentType.objects.get_for_model(Character),
+                    object_id=character.id,
+                    object_repr=character.__str__(),
+                    action_flag=CHANGE,
+                    change_message=f"Added Header \"{header}\" to \"{character}\" for {header.cost} CP."
+                )
             else: 
                 content = {
                     'error': "You don't have enough points available for this character to add this header."
@@ -449,7 +528,6 @@ class CharacterDropHeaderView(APIView):
         content['header_list'] = []
 
         if header in character.headers.all():
-            print(f'Header present!  Dropping and adding back in {header.cost} CP...')
             character.cp_available += header.cost
             character.cp_spent -= header.cost
             character.headers.remove(header)
@@ -464,7 +542,15 @@ class CharacterDropHeaderView(APIView):
             )
             content = {
                 'success': header.cost,
-            }
+            }              
+            LogEntry.objects.create(
+                user=request.user,
+                content_type=ContentType.objects.get_for_model(Character),
+                object_id=character.id,
+                object_repr=character.__str__(),
+                action_flag=CHANGE,
+                change_message=f"Removed Header \"{header}\" from \"{character}\" and returned {header.cost} CP."
+            )
         else:
             status = HTTP_412_PRECONDITION_FAILED
         return Response(content, status)
@@ -527,6 +613,16 @@ class CharacterAddSkillView(APIView):
                     character.cp_spent = F('cp_spent') + cost
                     character.cp_available = F('cp_available') - cost
                     character.save()
+                    action = "added to" if vector > 0 else "removed from"
+                    log_message = f""
+                    LogEntry.objects.create(
+                        user=request.user,
+                        content_type=ContentType.objects.get_for_model(Character),
+                        object_id=character.id,
+                        object_repr=character.__str__(),
+                        action_flag=CHANGE,
+                        change_message=f"Skill \"{header_skill.skill}\" {action} \"{character}\" for {cost} CP."
+                    )
             else: 
                 content = {
                     'error': "You don't have enough points available to purchase this skill . . ."
@@ -560,6 +656,18 @@ class CharacterDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             return False
         return False
 
+    def get_context_data(self, **kwargs):
+        """
+        Add context: The character log
+        """
+        context = super().get_context_data(**kwargs)
+        # Set up the log display for the player
+        context['character_log'] = LogEntry.objects.filter(
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.object.id
+        )
+        return context
+
 
 class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
     """
@@ -572,11 +680,26 @@ class CharacterConceptApproveView(PermissionRequiredMixin, FormView):
 
     def form_valid(self, form):
         self.object = Character.objects.get(pk=form.cleaned_data['character_id'])
-        self.object.player.cp_available += 3
-        self.object.player.save(update_fields=['cp_available'])
         self.object.concept_approved_flag = True
         self.object.save(update_fields=['concept_approved_flag'])
         messages.info(self.request, f"{self.object} concept approved!")
+        log_message = f"\"{self.object.name}\" character concept approved by \"{self.request.user}\"."
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Character),
+            object_id=self.object.id,
+            object_repr=self.object.__str__(),
+            action_flag=CHANGE,
+            change_message=log_message
+        )
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Player),
+            object_id=self.object.player.id,
+            object_repr=self.object.player.__str__(),
+            action_flag=CHANGE,
+            change_message=log_message
+        )
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -610,7 +733,24 @@ class CharacterHistoryApproveView(PermissionRequiredMixin, FormView):
         self.object.player.save(update_fields=['cp_available'])
         self.object.history_approved_flag = True
         self.object.save(update_fields=['history_approved_flag'])
-        messages.info(self.request, f"{self.object} history approved!")
+        messages.info(self.request, f"{self.object} history approved!") 
+        log_message = f"\"{self.object.name}\" character history approved by \"{self.request.user}\".  3 CP added to { self.object.player }",
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Character),
+            object_id=self.object.id,
+            object_repr=self.object.__str__(),
+            action_flag=CHANGE,
+            change_message=log_message
+        )
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Player),
+            object_id=self.object.player.id,
+            object_repr=self.object.player.__str__(),
+            action_flag=CHANGE,
+            change_message=log_message
+        )
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -680,12 +820,39 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
         queryset = super().get_queryset()  # filter by event
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
-            event_id = Event.next_event().id
+            next_event = Event.next_event()
+            if next_event:
+                event_id = next_event.id
+            else:
+                # there is no next event, so this should be blank.
+                return queryset.none()
         player_ids = Registration.objects.filter(event__id=event_id).values_list('player_id', flat=True)
         queryset = queryset.filter(player__id__in=player_ids, npc_flag=False, active_flag=True)
         
         return queryset
 
+    def get_context_data(self, **kwargs):
+        """
+        Add the bga questions/answers to the printout.
+        """
+        # get the context data to add to.
+        context_data = super().get_context_data(**kwargs)
+        # Get the bga for each character
+        # get the event
+        event_id = self.kwargs.get('event_id', None)
+        event = None
+        if event_id:
+            try:
+                event = Event.objects.get(pk=event_id)
+                event = event.previous()
+            except Event.DoesNotExist:
+                pass
+        if not event:
+            event = Event.previous_event()
+        for character in self.object_list:
+            character.bgas = character.betweengameability_set.filter(event=event)
+        # return the resulting context
+        return context_data
 
 class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
     """
@@ -720,10 +887,10 @@ class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
 
 
 class CharacterInfluenceUpdateView(PermissionRequiredMixin, APIView):
-    '''
+    """
     Set of AJAX views to update influence
 .
-    '''
+    """
 
     permission_required = ('players.change_any_player', )
     authentication_classes = [SessionAuthentication]
@@ -752,3 +919,4 @@ class CharacterInfluenceUpdateView(PermissionRequiredMixin, APIView):
         character.influence = content['influence'] = influence
         character.save(update_fields=('influence', ))
         return Response(content, status)
+

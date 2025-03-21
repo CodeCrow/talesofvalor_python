@@ -1,0 +1,1 @@
+default_app_config = 'talesofvalor.betweengameabilities.apps.BetweenGameAbilitiesConfig'

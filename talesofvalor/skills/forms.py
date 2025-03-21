@@ -7,7 +7,7 @@ from .models import Skill, Header, HeaderSkill
 
 
 INCLUDE_FOR_EDIT_HEADER = ["name", "category", "description", "cost", "hidden_flag", "open_flag"]
-INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "single_flag", "bgs_flag"]
+INCLUDE_FOR_EDIT_SKILL = ["name", "tag", "description", "single_flag", "bgs_flag", "perk_flag"]
 
 
 class HeaderForm(forms.ModelForm):

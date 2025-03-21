@@ -13,8 +13,9 @@ they can purchase the skills that belong to that header.
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.cache import cache
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from djangocms_text_ckeditor.fields import HTMLField
 
@@ -39,7 +40,21 @@ class Skill(models.Model):
             """),
         default=False
     )
-    bgs_flag = models.BooleanField(default=False)
+    bgs_flag = models.BooleanField(
+        _("Between Game Ability"),
+        help_text=_("""
+            An ability that is typically used between events instead of during them.
+            """),
+        default=False
+    )
+    perk_flag = models.BooleanField(
+        _("This is a Perk"),
+        help_text=_("""
+            A permanent ability that typically takes the form of a passive 
+            benefit that permanently enhances a player’scapabilities.
+            """),
+        default=False
+    )
 
     rules = GenericRelation('rules.Rule', related_query_name='rules')
     
@@ -102,6 +117,8 @@ class Skill(models.Model):
         }
         It will be updated by the character.
         """
+        if skill_hash := cache.get("skill_hash"):
+            return skill_hash
         headers = Header.objects.all().order_by('-open_flag')
         skill_hash = {
             h.id: {
@@ -120,6 +137,8 @@ class Skill(models.Model):
         for h in headers:
             skill_hash[h.id]['cost'] = h.cost
 
+        # cache until a skill or header is updated
+        cache.set("skill_hash", skill_hash, None)
         return skill_hash
 
 

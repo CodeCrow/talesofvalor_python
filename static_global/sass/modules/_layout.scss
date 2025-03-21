@@ -29,6 +29,15 @@ ul.flat-list {
     position: relative;
 }
 
+.list {
+    caption {
+        caption-side: top;
+    }
+    th {
+        position: relative;
+    }
+}
+
 .nav {
     padding-left: 0;
 }

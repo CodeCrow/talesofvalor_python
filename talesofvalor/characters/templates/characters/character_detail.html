@@ -14,15 +14,20 @@
     {% if perms.players.change_any_player %}
         <div class="character-body">
             <h2>Private Staff Notes:</h2>
-            {{ object.staff_notes_hidden }}
-            <h2>Log:</h2>
-            {% include "characters/includes/character_log.html" with character=object %}
+            {{ object.staff_notes_hidden }} 
+        </div>
+        <div class="character-body">
+            <h2>Character Log:</h2>
+            <ul>
+            {% for log in character_log %}
+                <li>{{ log }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
         </div>
     {% endif %}
-<form action="" method="post">{% csrf_token %}
-    <table class="data">
-        {{ object.history }}
-    </table>
-</form>
+
 </div>
+    
 {% endblock content %}

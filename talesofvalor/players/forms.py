@@ -1,12 +1,16 @@
+from dal import autocomplete
+
+from django_recaptcha.fields import ReCaptchaField
+
 from django import forms
 from django.conf import settings
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from talesofvalor.characters.models import POINT_CAP, Character
 from talesofvalor.events.models import Event
@@ -26,7 +30,6 @@ class UserForm(forms.ModelForm):
             'groups',
         ]
 
-
     def clean(self):
         """
         Clean the full form data.
@@ -36,9 +39,6 @@ class UserForm(forms.ModelForm):
         """
 
         cleaned_data = super(UserForm, self).clean()
-        print("ERRORS")
-        print(self.errors)
-        print("ERRORS")
 
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
@@ -92,6 +92,8 @@ class RegistrationForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
     password_confirm = forms.CharField(widget=forms.PasswordInput)
+    
+    captcha = ReCaptchaField()
 
     def clean_email(self):
         """
@@ -112,7 +114,6 @@ class RegistrationForm(forms.Form):
         data = self.cleaned_data['username']
         if User.objects.filter(username=data).exists():
             raise ValidationError(mark_safe(f"This username already exists.  Did you <a href=\"{reverse('password_reset')}\">forget your login?</a>"))
-
 
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
@@ -274,17 +275,20 @@ class PELUpdateForm(forms.ModelForm):
         '''
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.return_url = self.request.META['HTTP_REFERER']
-        self.fields['return_url'].initial = self.return_url
+        self.fields['return_url'].initial = self.request.META.get(
+            'HTTP_REFERER', 
+            reverse('players:player_redirect_detail')
+        )
 
     class Meta:
         model = PEL
         fields = '__all__'
+        exclude = ('tags', )
         events = ['event']
 
         # We want all fields to be 80 cols wide, but rows are either 3 or 5.
         widgets = {
-            'player': forms.HiddenInput(),
+            'character': forms.HiddenInput(),
             'event': forms.HiddenInput(),
             'donations_time': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
             'donations_props': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
@@ -294,5 +298,19 @@ class PELUpdateForm(forms.ModelForm):
             'devout': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
             'new_rule_likes': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
             'new_rule_dislikes': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
-            'learned': forms.Textarea(attrs={'cols': '80', 'rows': '3'}),
+            'learned': forms.Textarea(attrs={'cols': '80', 'rows': '3'})
+        }
+
+
+class TagUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = PEL
+        fields = ('tags', )
+
+        # We want all fields to be 80 cols wide, but rows are either 3 or 5.
+        widgets = { 
+            'tags': autocomplete.TaggitSelect2(
+                reverse_lazy("services:tag_autocomplete")
+            )
         }

@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load cms_tags %}
 
-{% block title %}{{ object.user.username }}{% endblock title %}
+{% block bar_title %}PEL for {{ object.event }} | {{ object.character }} | {{ block.super }}{% endblock bar_title %}
+{% block title %}PEL for {{ object.event }}| {{ object.character }}{% endblock title %}
 
 {% block content %}
 <form method="post">{% csrf_token %}

@@ -11,8 +11,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from djangocms_text_ckeditor.fields import HTMLField
 
+
 class Comment(models.Model):
-    subject = models.CharField(max_length=255, blank=False)
     comment = HTMLField(blank=False)
 
     content_type = models.ForeignKey(
@@ -25,9 +25,11 @@ class Comment(models.Model):
         ) | models.Q(
             app_label='attendance', model='Attendance'
         ) | models.Q(
-            app_label='betweengameskills', model='BetweenGameSkill'
+            app_label='betweengameabilities', model='betweengameability'
         ) | models.Q(
             app_label='origins', model='Origin'
+        ) | models.Q(
+            app_label='players', model='Pel'
         ) | models.Q(
             app_label='players', model='Player'
         ) | models.Q(
@@ -42,8 +44,11 @@ class Comment(models.Model):
 
     created = models.DateTimeField('date published', auto_now_add=True, editable=False)
     modified = models.DateTimeField('last updated', auto_now=True, editable=False)
-    created_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
-    modified_by = models.ForeignKey(User, editable=False, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(User, related_name='%(app_label)s_%(class)s_author', null=True, on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(User, related_name='%(app_label)s_%(class)s_updater', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return self.subject
+        return " ".join(self.comment.split(" ")[:5])
+
+    class Meta:
+        ordering = ('created', )

@@ -11,12 +11,6 @@
             <p>Filter:</p>
             <form method="GET">
             <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
-            <p>Registered For:&nbsp;<select name="registered_for" id="registered_for">
-              <option value="{{ event.id }}"{% if not request.GET.registered_for %} selected{% endif %}>---</option>
-              {% for event in event_list %}
-                <option value="{{ event.id }}"{% if request.GET.registered_for == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
-              {% endfor %}
-            </select></p>
             <p>Attended:&nbsp;<select name="attended" id="attended">
               <option value="{{ event.id }}"{% if not request.GET.attended %} selected{% endif %}>---</option>
               {% for event in event_list %}
@@ -35,20 +29,20 @@
 		<table id="player_list" class="list list-players">
 
         {% regroup object_list by event as pel_list %}
-		    {% for event in pel_list %}
-        <tr>
-          <td colspan="2"><h2>{{ event.grouper }}</h2></td>
-        </tr>
-         <tr>
-          <th>Player</th>
-          <th>&nbsp;</th>
-        </tr>
-        {% for pel in event.list%}
-          <tr>
-              <td><a href="{% url 'players:player_detail' pk=pel.player.pk %}">{{ pel.player }}</a></td>
-              <td><a href="{% url 'players:pel_detail' pk=pel.id %}">View</a></td>
-          </tr>
-        {% endfor %}
+  		    {% for event in pel_list %}
+            <tr>
+              <td colspan="2"><h2>{{ event.grouper }}</h2></td>
+            </tr>
+             <tr>
+              <th>Player</th>
+              <th>&nbsp;</th>
+            </tr>
+            {% for pel in event.list%}
+              <tr>
+                  <td><a href="{% url 'players:player_detail' pk=pel.character.player.pk %}">{{ pel.character.player }}</a></td>
+                  <td><a href="{% url 'players:pel_detail' pk=pel.id %}">View</a></td>
+              </tr>
+          {% endfor %}
         {% empty %}
         <tr><td colspan="2">No PELs Yet.</td></tr>
 		    {% endfor %}
