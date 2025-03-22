@@ -29,7 +29,7 @@ def remove_permission_from_group(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('characters', '0026_alter_character_options'),
+        ('characters', '0031_character_influence'),
     ]
 
     operations = [

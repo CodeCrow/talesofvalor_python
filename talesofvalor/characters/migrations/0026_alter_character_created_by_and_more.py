@@ -28,4 +28,9 @@ class Migration(migrations.Migration):
             name='created_by',
             field=models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(app_label)s_%(class)s_author', to=settings.AUTH_USER_MODEL),
         ),
+        migrations.AlterModelOptions(
+            name='character',
+            options={'ordering': ['name'], 'permissions': (
+            ('reset_points', 'Can reset points'), ('update_influence', 'Can update influence'))},
+        ),
     ]

@@ -10,7 +10,6 @@ from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DeleteView, DetailView, FormView, ListView
@@ -25,11 +24,8 @@ from rest_framework.views import APIView
 
 from talesofvalor import get_query
 from talesofvalor.events.models import Event
-<<<<<<< HEAD
-from talesofvalor.players.models import Registration, PLAYER
-=======
-from talesofvalor.players.models import Player, Registration
->>>>>>> production
+
+from talesofvalor.players.models import Player, Registration, PLAYER
 from talesofvalor.skills.models import Header, HeaderSkill
 
 from .models import Character
@@ -403,15 +399,15 @@ class ResetPointsView(
         return super().form_valid(form)
 
 
-'''
+"""
 Put the AJAX work for Characters here
-'''
+"""
 class CharacterViewSet(APIView):
-    '''
+    """
     Set of AJAX views for a Character
 
     This handles different API calls for character actions.
-    '''
+    """
     @staticmethod
     def add_to_session_selection(request, ids):
         # get the existing player selection:
@@ -438,11 +434,11 @@ class CharacterViewSet(APIView):
 
 
 class CharacterAddHeaderView(APIView):
-    '''
+    """
     Set of AJAX views for a Characters
 
     This handles different API calls for character actions.
-    '''
+    """
 
     authentication_classes = [SessionAuthentication]
     permission_classes = [OwnsCharacter]
@@ -504,11 +500,11 @@ class CharacterAddHeaderView(APIView):
 
 
 class CharacterDropHeaderView(APIView):
-    '''
+    """
     Set of AJAX views for a Characters
 
     This handles different API calls for character actions.
-    '''
+    """
 
     authentication_classes = [SessionAuthentication]
     permission_classes = [OwnsCharacter]
@@ -557,11 +553,11 @@ class CharacterDropHeaderView(APIView):
 
 
 class CharacterAddSkillView(APIView):
-    '''
+    """
     Set of AJAX views for a Characters
 
     This handles different API calls for character actions.
-    '''
+    """
 
     authentication_classes = [SessionAuthentication]
     permission_classes = [OwnsCharacter]
@@ -797,9 +793,9 @@ class CharacterListView(LoginRequiredMixin, ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
-        '''
+        """
         Add the form so we can filter the characters.
-        '''
+        """
         # get the context data to add to.
         context_data = super().get_context_data(**kwargs)
         context_data.update(**self.request.GET)
@@ -889,10 +885,8 @@ class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
 class CharacterInfluenceUpdateView(PermissionRequiredMixin, APIView):
     """
     Set of AJAX views to update influence
-.
     """
-
-    permission_required = ('players.change_any_player', )
+    permission_required = ('players.update_influence', )
     authentication_classes = [SessionAuthentication]
     permission_classes = [OwnsCharacter]
 
