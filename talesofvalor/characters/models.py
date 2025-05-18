@@ -199,7 +199,7 @@ class Character(models.Model):
         # are there 4 PELS with the heavy armor flag and all PELS have them for that character?
         heavy_armor_count = PEL.objects.filter(character=self, heavy_armor_worn_flag=True).count()
         if (heavy_armor_count > 4):
-            skill_grants.append(Skill.objects.get(id=HEAVY_ARMOR_SKILL_ID))
+            skill_grants.append(Skill.objects.get(id=HEAVY_ARMOR_SKILL_ID).id)
         return HeaderSkill.objects.filter(id__in=skill_grants)
 
     def skill_cost(self, header_skill):
