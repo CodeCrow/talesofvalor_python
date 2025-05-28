@@ -287,6 +287,7 @@ class SkillListView(LoginRequiredMixin, ListView):
         filter_args = {}
         name_filter = self.request.GET.get('name', None)
         description_filter = self.request.GET.get('description', None)
+        tag_filter = self.request.GET.get('tag', None)
         hidden_filter = self.request.GET.get('hidden_flag', None)
         bgs_filter = self.request.GET.get('bgs_flag', None)
         unlinked_filter = self.request.GET.get('unlinked_flag', None)
@@ -294,6 +295,8 @@ class SkillListView(LoginRequiredMixin, ListView):
             filter_args['name__istartswith'] = name_filter
         if description_filter and len(description_filter):
             filter_args['description__icontains'] = description_filter
+        if tag_filter and len(tag_filter):
+            filter_args['tag__icontains'] = tag_filter
         if hidden_filter and len(hidden_filter):
             filter_args['headerskill__header__hidden_flag'] = (int(hidden_filter) == 1)
         if bgs_filter and len(bgs_filter):
