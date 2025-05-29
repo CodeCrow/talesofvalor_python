@@ -64,7 +64,8 @@
     <td>
         <nav class="item-navigation">
             {% if perms.skills.change_header %}<a href="{% url 'skills:header_update' pk=header.id %}">Edit</a>&nbsp;|&nbsp;{% endif %}
-            {% if perms.skills.delete_header %}<a href="{% url 'skills:header_delete' pk=header.id %}">Destroy</a>{% endif %}
+            {% if perms.skills.delete_header %}<a href="{% url 'skills:header_delete' pk=header.id %}">Destroy</a> | {% endif %}
+            <a href="{% url 'characters:character_list' %}?header_id={{ header.id }}">Characters</a>
         </nav>
     </td> 
 </tr>

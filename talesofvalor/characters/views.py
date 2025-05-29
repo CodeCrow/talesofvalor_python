@@ -760,6 +760,10 @@ class CharacterListView(LoginRequiredMixin, ListView):
         concept_approved_flag = self.request.GET.get('concept_approved_flag', False)
         if concept_approved_flag:
             queryset = queryset.filter(concept_approved_flag=True)
+        header_id = self.request.GET.get('header_id', None)
+        if header_id:
+            queryset = queryset.filter(headers__id=header_id)
+
         return queryset
 
     def get_context_data(self, **kwargs):
