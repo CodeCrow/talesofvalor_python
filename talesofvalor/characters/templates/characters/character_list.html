@@ -11,11 +11,12 @@
 <div class="row">
     <div id="character_list_filter" class="col-sm-7">
         <div class="box">
-            <form method="GET">
-            <p>Search: <input name="criteria" type="text" value="{{ request.GET.criteria }}" /></p>
-            <p><input type="checkbox" name="concept_approved_flag" id="concept_approved_flag" autocomplete="off" value="1"{% if request.GET.concept_approved_flag == '1' %} checked{% endif %}><label>Concept Approved</label></p>
-            <p><input type="checkbox" name="history_approved_flag" id="history_approved_flag" autocomplete="off" value="1"{% if request.GET.history_approved_flag == '1' %} checked{% endif %}><label>History Approved</label></p>
-            <button id="character_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
+            <form>
+            <p>Search: <input name="criteria" type="text" value="{{ criteria }}" /></p>
+            <p><input type="checkbox" name="concept_approved_flag" id="concept_approved_flag" autocomplete="off" value="1"{% if concept_approved_flag == '1' %} checked{% endif %}><label>Concept Approved</label></p>
+            <p><input type="checkbox" name="history_approved_flag" id="history_approved_flag" autocomplete="off" value="1"{% if history_approved_flag == '1' %} checked{% endif %}><label>History Approved</label></p>
+            <p><input type="checkbox" name="player_only" id="player_only" autocomplete="off" value="1"{% if player_only == '1' %} checked{% endif %}><label>Players Only</label></p>
+            <button id="character_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search" value="search">Search</button>
             </form>
         </div>
     </div>

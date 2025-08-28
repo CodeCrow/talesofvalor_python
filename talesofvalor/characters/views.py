@@ -735,7 +735,10 @@ class CharacterHistoryApproveView(PermissionRequiredMixin, FormView):
         ) 
 
 
-class CharacterListView(LoginRequiredMixin, ListView):
+class CharacterListView(
+    LoginRequiredMixin,
+    ListView
+):
     """
     Show the list of characters.
 
@@ -760,19 +763,29 @@ class CharacterListView(LoginRequiredMixin, ListView):
         concept_approved_flag = self.request.GET.get('concept_approved_flag', False)
         if concept_approved_flag:
             queryset = queryset.filter(concept_approved_flag=True)
+        if not self.request.GET.get('search', False):
+            player_only = False
+        else:
+            player_only = self.request.GET.get('player_only', False)
+        if player_only:
+            queryset = queryset.filter(player__user__groups__name="Player")
         header_id = self.request.GET.get('header_id', None)
         if header_id:
             queryset = queryset.filter(headers__id=header_id)
-
+        skill_id = self.request.GET.get('skill_id', None)
+        if skill_id:
+            queryset = queryset.filter(skills__skill__id=skill_id)
         return queryset
 
     def get_context_data(self, **kwargs):
-        '''
+        """
         Add the form so we can filter the characters.
-        '''
+        """
         # get the context data to add to.
         context_data = super().get_context_data(**kwargs)
-        context_data.update(**self.request.GET)
+        if not self.request.GET.get('search', False):
+            context_data['player_only'] = '1'
+        context_data.update(**self.request.GET.dict())
         # return the resulting context
         return context_data
 
