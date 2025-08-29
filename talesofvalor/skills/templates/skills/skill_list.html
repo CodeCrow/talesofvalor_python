@@ -71,7 +71,7 @@
         <nav class="item-navigation">
             {% if perms.skills.change_skill %}<a href="{% url 'skills:skill_update' pk=skill.id %}">Edit</a>&nbsp;|&nbsp;{% endif %}
             {% if perms.skills.delete_skill %}<a href="{% url 'skills:skill_delete' pk=skill.id %}">Destroy</a>{% endif %}
-            <a href="{% url 'characters:character_list' %}?skill_id={{ skill.id }}">Characters</a>
+            <a href="{% url 'characters:character_list' %}?player_only=1&skill_id={{ skill.id }}">Characters</a>
         </nav>
     </td> 
 </tr>

@@ -9,9 +9,11 @@
 
 
 <div class="row">
-    <div id="character_list_filter" class="col-sm-7">
+    <div id="character_list_filter" class="col-sm-12">
         <div class="box">
             <form>
+            <input type="hidden" name="skill_id" value="{{ skill_id }}">
+            <input type="hidden" name="header_id" value="{{ header_id }}">
             <p>Search: <input name="criteria" type="text" value="{{ criteria }}" /></p>
             <p><input type="checkbox" name="concept_approved_flag" id="concept_approved_flag" autocomplete="off" value="1"{% if concept_approved_flag == '1' %} checked{% endif %}><label>Concept Approved</label></p>
             <p><input type="checkbox" name="history_approved_flag" id="history_approved_flag" autocomplete="off" value="1"{% if history_approved_flag == '1' %} checked{% endif %}><label>History Approved</label></p>
@@ -20,14 +22,12 @@
             </form>
         </div>
     </div>
-    <div id="character_list_actions" class="col-sm-5">
-        <div class="box">
-            
-        </div>
-    </div>
 </div>
 <div class="row">
     <div class="col-sm-12">
+        {% if subtitle %}
+        <h3 class="filter-subtitle">{{ subtitle }}&nbsp;<a class="btn btn-primary" href="?{% for key, value in request.GET.items %}{% if key != 'skill_id' and key != 'header_id' %}{{ key }}={{ value }}{% endif %}&{% endfor %}">Clear Filters</a></h3>
+        {% endif %}
         {% include "characters/includes/character_list.html" with objects=object_list id="character_list" caption="" %}
     </div>
 </div>

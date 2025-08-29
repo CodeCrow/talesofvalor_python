@@ -10,7 +10,6 @@ from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 from django.views import View
 from django.views.generic.edit import FormMixin, CreateView, UpdateView
 from django.views.generic import DeleteView, DetailView, FormView, ListView
@@ -25,7 +24,7 @@ from rest_framework.views import APIView
 from talesofvalor import get_query
 from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player, Registration
-from talesofvalor.skills.models import Header, HeaderSkill
+from talesofvalor.skills.models import Header, HeaderSkill, Skill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm,\
@@ -771,10 +770,10 @@ class CharacterListView(
             queryset = queryset.filter(player__user__groups__name="Player")
         header_id = self.request.GET.get('header_id', None)
         if header_id:
-            queryset = queryset.filter(headers__id=header_id)
+            queryset = queryset.filter(headers__id=int(header_id))
         skill_id = self.request.GET.get('skill_id', None)
         if skill_id:
-            queryset = queryset.filter(skills__skill__id=skill_id)
+            queryset = queryset.filter(skills__skill__id=int(skill_id))
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -786,6 +785,12 @@ class CharacterListView(
         if not self.request.GET.get('search', False):
             context_data['player_only'] = '1'
         context_data.update(**self.request.GET.dict())
+        # set up the search title
+        if header_id :=  self.request.GET.get('header_id', False):
+            context_data['subtitle'] = f"Showing characters with header \"{Header.objects.get(pk=header_id)}\""
+        elif skill_id := self.request.GET.get('skill_id', False):
+            context_data['subtitle'] = f"Showing characters with skill \"{Skill.objects.get(pk=skill_id)}\""
+        return context_data
         # return the resulting context
         return context_data
 
