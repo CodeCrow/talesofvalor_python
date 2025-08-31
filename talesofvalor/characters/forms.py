@@ -67,13 +67,12 @@ class CharacterForm(forms.ModelForm):
             'origins'
          ]
 
-
 class CharacterSkillForm(forms.Form):
     """
     Allow skills to be added by a player to a character.
 
-    The context of the tmeplate should have the list of the headers
-    and associated skills so we can build a good looking form.
+    The context of the template should have the list of the headers
+    and associated skills so we can build a good-looking form.
     """
     headers = forms.TypedMultipleChoiceField(
         required=False,

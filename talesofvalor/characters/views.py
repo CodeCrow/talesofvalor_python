@@ -24,9 +24,8 @@ from rest_framework.views import APIView
 
 from talesofvalor import get_query
 from talesofvalor.events.models import Event
-
 from talesofvalor.players.models import Player, Registration, PLAYER
-from talesofvalor.skills.models import Header, HeaderSkill
+from talesofvalor.skills.models import Header, HeaderSkill, Skill
 
 from .models import Character
 from .forms import CharacterForm, CharacterSkillForm,\
@@ -765,7 +764,10 @@ class CharacterHistoryApproveView(PermissionRequiredMixin, FormView):
         ) 
 
 
-class CharacterListView(LoginRequiredMixin, ListView):
+class CharacterListView(
+    LoginRequiredMixin,
+    ListView
+):
     """
     Show the list of characters.
 
@@ -790,6 +792,18 @@ class CharacterListView(LoginRequiredMixin, ListView):
         concept_approved_flag = self.request.GET.get('concept_approved_flag', False)
         if concept_approved_flag:
             queryset = queryset.filter(concept_approved_flag=True)
+        if not self.request.GET.get('search', False):
+            player_only = False
+        else:
+            player_only = self.request.GET.get('player_only', False)
+        if player_only:
+            queryset = queryset.filter(player__user__groups__name="Player")
+        header_id = self.request.GET.get('header_id', None)
+        if header_id:
+            queryset = queryset.filter(headers__id=int(header_id))
+        skill_id = self.request.GET.get('skill_id', None)
+        if skill_id:
+            queryset = queryset.filter(skills__skill__id=int(skill_id))
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -798,7 +812,15 @@ class CharacterListView(LoginRequiredMixin, ListView):
         """
         # get the context data to add to.
         context_data = super().get_context_data(**kwargs)
-        context_data.update(**self.request.GET)
+        if not self.request.GET.get('search', False):
+            context_data['player_only'] = '1'
+        context_data.update(**self.request.GET.dict())
+        # set up the search title
+        if header_id :=  self.request.GET.get('header_id', False):
+            context_data['subtitle'] = f"Showing characters with header \"{Header.objects.get(pk=header_id)}\""
+        elif skill_id := self.request.GET.get('skill_id', False):
+            context_data['subtitle'] = f"Showing characters with skill \"{Skill.objects.get(pk=skill_id)}\""
+        return context_data
         # return the resulting context
         return context_data
 
