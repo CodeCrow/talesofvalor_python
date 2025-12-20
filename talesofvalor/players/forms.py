@@ -20,7 +20,7 @@ from .models import Player, PEL
 
 class UserForm(forms.ModelForm):
     """Handle main user form for the user model from django.
-    This also has access to groups, which players shouldn't have access to."""
+    This also has access to groups, whxich players shouldn't have access to."""
     class Meta:
         model = User
         fields = [

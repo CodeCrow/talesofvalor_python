@@ -104,7 +104,7 @@ urlpatterns = [
     path(
         'influence/<int:event_id>/',
         CharacterInfluenceUpdateListView.as_view(),
-        name='influence_list'
+        name='influence_event_list'
     ),
     path(
         'influence/',

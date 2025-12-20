@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from djangocms_text_ckeditor.fields import HTMLField
 
+from talesofvalor.events.models import Event
 from talesofvalor.players.models import PEL, Player
 from talesofvalor.rules.models import Prerequisite, Rule
 from talesofvalor.skills import HEAVY_ARMOR_SKILL_ID
@@ -380,3 +381,19 @@ class CharacterGrant(models.Model):
     free = models.BooleanField(default=False)
     picks_remaining = models.PositiveIntegerField(default=10000)
 
+class CharacterEventInfluence(models.Model):
+    """
+    Track influence on a character tied to an event.
+    When a player is marked as 'attended event' the database will:
+    1) take the current value of End of Game Influence and use that to set the value of Start of Game Influence.
+    2) take the current value of Influence Input and use that to set the value of End of Game Influence.
+    3) Subtract 4 from the value of the End of Game Influence.
+    4) If Start of Game Influence is less than End of Game Influence, flag player for needing a Corruption else end process.
+    5) If a player is flagged for corruption, indicate level of corruption based on value of End of Game Influence.
+
+    """
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    character = models.ForeignKey(Character, on_delete=models.CASCADE)
+    starting_influence = models.PositiveIntegerField(default=0)
+    ending_influence = models.PositiveIntegerField(default=0)
+    finalized_influence =  models.PositiveIntegerField(null=True)
