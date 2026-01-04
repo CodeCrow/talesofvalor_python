@@ -603,7 +603,7 @@ class MassEmailView(FormView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
-        # get the selcted players
+        # get the selected players
         selected_players = self.request.session.get('player_select', None)
         if selected_players:
             form.send_email(Player.objects.filter(id__in=selected_players))
