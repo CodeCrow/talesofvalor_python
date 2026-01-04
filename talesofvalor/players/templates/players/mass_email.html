@@ -12,6 +12,16 @@
                 <input class="btn btn-primary" type="submit" value="Send Emails . . ." />
             </td>
         </tr>
+        <tr>
+            <th class="text-right">
+                <label>Recipients List:</label>
+            </th>
+            <td>
+                {% for player in selected_players %}
+                    <a href="{% url 'players:player_detail' pk=player.pk %}">{{ player }}</a>{% if not forloop.last %}<br /> {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
     </table>
 </form>
 {% endblock content %}
