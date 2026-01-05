@@ -255,6 +255,8 @@ class RegistrationRequest(models.Model):
         event_reg_request = RegistrationRequest.objects.get(
             pk=request_id
         )
+        event_reg_request.status = COMPLETE
+        event_reg_request.save()
         # Create the event registration for each of the events that the
         # event_reg_request.eventregistrationitem is attached to.
         # create an email message for each registration
