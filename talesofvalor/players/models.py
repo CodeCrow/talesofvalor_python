@@ -263,7 +263,9 @@ class RegistrationRequest(models.Model):
         email_connection = mail.get_connection()
         # create the list of messages
         email_messages = []
+        print(f"GOT TO THE REGISTRATION COMPLETE: {request_id}")
         for event in event_reg_request.event_registration_item.events.all():
+            print(f"CREATING REGISTRATION FOR EVENT: {event}")
             registration = Registration(
                 player=user.player,
                 event=event,
