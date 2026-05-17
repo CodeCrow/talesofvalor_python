@@ -284,7 +284,7 @@ class RegistrationRequest(models.Model):
                     request.__dict__
                 )
                 existing_registration_email_message = mail.EmailMessage(
-                    "Registration for {} {}".format(
+                    "Duplicate Registration attempt for {} {}".format(
                         user.first_name,
                         user.last_name
                     ),
