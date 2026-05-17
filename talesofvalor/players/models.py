@@ -250,7 +250,7 @@ class RegistrationRequest(models.Model):
     @classmethod
     def request_complete(cls, request_id, user, request):
         """
-        Complate the request and make the registrations
+        Complete the request and make the registrations
         """
         event_reg_request = RegistrationRequest.objects.get(
             pk=request_id
@@ -263,59 +263,87 @@ class RegistrationRequest(models.Model):
         email_connection = mail.get_connection()
         # create the list of messages
         email_messages = []
-        print(f"GOT TO THE REGISTRATION COMPLETE: {request_id}")
         for event in event_reg_request.event_registration_item.events.all():
-            print(f"CREATING REGISTRATION FOR EVENT: {event}")
-            registration = Registration(
-                player=user.player,
-                event=event,
-                no_car_flag=event_reg_request.no_car_flag,
-                site_transportation=event_reg_request.site_transportation,
-                vehicle_make=event_reg_request.vehicle_make,
-                vehicle_model=event_reg_request.vehicle_model,
-                vehicle_color=event_reg_request.vehicle_color,
-                vehicle_registration=event_reg_request.vehicle_registration,
-                local_contact=event_reg_request.local_contact,
-                registration_request=event_reg_request,
-                mealplan_flag=event_reg_request.mealplan_flag,
-                food_allergies=event_reg_request.food_allergies,
-                vegetarian_flag=event_reg_request.vegetarian_flag,
-                vegan_flag=event_reg_request.vegan_flag,
-                pay_at_door_flag=event_reg_request.pay_at_door_flag,
-                already_paid_flag=event_reg_request.already_paid_flag,
-                )
-            registration.save()
-            # send an email to staff with a link to the registration
-            # send email using the self.cleaned_data dictionary
-            message = """
-            Hello!
-
-            {} {} has a new registration for event {}.
-
-            See it here:
-            {}
-
-            --ToV MechCrow
-            """.format(
-                    user.first_name,
-                    user.last_name,
+            # see if there is an already existing registration
+            try:
+                existing_registration = Registration.objects.get(event=event, registration_request=event_reg_request)
+                existing_registration_message = """
+                               Attempted duplicated registration for event: {}
+                               
+                               Registration request: {}
+                               
+                               HTTP Request: {}
+                               --ToV MechCrow
+                               """.format(
                     event.name,
                     request.build_absolute_uri(
-                        reverse("registration:detail", kwargs={
-                            'pk': registration.id
+                        reverse("registration:request_detail", kwargs={
+                            'pk': event_reg_request.id
                         })
-                    )
+                    ),
+                    request.__dict__
                 )
-            email_message = mail.EmailMessage(
-                "Registration for {} {}".format(
-                    user.first_name,
-                    user.last_name
-                ),
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
-            )
-            email_messages.append(email_message)
+                existing_registration_email_message = mail.EmailMessage(
+                    "Registration for {} {}".format(
+                        user.first_name,
+                        user.last_name
+                    ),
+                    existing_registration_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    ["rob@crowbringsdaylight.com"]
+                )
+                email_messages.append(existing_registration_email_message)
+            except Registration.DoesNotExist:
+                registration = Registration(
+                    player=user.player,
+                    event=event,
+                    no_car_flag=event_reg_request.no_car_flag,
+                    site_transportation=event_reg_request.site_transportation,
+                    vehicle_make=event_reg_request.vehicle_make,
+                    vehicle_model=event_reg_request.vehicle_model,
+                    vehicle_color=event_reg_request.vehicle_color,
+                    vehicle_registration=event_reg_request.vehicle_registration,
+                    local_contact=event_reg_request.local_contact,
+                    registration_request=event_reg_request,
+                    mealplan_flag=event_reg_request.mealplan_flag,
+                    food_allergies=event_reg_request.food_allergies,
+                    vegetarian_flag=event_reg_request.vegetarian_flag,
+                    vegan_flag=event_reg_request.vegan_flag,
+                    pay_at_door_flag=event_reg_request.pay_at_door_flag,
+                    already_paid_flag=event_reg_request.already_paid_flag,
+                    )
+                registration.save()
+                # email staff with a link to the registration
+                # send email using the self.cleaned_data dictionary
+                message = """
+                Hello!
+    
+                {} {} has a new registration for event {}.
+    
+                See it here:
+                {}
+    
+                --ToV MechCrow
+                """.format(
+                        user.first_name,
+                        user.last_name,
+                        event.name,
+                        request.build_absolute_uri(
+                            reverse("registration:detail", kwargs={
+                                'pk': registration.id
+                            })
+                        )
+                    )
+                email_message = mail.EmailMessage(
+                    "Registration for {} {}".format(
+                        user.first_name,
+                        user.last_name
+                    ),
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
+                )
+                email_messages.append(email_message)
         # send an email to each of them.
         email_connection.send_messages(email_messages)
         # close the connection to the email server
