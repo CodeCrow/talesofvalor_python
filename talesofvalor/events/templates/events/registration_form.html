@@ -9,6 +9,13 @@
 <form action="" method="post">{% csrf_token %}
 
 <table id="event_registration" class="data event-registration">
+<tr>
+<td colspan="2">
+    <div class="alert alert-primary" role="alert">
+    <h2>If you want to register as cast, please email <a href="mailto:tov3admin@googlegroups.com">tov3admin@googlegroups.com</a> to set up your user.</h2>
+    </div>
+</td>
+</tr>
 {% for item in event_items %}
 <tr>
 <td><input type="radio" name="event_registration_item" value="{{ item.id }}"></td>
