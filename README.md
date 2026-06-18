@@ -40,6 +40,14 @@ pipenv --version
 
 ## install the packages
 
+Note: Installing on Debian-based linux requires several packages installed through
+`apt` before this step, or the `pipenv install` will fail without a clear error message.
+These requirements are specific to the `mysqlclient` python Library:
+
+```
+sudo apt install -y default-libmysqlclient-dev build-essential pkg-config
+```
+
 This installs libraries and modules that support our specific code:
 
 ```

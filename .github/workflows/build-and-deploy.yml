@@ -1,0 +1,47 @@
+name: Build and Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options:
+          - production
+          - staging
+        required: true
+        default: staging
+  push:
+    branches:
+      - production
+      - pipelining
+
+permissions: read-all
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: pipenv
+      
+      - name: install lib dpendencies
+        run: |
+          sudo apt-get install -y default-libmysqlclient-dev build-essential pkg-config
+          python -m pip install pipenv
+
+      - name: install python dependencies
+        run: |
+          python -m pipenv sync
+
+# TODO
+# Get exact command from Rob
+# Feed it the secrets e.g. SECRET__PAYPAL_CLIENT_ID
+      # - name: deploy
+      #   run: fab deploy --environment ${{ inputs.environment }}
+      #   env:
+      #     PAYPAL_CLIENT_ID=${{ SECRET__PAYPAL_CLIENT_ID }}
+      #     PAYPAL_CLIENT_SECRET=${{ SECRET__PAYPAL_CLIENT_SECRET }}
