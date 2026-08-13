@@ -14,7 +14,7 @@
     {% if perms.players.change_any_player %}
         <div class="character-body">
             <h2>Private Staff Notes:</h2>
-            {{ object.staff_notes_hidden }} 
+            {{ object.staff_notes_hidden|linebreaksbr }}
         </div>
         <div class="character-body">
             <h2>Character Log:</h2>
