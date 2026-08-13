@@ -225,6 +225,13 @@ input[type=checkbox] {
   max-width: 400px;
 }
 
+@media print {
+  .header-label,
+.skill-group {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
 .list-comment {
   list-style: none;
   padding-left: 0.5rem;
