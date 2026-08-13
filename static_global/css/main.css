@@ -226,6 +226,14 @@ input[type=checkbox] {
 }
 
 @media print {
+  .flex-container {
+    display: block;
+  }
+
+  .header-group {
+    width: 100%;
+  }
+
   .header-label,
 .skill-group {
     page-break-inside: avoid;

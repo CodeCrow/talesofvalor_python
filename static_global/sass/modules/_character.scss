@@ -9,6 +9,14 @@
 }
 
 @media print {
+	// Browsers ignore page-break-inside inside a flex container, so drop
+	// back to block layout when printing the skills list.
+	.flex-container {
+		display: block;
+	}
+	.header-group {
+		width: 100%;
+	}
 	// Keep each header and its list of skills together on one page.
 	.header-label,
 	.skill-group {
