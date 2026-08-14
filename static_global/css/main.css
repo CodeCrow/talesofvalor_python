@@ -234,8 +234,13 @@ input[type=checkbox] {
     width: 100%;
   }
 
-  .header-label,
-.skill-group {
+  .header-label {
+    display: block;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .skill-group {
     page-break-inside: avoid;
     break-inside: avoid;
   }

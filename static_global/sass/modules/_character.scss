@@ -18,7 +18,14 @@
 		width: 100%;
 	}
 	// Keep each header and its list of skills together on one page.
-	.header-label,
+	// display:block gives the <li> a plain block box; browsers skip
+	// page-break-inside on list-item boxes, which orphans the header
+	// title above its skill list.
+	.header-label {
+		display: block;
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
 	.skill-group {
 		page-break-inside: avoid;
 		break-inside: avoid;
