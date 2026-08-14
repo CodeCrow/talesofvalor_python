@@ -14,8 +14,11 @@
 	.flex-container {
 		display: block;
 	}
+	// Flow the header list into 2 columns to use the full page width.
 	.header-group {
 		width: 100%;
+		column-count: 2;
+		column-gap: 2em;
 	}
 	// Keep each header and its list of skills together on one page.
 	// display:block gives the <li> a plain block box; browsers skip
@@ -25,6 +28,7 @@
 		display: block;
 		page-break-inside: avoid;
 		break-inside: avoid;
+		-webkit-column-break-inside: avoid;
 	}
 	.skill-group {
 		page-break-inside: avoid;
