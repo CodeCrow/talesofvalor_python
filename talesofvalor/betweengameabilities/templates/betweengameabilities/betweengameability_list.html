@@ -42,7 +42,7 @@
         </div>
     </div>
     <div id="bga_list_actions" class="col-sm-5">
-        {% if not event.bga_past_due or perms.player.change_any_player %}
+        {% if not event.bga_past_due or perms.players.change_any_player %}
         <div class="box">    
             <a href="{% url "betweengameabilities:betweengameability_create" %}?character_id={{ character.id}}&event_id={{event.id}}" class="btn btn-primary">  Add Between Game Ability</a>
         </div>
