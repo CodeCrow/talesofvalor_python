@@ -22,22 +22,6 @@ pipenv shell
 ./manage.py createsuperuser --settings=talesofvalor.settings.local
 ```
 
-### CSS/Frontend
-```bash
-# Compile SASS to CSS (watches for changes, runs continuously)
-gulp
-
-# Install node packages (first time setup)
-npm install
-```
-
-### Running tests
-Tests are Selenium-based browser tests — they require the dev server to be running first:
-```bash
-cd talesofvalor/tests
-python SimpleTests.py
-```
-
 ### Deployment
 ```bash
 fab deploy --environment stage --migrate
@@ -60,6 +44,8 @@ Database: production/staging use MySQL (`talesof_rhiven`); local development def
 ## Architecture
 
 This is a **Django 3.x** LARP (live action role-playing game) management application for "Tales of Valor." It uses **django-cms** for CMS pages alongside the custom apps.
+
+Use Django Rest Framework for most interactions.   Keep this pattern.
 
 ### Django apps (`talesofvalor/`)
 
@@ -95,9 +81,6 @@ Each app follows the standard Django structure (`models.py`, `views.py`, `urls.p
 
 **CMS**: `django-cms` serves the public-facing pages. Custom app pages plug into CMS via apphooks defined in each app.
 
-### Frontend
-
-SASS source lives under `static_global/`. Gulp compiles it to CSS. The gulpfile uses `gulp-sass` (Dart Sass). Template files are in `talesofvalor/templates/` (global) and `<app>/templates/` (per-app).
 
 ### Groups and permissions
 
