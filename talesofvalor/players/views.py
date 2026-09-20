@@ -534,6 +534,8 @@ class PlayerListView(LoginRequiredMixin, ListView):
         context_data.update(**self.request.GET)
         # get the list of events so we can pick from them to filter the lists.
         context_data['event_list'] = Event.objects.all()
+        # what items are indicated by a link vs form
+        context_data['link_variable_names'] = ('group', 'selected')
         # set up the forms that appear in the list
         context_data['registration_form'] = MassRegistrationForm()
         context_data['attendance_form'] = MassAttendanceForm()
@@ -588,10 +590,20 @@ class MassEmailView(FormView):
     form_class = MassEmailForm
     success_url = reverse_lazy('players:player_list')
 
+    def get_context_data(self, **kwargs):
+        """
+        Get the list of players that the bulk email is going to be sent to.
+        """
+        context = super().get_context_data(**kwargs)
+        selected_players = self.request.session.get('player_select', None)
+        context['selected_players'] = Player.objects.filter(id__in=selected_players)
+        return context
+
+
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
-        # get the selcted players
+        # get the selected players
         selected_players = self.request.session.get('player_select', None)
         if selected_players:
             form.send_email(Player.objects.filter(id__in=selected_players))

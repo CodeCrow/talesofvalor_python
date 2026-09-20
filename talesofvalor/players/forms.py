@@ -194,7 +194,14 @@ class MassEmailForm(forms.Form):
                 [player.user.email]
             )
             email_messages.append(email_message)
-        # send an email to each of them.
+        # add a backup copy
+        email_messages.append(mail.EmailMessage(
+            self.cleaned_data['subject'],
+            self.cleaned_data['message'],
+            settings.DEFAULT_FROM_EMAIL,
+        ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
+        ))
+        # email each of them.
         email_connection.send_messages(email_messages)
         # close the connection to the email server
         email_connection.close()

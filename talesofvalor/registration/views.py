@@ -90,7 +90,6 @@ class RegistrationCompleteView(PayPalClientMixin, FormView):
             pk=self.kwargs['registration_request_id']
         )
         event_reg_request.paypal_order_id = form.cleaned_data['order_id']
-        event_reg_request.status = COMPLETE
         event_reg_request.save()
         
         RegistrationRequest.request_complete(
@@ -259,8 +258,6 @@ class RegistrationRequestApproveFormView(
         registration_request = RegistrationRequest.objects.get(
             pk=self.kwargs.get('pk')
         )
-        registration_request.status = COMPLETE
-        registration_request.save()
         
         RegistrationRequest.request_complete(
             registration_request.id,

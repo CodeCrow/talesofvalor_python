@@ -249,6 +249,29 @@ table.list td.influence-current {
   max-width: 400px;
 }
 
+@media print {
+  .flex-container {
+    display: block;
+  }
+
+  .header-group {
+    width: 100%;
+    column-count: 2;
+    column-gap: 2em;
+  }
+
+  .header-label {
+    display: block;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  .skill-group {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
 .list-comment {
   list-style: none;
   padding-left: 0.5rem;

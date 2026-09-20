@@ -10,10 +10,10 @@
         <div class="box">
             <p>Filter: 
               <a href="{% url 'players:player_list' %}">All</a> | 
-              <a href="{% url 'players:player_list' %}?group=Player">Players</a> | 
-              <a href="{% url 'players:player_list' %}?group=Staff">Staff</a> | 
-              <a href="{% url 'players:player_list' %}?group=Admin">Admin</a> | 
-              <a href="{% url 'players:player_list' %}?selected=True">Selected</a>
+              <a href="{% url 'players:player_list' %}?group=Player{% for key, value in request.GET.items %}{% if key != 'group' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Players</a> |
+              <a href="{% url 'players:player_list' %}?group=Staff{% for key, value in request.GET.items %}{% if key != 'group' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Staff</a> |
+              <a href="{% url 'players:player_list' %}?group=Admin{% for key, value in request.GET.items %}{% if key != 'group' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Admin</a> |
+              <a href="{% url 'players:player_list' %}?selected=True{% for key, value in request.GET.items %}{% if key != 'selected' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Selected</a>
             </p>
             <form method="GET">
             <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
@@ -29,6 +29,9 @@
                 <option value="{{ event.id }}"{% if request.GET.attended == event.id|floatformat:"0" %} selected{% endif %}>{{ event }}</option>
               {% endfor %}
             </select></p>
+            {% for key, value in request.GET.items %}
+                {% if key in link_variable_names %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}
+            {% endfor %}
             <button id="player_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
             </form>
         </div>
