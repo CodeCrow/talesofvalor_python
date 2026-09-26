@@ -96,6 +96,21 @@ class Event(models.Model):
     def attended_player(self, player):
         return self.attendance_set.filter(player=player).exists()
 
+    @property
+    def attendees_character(self):
+        """
+        The characters who were at this event.
+
+        Keyed off attendance rather than registration: registration records
+        who paid, but this is who actually showed up.  Distinct because there
+        is no unique constraint on attendance, so a character can have more
+        than one row for the same event.
+        """
+        # imported here because characters imports this module.
+        from talesofvalor.characters.models import Character
+
+        return Character.objects.filter(attendance__event=self).distinct()
+
     def get_absolute_url(self):
         """
         Return the absolute URL.

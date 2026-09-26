@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block bar_title %}Event Influence{% endblock bar_title %}
+{% block title %}Event Influence{% endblock title %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-6">
+        <form method="GET" id="influence_event_picker">
+            <label for="influence_event">Event</label>
+            <select id="influence_event" name="event" class="form-control">
+                {% for other_event in events %}
+                    <option value="{% url 'events:influence_event' pk=other_event.pk %}"{% if other_event.pk == event.pk %} selected{% endif %}>{{ other_event }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    <div class="col-sm-6">
+        <p>
+            <label for="influence_filter">Find a character</label>
+            <input type="text" id="influence_filter" class="form-control" placeholder="Start typing a name">
+        </p>
+    </div>
+</div>
+
+{% if not event %}
+    <p class="alert alert-warning">There is no event to record influence for yet.</p>
+{% else %}
+
+    {% if has_later_processing %}
+        <p class="alert alert-warning">
+            A later event has already been processed.  Influence rolls forward in
+            date order, so reverse that event before changing this one.
+        </p>
+    {% endif %}
+
+    {% if processed_count %}
+        <p class="alert alert-info">
+            This event has been processed: everyone's influence has already rolled
+            forward.  To change what was entered, reverse it first.
+        </p>
+        <form method="post" action="{% url 'events:influence_unprocess' pk=event.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Reverse this event</button>
+        </form>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.management_form }}
+        {{ form.non_form_errors }}
+        <table id="influence_form" class="list list-influence table table-striped">
+            <thead>
+                <tr>
+                    <th>Character</th>
+                    <th>Player</th>
+                    <th>Current</th>
+                    <th>Influence Input</th>
+                    <th>Notes</th>
+                    {% if processed_count %}<th>Start</th><th>End</th><th>Corruption</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for row_form in form %}
+                <tr class="influence-row" data-name="{{ row_form.instance.character.name|lower }}">
+                    <td>
+                        {{ row_form.id }}
+                        <a href="{% url 'characters:character_detail' pk=row_form.instance.character.pk %}">{{ row_form.instance.character.name }}</a>
+                    </td>
+                    <td>{{ row_form.instance.character.player }}</td>
+                    <td class="influence-current">{{ row_form.instance.character.influence }}</td>
+                    <td>{{ row_form.influence_input }}{{ row_form.influence_input.errors }}</td>
+                    <td>{{ row_form.notes }}{{ row_form.notes.errors }}</td>
+                    {% if processed_count %}
+                        <td>{{ row_form.instance.start_influence|default_if_none:"" }}</td>
+                        <td>{{ row_form.instance.end_influence|default_if_none:"" }}</td>
+                        <td>
+                            {% if row_form.instance.corruption_flag %}
+                                <strong>{{ row_form.instance.corruption_level|default:"Flagged, no level set" }}</strong>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">
+                        Nobody is marked as having attended this event yet.  Mark
+                        attendance from the <a href="{% url 'players:player_list' %}">player list</a> first.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if form|length and not processed_count %}
+            <button type="submit" class="btn btn-primary btn-submit">Save all influence</button>
+            <a class="btn btn-secondary" href="{% url 'events:influence_process' pk=event.pk %}">Process this event</a>
+        {% endif %}
+    </form>
+
+{% endif %}
+
+{% endblock content %}
+
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript">
+        // jump to the chosen event.
+        $('#influence_event').on('change', function () {
+            window.location = $(this).val();
+        });
+
+        // filter rows in the browser.  this can't be done on the server:
+        // the formset has to post every row it rendered or the ones that
+        // were filtered out get dropped on save.
+        $('#influence_filter').on('keyup', function () {
+            var needle = $(this).val().toLowerCase();
+            $('.influence-row').each(function () {
+                var name = $(this).data('name') || '';
+                $(this).toggle(name.indexOf(needle) !== -1);
+            });
+        });
+    </script>
+{% endblock %}

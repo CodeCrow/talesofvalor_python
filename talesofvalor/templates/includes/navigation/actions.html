@@ -30,7 +30,7 @@
         <li><a href="{% url 'characters:character_create' %}">New</a></li>
         <li><a href="{% url 'characters:character_list' %}">List</a></li>
         {% if perms.characters.update_influence %}
-            <li><a href="{% url 'characters:influence_list' %}">Update Influence</li>
+            <li><a href="{% url 'events:influence' %}">Enter Influence</a></li>
         {% endif %}
         {% if perms.characters.reset_points %}
             <li><a href="{% url 'characters:reset_points' %}">Reset Point Cap</a></li>

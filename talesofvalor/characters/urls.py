@@ -8,7 +8,7 @@ from .views import CharacterCreateView, CharacterUpdateView,\
     CharacterConceptApproveView, CharacterHistoryApproveView,\
     ResetPointsView,\
     CharacterAddHeaderView, CharacterDropHeaderView, CharacterAddSkillView,\
-    CharacterInfluenceUpdateListView, CharacterInfluenceUpdateView,\
+    CharacterInfluenceAdjustView, CharacterInfluenceHistoryView,\
     CharacterViewSet
 
 app_name = 'characters'
@@ -102,18 +102,13 @@ urlpatterns = [
     ),
     # influence
     path(
-        'influence/<int:event_id>/',
-        CharacterInfluenceUpdateListView.as_view(),
-        name='influence_event_list'
+        '<int:pk>/influence/',
+        CharacterInfluenceHistoryView.as_view(),
+        name='influence_history'
     ),
     path(
-        'influence/',
-        CharacterInfluenceUpdateListView.as_view(),
-        name='influence_list'
-    ),
-    path(
-        'influence/update/',
-        CharacterInfluenceUpdateView.as_view(),
-        name='influence_update'
+        '<int:pk>/influence/adjust/',
+        CharacterInfluenceAdjustView.as_view(),
+        name='influence_adjust'
     ),
 ]

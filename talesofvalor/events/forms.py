@@ -1,8 +1,53 @@
 from datetime import date
 
 from django import forms
+from django.forms import widgets, inlineformset_factory
+
+from talesofvalor.characters.models import CharacterEventInfluence
 
 from .models import Event
+
+
+class InfluenceInputForm(forms.ModelForm):
+    """
+    One row of the influence entry grid.
+
+    Only the input is editable; the start and end are worked out when the
+    event is processed.
+    """
+
+    class Meta:
+        model = CharacterEventInfluence
+        fields = ('influence_input', 'notes')
+        widgets = {
+            'influence_input': widgets.NumberInput(attrs={
+                'class': 'form-control influence-value',
+                'min': 0,
+            }),
+            'notes': widgets.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+InfluenceInputFormSet = inlineformset_factory(
+    Event,
+    CharacterEventInfluence,
+    form=InfluenceInputForm,
+    extra=0,
+    can_delete=False
+)
+
+
+class EventInfluenceConfirmForm(forms.Form):
+    """
+    Friction in front of processing or reversing an event.
+
+    Both of these move everybody's influence at once, so they shouldn't
+    happen from a stray click.
+    """
+    confirm = forms.BooleanField(
+        label="Yes, I'm sure",
+        required=True
+    )
 
 
 class EventForm(forms.ModelForm):

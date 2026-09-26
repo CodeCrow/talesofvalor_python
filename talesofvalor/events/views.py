@@ -2,29 +2,34 @@
 
 from datetime import date, datetime
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin,\
     PermissionRequiredMixin
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db.models import Max
 from django.db.models.functions import ExtractYear
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView,\
-    FormMixin, UpdateView
+    FormMixin, FormView, UpdateView
 
 from talesofvalor.attendance.models import Attendance
-from talesofvalor.characters.models import Character
+from talesofvalor.characters.models import Character, CharacterEventInfluence
 from talesofvalor.players.models import RegistrationRequest,\
     Registration,\
     DENIED, CAST
 from talesofvalor.registration.forms import CastRegistrationForm
 
-from .forms import EventForm
+from .forms import EventForm, InfluenceInputFormSet, EventInfluenceConfirmForm
 from .models import Event, EventRegistrationItem, EVENT_MEALPLAN_PRICE
+from .services.influence import has_later_processing, ensure_event_rows,\
+    process_event_influence, unprocess_event_influence
 
 from talesofvalor.registration.forms import EventRegistrationForm
 
@@ -402,3 +407,145 @@ class EventRegistrationItemUpdateView(PermissionRequiredMixin, UpdateView):
     model = EventRegistrationItem
     fields = '__all__'
     permission_required = ('events.change_eventregistrationitem', )
+
+
+class EventInfluenceMixin(PermissionRequiredMixin):
+    """
+    Shared event lookup for the influence screens.
+
+    Falls back to the previous event rather than the next one: influence is
+    entered after a game has happened, not before it.
+    """
+    permission_required = ('characters.update_influence', )
+
+    def dispatch(self, request, *args, **kwargs):
+        event_id = self.kwargs.get('pk', None)
+        if event_id:
+            self.event = get_object_or_404(Event, pk=event_id)
+        else:
+            self.event = Event.previous_event()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse(
+            'events:influence_event',
+            kwargs={'pk': self.event.id}
+        )
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['event'] = self.event
+        return context_data
+
+
+class EventInfluenceUpdateView(EventInfluenceMixin, FormView):
+    """
+    Enter the end of game influence for everyone who was at an event.
+
+    The whole event is one form so staff can work down the list and save
+    once, instead of tabbing through characters one at a time.
+    """
+    template_name = "events/event_influence_form.html"
+    form_class = InfluenceInputFormSet
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.event
+        if self.event:
+            # make sure everyone who attended has a row to type into.
+            kwargs['queryset'] = ensure_event_rows(self.event)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['events'] = Event.objects.all()
+        if self.event:
+            context_data['processed_count'] = CharacterEventInfluence.objects\
+                .filter(event=self.event, processed_at__isnull=False).count()
+            context_data['has_later_processing'] = has_later_processing(self.event)
+        return context_data
+
+    def post(self, request, *args, **kwargs):
+        if not self.event:
+            messages.warning(request, "There is no event to record influence for.")
+            return HttpResponseRedirect(reverse('events:influence'))
+        # once an event is processed the inputs have already rolled forward,
+        # so editing them here would be misleading.
+        if CharacterEventInfluence.objects.filter(
+            event=self.event, processed_at__isnull=False
+        ).exists():
+            messages.warning(
+                request,
+                "This event has already been processed.  Reverse it before "
+                "changing the influence that was entered."
+            )
+            return HttpResponseRedirect(self.get_success_url())
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        messages.info(self.request, f"Influence recorded for {self.event}.")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        messages.warning(self.request, "That influence couldn't be saved.")
+        return super().form_invalid(form)
+
+
+class EventInfluenceProcessView(EventInfluenceMixin, FormView):
+    """
+    Roll everyone's influence forward for an event.
+    """
+    template_name = "events/event_influence_confirm.html"
+    form_class = EventInfluenceConfirmForm
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        rows = CharacterEventInfluence.objects.filter(event=self.event)
+        context_data['action'] = 'process'
+        context_data['ready_count'] = rows.filter(
+            influence_input__isnull=False, processed_at__isnull=True).count()
+        context_data['missing_count'] = rows.filter(
+            influence_input__isnull=True).count()
+        return context_data
+
+    def form_valid(self, form):
+        try:
+            counts = process_event_influence(self.event, self.request.user)
+        except ValidationError as error:
+            messages.warning(self.request, error.messages[0])
+            return HttpResponseRedirect(self.get_success_url())
+        messages.info(
+            self.request,
+            f"Processed {counts['processed']} character(s) for {self.event}: "
+            f"{counts['flagged']} flagged for corruption, "
+            f"{counts['skipped']} skipped with no influence entered."
+        )
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class EventInfluenceUnprocessView(EventInfluenceMixin, FormView):
+    """
+    Undo the roll forward for an event so it can be corrected.
+    """
+    template_name = "events/event_influence_confirm.html"
+    form_class = EventInfluenceConfirmForm
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['action'] = 'reverse'
+        context_data['ready_count'] = CharacterEventInfluence.objects.filter(
+            event=self.event, processed_at__isnull=False).count()
+        return context_data
+
+    def form_valid(self, form):
+        try:
+            counts = unprocess_event_influence(self.event, self.request.user)
+        except ValidationError as error:
+            messages.warning(self.request, error.messages[0])
+            return HttpResponseRedirect(self.get_success_url())
+        messages.info(
+            self.request,
+            f"Reversed influence for {counts['reversed']} character(s) at {self.event}."
+        )
+        return HttpResponseRedirect(self.get_success_url())

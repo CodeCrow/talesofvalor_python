@@ -4,6 +4,7 @@ Describes the character models.
 These models describe a character and its relationship
 to players.
 """
+from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -23,6 +24,9 @@ from talesofvalor.origins.models import Origin
 
 STARTING_POINTS = 30
 POINT_CAP = 25
+
+# influence a character loses automatically between games.
+INFLUENCE_REGENERATION = 4
 
 
 class Character(models.Model):
@@ -327,6 +331,37 @@ class Character(models.Model):
             return True, ''
         return True, ''
 
+    def apply_influence(self, delta, user, reason):
+        """
+        Change this character's influence and record why.
+
+        This is the only place influence is written.  It is floored at zero,
+        so the amount actually applied can be smaller than the delta asked
+        for.  Returns the amount applied.
+
+        Every change is recorded as a LogEntry against the character, which
+        is what the "Character Log" block on the detail page shows.
+        """
+        if delta == 0:
+            return 0
+        # read the stored value first: this instance may have been loaded
+        # before something else moved the influence, and applying a delta to
+        # a stale number would quietly throw that change away.
+        self.refresh_from_db(fields=['influence'])
+        new_influence = max(0, self.influence + delta)
+        applied = new_influence - self.influence
+        self.influence = new_influence
+        self.save(update_fields=['influence'])
+        LogEntry.objects.create(
+            user=user,
+            content_type=ContentType.objects.get_for_model(Character),
+            object_id=self.id,
+            object_repr=self.__str__(),
+            action_flag=CHANGE,
+            change_message=f"Influence {applied:+d} to {self.influence} for \"{self}\" because {reason}."
+        )
+        return applied
+
     class Meta:
         ordering = ["name"]
         permissions = (
@@ -381,19 +416,129 @@ class CharacterGrant(models.Model):
     free = models.BooleanField(default=False)
     picks_remaining = models.PositiveIntegerField(default=10000)
 
+class CorruptionLevel(models.Model):
+    """
+    A rung on the corruption ladder.
+
+    When a character is flagged for corruption, the level is resolved by
+    finding the highest threshold that their end of game influence reaches.
+    Staff maintain these rows in the admin so the ladder can be retuned
+    without a code change.
+    """
+
+    name = models.CharField(max_length=255)
+    threshold = models.PositiveIntegerField(
+        help_text=_("Lowest end of game influence, inclusive, that reaches this level.")
+    )
+    description = HTMLField(blank=True, default='')
+
+    class Meta:
+        ordering = ['-threshold']
+
+    def __str__(self):
+        return "{} ({}+)".format(self.name, self.threshold)
+
+    @classmethod
+    def for_influence(cls, value):
+        """
+        Find the level for an influence value.
+
+        Returns the highest threshold that doesn't exceed the value, or None
+        if the value is below every level (or no levels are configured yet).
+        """
+        return cls.objects.filter(threshold__lte=value).order_by('-threshold').first()
+
+
 class CharacterEventInfluence(models.Model):
     """
-    Track influence on a character tied to an event.
-    When a player is marked as 'attended event' the database will:
-    1) take the current value of End of Game Influence and use that to set the value of Start of Game Influence.
-    2) take the current value of Influence Input and use that to set the value of End of Game Influence.
-    3) Subtract 4 from the value of the End of Game Influence.
-    4) If Start of Game Influence is less than End of Game Influence, flag player for needing a Corruption else end process.
-    5) If a player is flagged for corruption, indicate level of corruption based on value of End of Game Influence.
+    Track influence for a character at a single event.
 
+    Staff record the character's end of game total in ``influence_input``.
+    Processing the event then, for each character:
+
+    1) takes the current influence and uses it to set Start of Game Influence
+    2) takes Influence Input and uses it to set End of Game Influence
+    3) subtracts the regeneration amount from End of Game Influence
+    4) if Start of Game Influence is less than End of Game Influence, flags
+       the character as needing a Corruption, otherwise ends the process
+    5) if flagged, resolves the level of corruption from End of Game Influence
+
+    Processing is reversible; the stored start and end are what a reversal
+    unwinds.  See ``characters.influence``.
     """
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    character = models.ForeignKey(Character, on_delete=models.CASCADE)
-    starting_influence = models.PositiveIntegerField(default=0)
-    ending_influence = models.PositiveIntegerField(default=0)
-    finalized_influence =  models.PositiveIntegerField(null=True)
+
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='influence_rows'
+    )
+    character = models.ForeignKey(
+        Character,
+        on_delete=models.CASCADE,
+        related_name='influence_rows'
+    )
+    # what staff type in after the event.
+    influence_input = models.PositiveIntegerField(
+        _("Influence Input"),
+        null=True,
+        blank=True
+    )
+    # filled in by processing, blank until then.
+    start_influence = models.PositiveIntegerField(
+        _("Start of Game Influence"),
+        null=True,
+        blank=True
+    )
+    end_influence = models.PositiveIntegerField(
+        _("End of Game Influence"),
+        null=True,
+        blank=True
+    )
+    corruption_flag = models.BooleanField(default=False)
+    corruption_level = models.ForeignKey(
+        CorruptionLevel,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+    notes = models.TextField(blank=True, default='')
+    processed_at = models.DateTimeField(null=True, blank=True, editable=False)
+    processed_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        editable=False,
+        on_delete=models.SET_NULL,
+        related_name='processed_influence_rows'
+    )
+
+    created = models.DateTimeField(
+        _('date created'),
+        null=True,
+        auto_now_add=True,
+        editable=False
+    )
+    modified = models.DateTimeField(
+        _('last updated'),
+        null=True,
+        auto_now=True,
+        editable=False
+    )
+
+    class Meta:
+        unique_together = (('event', 'character'), )
+        ordering = ['-event__event_date', 'character__name']
+
+    def __str__(self):
+        return "{} -- {}".format(self.character, self.event)
+
+    @property
+    def processed(self):
+        return self.processed_at is not None
+
+    @property
+    def delta(self):
+        """How much influence processing this row moved, or None if unprocessed."""
+        if self.start_influence is None or self.end_influence is None:
+            return None
+        return self.end_influence - self.start_influence

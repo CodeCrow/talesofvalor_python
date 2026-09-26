@@ -5,9 +5,11 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.auth.mixins import UserPassesTestMixin,\
     LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -27,10 +29,10 @@ from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player, Registration, PLAYER
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
 
-from .models import Character
+from .models import Character, CharacterEventInfluence
 from .forms import CharacterForm, CharacterSkillForm,\
     CharacterConceptApproveForm, CharacterHistoryApproveForm,\
-    ResetPointsForm
+    ResetPointsForm, InfluenceAdjustmentForm
 
 
 class OwnsCharacter(BasePermission):
@@ -872,67 +874,69 @@ class CharacterPrintListView(LoginRequiredMixin, ListView):
         # return the resulting context
         return context_data
 
-class CharacterInfluenceUpdateListView(PermissionRequiredMixin, ListView):
+class CharacterInfluenceAdjustView(PermissionRequiredMixin, FormView):
     """
-    List the characters currently in attendance, alphabetically.
-    Show the current influence for the character.
-    Show a field to update the current influece.
+    Make a manual, out of band change to one character's influence.
+
+    For things that happen between games, outside the normal roll forward.
     """
-    permission_required = ('players.change_any_player', )
-    model = Character
-    template_name = "characters/character_influence_list.html"
-    
-    def get_queryset(self):
-        """
-        if the event id is set, get the information for that event.
-        If it isn't get the latest event id
-        """        
-        queryset = super().get_queryset()
-        # filter by event
-        event_id = self.kwargs.get('event_id', None)
-        character_name = self.request.GET.get('name', None)
-        if character_name:
-            queryset = queryset.filter(name__istartswith=character_name)
-        else:     
-            if not event_id:
-                event = Event.next_event()
-                if event:
-                    event_id = event.id
-            if event_id:
-                players = Registration.objects.filter(event__id=event_id, registration_type=PLAYER).values_list('player', flat=True)
-                queryset = queryset.filter(player__in=players, active_flag=True)
-        return queryset
+    permission_required = ('characters.update_influence', )
+    template_name = "characters/character_influence_adjust_form.html"
+    form_class = InfluenceAdjustmentForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.character = get_object_or_404(Character, pk=self.kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['character'] = self.character
+        return context_data
+
+    def form_valid(self, form):
+        applied = self.character.apply_influence(
+            form.cleaned_data['delta'],
+            self.request.user,
+            form.cleaned_data['reason']
+        )
+        messages.info(
+            self.request,
+            f"{self.character} influence changed by {applied:+d} "
+            f"to {self.character.influence}."
+        )
+        return HttpResponseRedirect(self.character.get_absolute_url())
 
 
-class CharacterInfluenceUpdateView(PermissionRequiredMixin, APIView):
+class CharacterInfluenceHistoryView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    ListView
+):
     """
-    Set of AJAX views to update influence
-    """
-    permission_required = ('players.update_influence', )
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [OwnsCharacter]
+    The influence a character has had at each event.
 
-    def post(self, request, format=None):
-        status = None
-        content = {
-            'message': "Success!",
-            'influence': None
-        }
-        character_id = int(request.POST.get('character_id', 0))
+    Staff can see anyone; a player can see their own characters.
+    """
+    model = CharacterEventInfluence
+    template_name = "characters/character_influence_history.html"
+
+    def test_func(self):
+        if self.request.user.has_perm('players.view_any_player'):
+            return True
         try:
-            influence = int(request.POST.get('influence', 0))
-        except ValueError:
-            status = HTTP_400_BAD_REQUEST
-            content['message'] = "Invalid influence value."
-            return Response(content, status)
-        # get the character
-        try:
-            character = Character.objects.get(pk=character_id)
+            player = Character.objects.get(pk=self.kwargs['pk']).player
+            return (player.user == self.request.user)
         except Character.DoesNotExist:
-            status = HTTP_404_NOT_FOUND
-            content['message'] = "Invalid influence value."
-            return Response(content, status)
-        character.influence = content['influence'] = influence
-        character.save(update_fields=('influence', ))
-        return Response(content, status)
+            return False
+
+    def get_queryset(self):
+        return super().get_queryset()\
+            .filter(character__id=self.kwargs['pk'])\
+            .select_related('event', 'corruption_level')
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['character'] = get_object_or_404(
+            Character, pk=self.kwargs['pk'])
+        return context_data
 

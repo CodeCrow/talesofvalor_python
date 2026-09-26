@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block bar_title %}{% if action == 'process' %}Process{% else %}Reverse{% endif %} Event Influence{% endblock bar_title %}
+{% block title %}{% if action == 'process' %}Process{% else %}Reverse{% endif %} Event Influence{% endblock title %}
+
+{% block content %}
+
+<h2>{{ event }}</h2>
+
+{% if action == 'process' %}
+    <p>
+        This rolls influence forward for everyone at this event.  Each
+        character's current influence becomes their Start of Game Influence,
+        their Influence Input becomes their End of Game Influence less the
+        regeneration, and anyone who gained influence is flagged for a
+        Corruption.
+    </p>
+    <ul>
+        <li><strong>{{ ready_count }}</strong> character(s) ready to process.</li>
+        <li><strong>{{ missing_count }}</strong> character(s) have no influence entered and will be skipped.</li>
+    </ul>
+{% else %}
+    <p>
+        This undoes the roll forward for this event, putting everyone's
+        influence back where it was.  What staff typed in is kept, so the
+        event can be corrected and processed again.
+    </p>
+    <ul>
+        <li><strong>{{ ready_count }}</strong> character(s) will be reversed.</li>
+    </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary btn-submit">
+        {% if action == 'process' %}Process{% else %}Reverse{% endif %} {{ event }}
+    </button>
+    <a class="btn btn-secondary" href="{% url 'events:influence_event' pk=event.pk %}">Cancel</a>
+</form>
+
+{% endblock content %}

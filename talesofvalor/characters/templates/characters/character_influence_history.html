@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block bar_title %}Influence History{% endblock bar_title %}
+{% block title %}Influence History{% endblock title %}
+
+{% block content %}
+
+<h2>{{ character.name }}</h2>
+
+<p>
+    Current influence: <strong>{{ character.influence }}</strong>
+    {% if perms.characters.update_influence %}
+        <a href="{% url 'characters:influence_adjust' pk=character.pk %}">Adjust</a>
+    {% endif %}
+</p>
+
+<table class="list table table-striped">
+    <thead>
+        <tr>
+            <th>Event</th>
+            <th>Entered</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Corruption</th>
+            <th>Processed</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in object_list %}
+        <tr>
+            <td>{{ row.event }}</td>
+            <td>{{ row.influence_input|default_if_none:"&mdash;" }}</td>
+            <td>{{ row.start_influence|default_if_none:"&mdash;" }}</td>
+            <td>{{ row.end_influence|default_if_none:"&mdash;" }}</td>
+            <td>
+                {% if row.corruption_flag %}
+                    <strong>{{ row.corruption_level|default:"Flagged, no level set" }}</strong>
+                {% endif %}
+            </td>
+            <td>
+                {% if row.processed %}
+                    {{ row.processed_at|date:'m-d-Y' }}{% if row.processed_by %} by {{ row.processed_by }}{% endif %}
+                {% else %}
+                    Not yet
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6">No influence has been recorded for this character yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

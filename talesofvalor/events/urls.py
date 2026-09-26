@@ -7,7 +7,9 @@ from .views import EventCreateView, EventUpdateView, EventListView,\
     PlayerRegistrationNoEventView, PlayerRegistrationView,\
     CastRegistrationRedirectView, CastRegistrationView,\
     EventRegistrationItemDetailView, EventRegistrationItemListView,\
-    EventRegistrationItemCreateView, EventRegistrationItemUpdateView
+    EventRegistrationItemCreateView, EventRegistrationItemUpdateView,\
+    EventInfluenceUpdateView, EventInfluenceProcessView,\
+    EventInfluenceUnprocessView
 
 app_name = 'events'
 
@@ -91,5 +93,26 @@ urlpatterns = [
         'registrationitems/<int:pk>/update/',
         EventRegistrationItemUpdateView.as_view(),
         name='eventregistrationitem_update'
+    ),
+    # influence
+    path(
+        'influence/',
+        EventInfluenceUpdateView.as_view(),
+        name='influence'
+    ),
+    path(
+        '<int:pk>/influence/',
+        EventInfluenceUpdateView.as_view(),
+        name='influence_event'
+    ),
+    path(
+        '<int:pk>/influence/process/',
+        EventInfluenceProcessView.as_view(),
+        name='influence_process'
+    ),
+    path(
+        '<int:pk>/influence/reverse/',
+        EventInfluenceUnprocessView.as_view(),
+        name='influence_unprocess'
     ),
 ]

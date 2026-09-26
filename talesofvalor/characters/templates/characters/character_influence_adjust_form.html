@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block bar_title %}Adjust Influence{% endblock bar_title %}
+{% block title %}Adjust Influence{% endblock title %}
+
+{% block content %}
+
+<h2>{{ character.name }}</h2>
+
+<p>
+    Current influence: <strong>{{ character.influence }}</strong>
+</p>
+<p>
+    Use this for influence that changes between games, outside the normal
+    roll forward.  The change is recorded in the character log.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary btn-submit">Adjust influence</button>
+    <a class="btn btn-secondary" href="{{ character.get_absolute_url }}">Cancel</a>
+</form>
+
+{% endblock content %}

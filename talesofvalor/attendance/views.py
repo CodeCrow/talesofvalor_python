@@ -34,10 +34,11 @@ class AttendanceUpdateView(PermissionRequiredMixin, UpdateView):
 
 class AttendanceDeleteView(PermissionRequiredMixin, DeleteView):
     """
-    Removes an attendance permanantly.
+    Removes an attendance permanently.
 
-    If the attendance was the first attendance of a player, it also
-    updates that field.
+    The attendance points are taken back, and if the attendance was the
+    first attendance of a player, it also updates that field.  Both are
+    handled by ``Attendance.delete``.
     """
 
     model = Attendance

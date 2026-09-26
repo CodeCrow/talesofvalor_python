@@ -17,14 +17,23 @@
             {{ object.staff_notes_hidden|linebreaksbr }}
         </div>
         <div class="character-body">
+            <h2>Influence:</h2>
+            <p>
+                Current: <strong>{{ object.influence }}</strong>
+                &mdash;
+                <a href="{% url 'characters:influence_history' pk=object.pk %}">History</a>
+                {% if perms.characters.update_influence %}
+                    | <a href="{% url 'characters:influence_adjust' pk=object.pk %}">Adjust</a>
+                {% endif %}
+            </p>
+        </div>
+        <div class="character-body">
             <h2>Character Log:</h2>
             <ul>
             {% for log in character_log %}
                 <li>{{ log }}</li>
             {% endfor %}
             </ul>
-        </div>
-    </div>
         </div>
     {% endif %}
 

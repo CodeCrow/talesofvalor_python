@@ -154,9 +154,31 @@ class CharacterHistoryApproveForm(forms.Form):
 
 class ResetPointsForm(forms.Form):
     """
-    Form for the approval of a reset points cap request to give some friction 
+    Form for the approval of a reset points cap request to give some friction
     to that request.
 
     Nothing really to do here at this time.
     """
     return_url = forms.CharField(widget=widgets.HiddenInput())
+
+
+class InfluenceAdjustmentForm(forms.Form):
+    """
+    A manual, out of band change to one character's influence.
+
+    For things that happen between games, outside the normal roll forward.
+    """
+    delta = forms.IntegerField(
+        label="Change",
+        help_text="How much to add or take away, for example 3 or -2."
+    )
+    reason = forms.CharField(
+        widget=widgets.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        help_text="Recorded in the character log."
+    )
+
+    def clean_delta(self):
+        delta = self.cleaned_data['delta']
+        if delta == 0:
+            raise ValidationError("Enter a change other than zero.")
+        return delta
