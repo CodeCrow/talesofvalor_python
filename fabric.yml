@@ -1,3 +1,6 @@
+# The database name and credentials are NOT here: they come from each
+# environment's Django settings module, so there is only one place for
+# them to be wrong.  See REMOTE_DATABASES in fabfile.py.
 project_name: talesofvalor
 stage: 
   verbose_name: stage
@@ -6,14 +9,12 @@ stage:
     talesofvalor.com
   user: stage_talesof
   db_dump_dir: /home/stage_talesof/rhiven.stage.talesofvalor.com/dumpdata
-  db_name: talesofvalor_rhiven_stage
   virtualenv_path: /home/stage_talesof/rhiven.stage.talesofvalor.com/.virtualenv
   project_dir: /home/stage_talesof/rhiven.stage.talesofvalor.com
   media_path: /home/stage_talesof/rhiven.stage.talesofvalor.com/public/media
   default_project_branch: stage
   refresh_app_command: systemctl --user kill -s HUP gunicorn.service
   settings_module_for_management_commands: talesofvalor.settings.stage
-  mysql_defaults_file: /home/stage_talesof/rhiven.stage.talesofvalor.com/config/mysql.cnf
 production:
   verbose_name: production 
   forward_agent: True
@@ -21,7 +22,6 @@ production:
     talesofvalor.com
   user: talesof
   db_dump_dir: /home/talesof/rhiven.talesofvalor.com/dumpdata
-  db_name: talesofvalor_rhiven
   virtualenv_path: /home/talesof/rhiven.talesofvalor.com/.virtualenv
   project_dir: /home/talesof/rhiven.talesofvalor.com
   media_path: /home/talesof/rhiven.talesofvalor.com/public/media
@@ -29,4 +29,3 @@ production:
   # refresh_app_command: touch /home/talesof/rhiven.talesofvalor.com/tmp/restart.txt
   refresh_app_command: systemctl --user kill -s HUP gunicorn.service
   settings_module_for_management_commands: talesofvalor.settings.production
-  mysql_defaults_file: /home/talesof/rhiven.talesofvalor.com/config/mysql.cnf
