@@ -25,8 +25,10 @@ from talesofvalor.origins.models import Origin
 STARTING_POINTS = 30
 POINT_CAP = 25
 
-# influence a character loses automatically between games.
-INFLUENCE_REGENERATION = 4
+# How much a character's influence changes at each event, as a signed
+# number: negative takes influence away, positive adds it.  A character
+# carrying their own 'influence_change' uses that instead.
+DEFAULT_INFLUENCE_CHANGE = -4
 
 
 class Character(models.Model):
@@ -80,6 +82,22 @@ class Character(models.Model):
     cp_available = models.PositiveIntegerField(default=STARTING_POINTS)
     cp_transferred = models.PositiveIntegerField(default=0)
     influence = models.PositiveIntegerField(default=0)
+    influence_change = models.SmallIntegerField(
+        _("Influence change per event"),
+        null=True,
+        blank=True,
+        help_text=_(
+            "How much this character's influence changes at each event, "
+            "instead of the usual amount.  Signed: -7 takes seven away, 2 "
+            "adds two.  Leave empty to use the usual amount."
+        )
+    )
+    influence_change_notes = models.TextField(
+        _("Influence change notes"),
+        blank=True,
+        default='',
+        help_text=_("Why this character's influence changes by its own amount.")
+    )
     # The headers and skills that a character has.
     headers = models.ManyToManyField(Header)
     skills = models.ManyToManyField(HeaderSkill, through='CharacterSkills')
@@ -331,6 +349,26 @@ class Character(models.Model):
             return True, ''
         return True, ''
 
+    @property
+    def effective_influence_change(self):
+        """
+        How much this character's influence changes at each event.
+
+        A signed number: negative takes influence away, positive adds it.
+        Characters use the usual amount unless staff have given them their
+        own, which is what 'influence_change' holds.  Zero is a real answer
+        there - a character whose influence doesn't move between games - so
+        only an empty value falls back to the default.
+        """
+        if self.influence_change is None:
+            return DEFAULT_INFLUENCE_CHANGE
+        return self.influence_change
+
+    @property
+    def has_own_influence_change(self):
+        """Is this character on their own influence change rather than the usual one?"""
+        return self.influence_change is not None
+
     def apply_influence(self, delta, user, reason):
         """
         Change this character's influence and record why.
@@ -458,7 +496,7 @@ class CharacterEventInfluence(models.Model):
 
     1) takes the current influence and uses it to set Start of Game Influence
     2) takes Influence Input and uses it to set End of Game Influence
-    3) subtracts the regeneration amount from End of Game Influence
+    3) applies the character's influence change to End of Game Influence
     4) if Start of Game Influence is less than End of Game Influence, flags
        the character as needing a Corruption, otherwise ends the process
     5) if flagged, resolves the level of corruption from End of Game Influence

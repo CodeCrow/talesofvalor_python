@@ -13,7 +13,6 @@ from django.db import transaction
 from django.utils import timezone
 
 from talesofvalor.characters.models import (
-    INFLUENCE_REGENERATION,
     CharacterEventInfluence,
     CorruptionLevel,
 )
@@ -69,7 +68,7 @@ def process_event_influence(event, user):
 
     1) Start of Game Influence takes the character's current influence
     2) End of Game Influence takes the Influence Input
-    3) the regeneration amount comes off End of Game Influence
+    3) the character's influence change is applied to End of Game Influence
     4) if Start is less than End, the character is flagged for a Corruption
     5) a flagged character's corruption level is resolved from End
 
@@ -91,9 +90,11 @@ def process_event_influence(event, user):
                 continue
             character = row.character
             row.start_influence = character.influence
+            # a signed change: most characters lose the usual amount, but a
+            # character staff have given their own uses that instead.
             row.end_influence = max(
                 0,
-                row.influence_input - INFLUENCE_REGENERATION
+                row.influence_input + character.effective_influence_change
             )
             row.corruption_flag = row.start_influence < row.end_influence
             row.corruption_level = CorruptionLevel.for_influence(

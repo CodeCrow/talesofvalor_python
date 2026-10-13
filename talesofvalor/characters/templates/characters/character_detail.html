@@ -26,6 +26,15 @@
                     | <a href="{% url 'characters:influence_adjust' pk=object.pk %}">Adjust</a>
                 {% endif %}
             </p>
+            <p>
+                Change per event: <strong>{{ object.effective_influence_change }}</strong>
+                {% if object.has_own_influence_change %}
+                    &mdash; set for this character
+                    {% if object.influence_change_notes %}
+                        <br>{{ object.influence_change_notes|linebreaksbr }}
+                    {% endif %}
+                {% endif %}
+            </p>
         </div>
         <div class="character-body">
             <h2>Character Log:</h2>

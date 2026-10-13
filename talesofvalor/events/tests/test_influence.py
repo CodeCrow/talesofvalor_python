@@ -5,10 +5,12 @@ Influence carries between events: a character's current influence is the end
 of game total from the last processed event, and processing an event rolls
 everyone forward from there.
 """
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from talesofvalor.characters.models import (
-    INFLUENCE_REGENERATION,
+    DEFAULT_INFLUENCE_CHANGE,
+    Character,
     CharacterEventInfluence,
     CorruptionLevel,
 )
@@ -33,7 +35,7 @@ class ProcessEventInfluenceTest(InfluenceTestCase):
 
         row = CharacterEventInfluence.objects.get(event=event, character=self.character)
         self.assertEqual(row.start_influence, 0)
-        self.assertEqual(row.end_influence, 10 - INFLUENCE_REGENERATION)
+        self.assertEqual(row.end_influence, 10 + DEFAULT_INFLUENCE_CHANGE)
         self.assertTrue(row.corruption_flag)
         self.assertEqual(self.refresh().influence, 6)
         self.assertEqual(counts['processed'], 1)
@@ -57,7 +59,7 @@ class ProcessEventInfluenceTest(InfluenceTestCase):
         self.assertFalse(row.corruption_flag)
         self.assertEqual(self.refresh().influence, 4)
 
-    def test_regeneration_floors_at_zero(self):
+    def test_influence_change_floors_at_zero(self):
         """Influence never goes negative, however small the input."""
         event = self.make_event("Spring 1")
         self.attend(event)
@@ -145,7 +147,7 @@ class CorruptionDuringProcessingTest(InfluenceTestCase):
         self.assertIsNone(row.corruption_level)
 
     def test_level_is_resolved_from_end_influence(self):
-        """The level comes off the post regeneration value, not the raw input."""
+        """The level comes off the changed value, not the raw input."""
         CorruptionLevel.objects.create(name="Tainted", threshold=6)
         CorruptionLevel.objects.create(name="Marked", threshold=10)
         event = self.make_event("Spring 1")
@@ -286,3 +288,146 @@ class EventRowsTest(InfluenceTestCase):
         rows = ensure_event_rows(event)
 
         self.assertEqual(rows.count(), 1)
+
+
+class CharacterInfluenceChangeTest(InfluenceTestCase):
+    """
+    Processing an event with a character on their own influence change.
+
+    Most characters lose the usual amount.  Staff can give a character a
+    different signed change, which is used in its place at every event.
+    """
+
+    def set_change(self, value, character=None):
+        character = character or self.character
+        character.influence_change = value
+        character.save(update_fields=['influence_change'])
+        return character
+
+    def test_a_bigger_loss_is_applied(self):
+        self.set_change(-7)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 10)
+
+        process_event_influence(event, self.staff)
+
+        row = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        self.assertEqual(row.end_influence, 3)
+        self.assertEqual(self.refresh().influence, 3)
+
+    def test_a_gain_is_applied(self):
+        """A positive change adds influence rather than taking it away."""
+        self.set_change(2)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 10)
+
+        process_event_influence(event, self.staff)
+
+        row = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        self.assertEqual(row.end_influence, 12)
+        self.assertEqual(self.refresh().influence, 12)
+
+    def test_zero_leaves_the_input_alone(self):
+        self.set_change(0)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 10)
+
+        process_event_influence(event, self.staff)
+
+        row = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        self.assertEqual(row.end_influence, 10)
+
+    def test_a_big_loss_still_floors_at_zero(self):
+        self.set_change(-20)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 5)
+
+        process_event_influence(event, self.staff)
+
+        row = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        self.assertEqual(row.end_influence, 0)
+        self.assertEqual(self.refresh().influence, 0)
+
+    def test_only_the_character_with_their_own_change_is_affected(self):
+        """Everyone else at the event still uses the usual amount."""
+        other_user = User.objects.create_user(
+            username='other', password='secret')
+        other = Character.objects.create(
+            player=other_user.player,
+            name="Brenna",
+            active_flag=True
+        )
+        self.set_change(-7)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.attend(event, character=other)
+        self.enter(event, 10)
+        self.enter(event, 10, character=other)
+
+        process_event_influence(event, self.staff)
+
+        mine = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        theirs = CharacterEventInfluence.objects.get(
+            event=event, character=other)
+        self.assertEqual(mine.end_influence, 3)
+        self.assertEqual(theirs.end_influence, 10 + DEFAULT_INFLUENCE_CHANGE)
+
+    def test_a_gain_flags_corruption(self):
+        """
+        Gaining influence is what flags a corruption, so a positive change
+        on its own is enough to flag a character who held steady.
+        """
+        self.set_change(2)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 0)
+
+        process_event_influence(event, self.staff)
+
+        row = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        self.assertEqual(row.end_influence, 2)
+        self.assertTrue(row.corruption_flag)
+
+    def test_reversal_undoes_the_change(self):
+        """
+        A reversal unwinds the stored delta, so it has to come back to where
+        it started whatever change was applied.
+        """
+        self.set_change(-7)
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 10)
+        process_event_influence(event, self.staff)
+        self.assertEqual(self.refresh().influence, 3)
+
+        unprocess_event_influence(event, self.staff)
+
+        self.assertEqual(self.refresh().influence, 0)
+
+    def test_a_change_set_after_processing_does_not_rewrite_history(self):
+        """
+        The start and end are stored when the event is processed, so giving a
+        character their own change afterwards must not disturb an event that
+        has already rolled forward.
+        """
+        event = self.make_event("Spring 1")
+        self.attend(event)
+        self.enter(event, 10)
+        process_event_influence(event, self.staff)
+
+        self.set_change(-7)
+
+        row = CharacterEventInfluence.objects.get(
+            event=event, character=self.character)
+        self.assertEqual(row.end_influence, 10 + DEFAULT_INFLUENCE_CHANGE)
+        self.assertEqual(self.refresh().influence, 6)
