@@ -67,6 +67,22 @@ class EventInfluenceGridTest(EventInfluenceViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.character.name)
 
+    def test_the_grid_shows_the_change_that_will_be_applied(self):
+        """
+        Staff entering inputs need to see which characters are on their own
+        change, or a number that moves differently looks like a bug.
+        """
+        self.character.influence_change = -7
+        self.character.influence_change_notes = "Owes a debt to the Guild"
+        self.character.save(update_fields=[
+            'influence_change', 'influence_change_notes'])
+        self.login_staff()
+
+        response = self.client.get(self.grid_url())
+
+        self.assertContains(response, "-7")
+        self.assertContains(response, "Owes a debt to the Guild")
+
     def test_opening_the_grid_creates_a_row_per_attendee(self):
         self.login_staff()
 

@@ -3,7 +3,10 @@ Tests for influence on a single character.
 
 Rolling a whole event forward is covered in ``events.tests.test_influence``.
 """
-from talesofvalor.characters.models import CorruptionLevel
+from talesofvalor.characters.models import (
+    DEFAULT_INFLUENCE_CHANGE,
+    CorruptionLevel,
+)
 
 from .base import InfluenceTestCase
 
@@ -73,3 +76,52 @@ class CorruptionLevelLookupTest(InfluenceTestCase):
         tainted = CorruptionLevel.objects.create(name="Tainted", threshold=10)
 
         self.assertEqual(CorruptionLevel.for_influence(10), tainted)
+
+
+class EffectiveInfluenceChangeTest(InfluenceTestCase):
+    """
+    Which per event change applies to a character.
+
+    Staff can give a character their own change instead of the usual one.
+    It is signed: negative takes influence away, positive adds it.
+    """
+
+    def set_change(self, value):
+        self.character.influence_change = value
+        self.character.save(update_fields=['influence_change'])
+        return self.character
+
+    def test_the_usual_amount_applies_by_default(self):
+        self.assertIsNone(self.character.influence_change)
+        self.assertEqual(
+            self.character.effective_influence_change,
+            DEFAULT_INFLUENCE_CHANGE
+        )
+        self.assertFalse(self.character.has_own_influence_change)
+
+    def test_a_character_can_lose_more_than_usual(self):
+        self.set_change(-7)
+
+        self.assertEqual(self.character.effective_influence_change, -7)
+        self.assertTrue(self.character.has_own_influence_change)
+
+    def test_a_character_can_gain_influence(self):
+        self.set_change(2)
+
+        self.assertEqual(self.character.effective_influence_change, 2)
+        self.assertTrue(self.character.has_own_influence_change)
+
+    def test_zero_is_a_real_change_not_a_missing_one(self):
+        """
+        A character whose influence holds steady between games is set to
+        zero, which must not be mistaken for having nothing set.
+        """
+        self.set_change(0)
+
+        self.assertEqual(self.character.effective_influence_change, 0)
+        self.assertTrue(self.character.has_own_influence_change)
+
+    def test_notes_are_optional(self):
+        self.set_change(-7)
+
+        self.assertEqual(self.character.influence_change_notes, '')
