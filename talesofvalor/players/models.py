@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -251,103 +251,161 @@ class RegistrationRequest(models.Model):
     def request_complete(cls, request_id, user, request):
         """
         Complete the request and make the registrations
+
+        This is safe to call more than once.  A request that is already
+        COMPLETE, or an event that already has a registration attached to this
+        request, is recorded and skipped instead of registered a second time.
         """
-        event_reg_request = RegistrationRequest.objects.get(
-            pk=request_id
-        )
-        event_reg_request.status = COMPLETE
-        event_reg_request.save()
-        # Create the event registration for each of the events that the
-        # event_reg_request.eventregistrationitem is attached to.
-        # create an email message for each registration
-        email_connection = mail.get_connection()
+        # imported here rather than at the top of the module because
+        # django.contrib.admin.models pulls in another app's models, which
+        # isn't safe while this module is still being imported.
+        from django.contrib.admin.models import LogEntry, CHANGE
+        from django.contrib.contenttypes.models import ContentType
+
+        def duplicate_notice(event_reg_request, detail):
+            """
+            Record a suppressed duplicate registration.
+
+            Writes a LogEntry against the request and returns an email about
+            it.  This carries just enough of the HTTP request to work out where
+            the repeated call came from: the referer distinguishes a browser
+            reload from a prefetch from a staff member clicking twice.
+            """
+            LogEntry.objects.create(
+                user=user,
+                content_type=ContentType.objects.get_for_model(cls),
+                object_id=event_reg_request.id,
+                object_repr=event_reg_request.__str__(),
+                action_flag=CHANGE,
+                change_message="Duplicate registration suppressed: {} ({} {}).".format(
+                    detail,
+                    request.method,
+                    request.path
+                )
+            )
+            notice = """
+            Duplicate registration suppressed: {}
+
+            Registration request: {}
+
+            method:  {} {}
+            user:    {}
+            ip:      {}
+            referer: {}
+
+            --ToV MechCrow
+            """.format(
+                detail,
+                request.build_absolute_uri(
+                    reverse("registration:request_detail", kwargs={
+                        'pk': event_reg_request.id
+                    })
+                ),
+                request.method,
+                request.path,
+                user.id,
+                request.META.get('REMOTE_ADDR', ''),
+                request.META.get('HTTP_REFERER', '')
+            )
+            return mail.EmailMessage(
+                "Duplicate Registration attempt for {} {}".format(
+                    user.first_name,
+                    user.last_name
+                ),
+                notice,
+                settings.DEFAULT_FROM_EMAIL,
+                ["rob@crowbringsdaylight.com"]
+            )
+
         # create the list of messages
         email_messages = []
-        for event in event_reg_request.event_registration_item.events.all():
-            # see if there is an already existing registration
-            try:
-                existing_registration = Registration.objects.get(event=event, registration_request=event_reg_request)
-                existing_registration_message = """
-                               Attempted duplicated registration for event: {}
-                               
-                               Registration request: {}
-                               
-                               HTTP Request: {}
-                               --ToV MechCrow
-                               """.format(
-                    event.name,
-                    request.build_absolute_uri(
-                        reverse("registration:request_detail", kwargs={
-                            'pk': event_reg_request.id
-                        })
-                    ),
-                    request.__dict__
-                )
-                existing_registration_email_message = mail.EmailMessage(
-                    "Duplicate Registration attempt for {} {}".format(
-                        user.first_name,
-                        user.last_name
-                    ),
-                    existing_registration_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    ["rob@crowbringsdaylight.com"]
-                )
-                email_messages.append(existing_registration_email_message)
-            except Registration.DoesNotExist:
-                registration = Registration(
-                    player=user.player,
-                    event=event,
-                    no_car_flag=event_reg_request.no_car_flag,
-                    site_transportation=event_reg_request.site_transportation,
-                    vehicle_make=event_reg_request.vehicle_make,
-                    vehicle_model=event_reg_request.vehicle_model,
-                    vehicle_color=event_reg_request.vehicle_color,
-                    vehicle_registration=event_reg_request.vehicle_registration,
-                    local_contact=event_reg_request.local_contact,
-                    registration_request=event_reg_request,
-                    mealplan_flag=event_reg_request.mealplan_flag,
-                    food_allergies=event_reg_request.food_allergies,
-                    vegetarian_flag=event_reg_request.vegetarian_flag,
-                    vegan_flag=event_reg_request.vegan_flag,
-                    pay_at_door_flag=event_reg_request.pay_at_door_flag,
-                    already_paid_flag=event_reg_request.already_paid_flag,
-                    )
-                registration.save()
-                # email staff with a link to the registration
-                # send email using the self.cleaned_data dictionary
-                message = """
-                Hello!
-    
-                {} {} has a new registration for event {}.
-    
-                See it here:
-                {}
-    
-                --ToV MechCrow
-                """.format(
-                        user.first_name,
-                        user.last_name,
-                        event.name,
-                        request.build_absolute_uri(
-                            reverse("registration:detail", kwargs={
-                                'pk': registration.id
-                            })
+        with transaction.atomic():
+            # Lock the request so that a second, concurrent call waits here and
+            # then sees the COMPLETE status committed by the first one.
+            event_reg_request = cls.objects.select_for_update().get(
+                pk=request_id
+            )
+            if event_reg_request.status == COMPLETE:
+                email_messages.append(duplicate_notice(
+                    event_reg_request,
+                    "request was already complete"
+                ))
+            else:
+                # Create the event registration for each of the events that the
+                # event_reg_request.eventregistrationitem is attached to.
+                # create an email message for each registration
+                for event in event_reg_request.event_registration_item.events.all():
+                    # see if there is an already existing registration
+                    if Registration.objects.filter(
+                        event=event,
+                        registration_request=event_reg_request
+                    ).exists():
+                        email_messages.append(duplicate_notice(
+                            event_reg_request,
+                            'event "{}"'.format(event.name)
+                        ))
+                        continue
+                    registration = Registration(
+                        player=user.player,
+                        event=event,
+                        no_car_flag=event_reg_request.no_car_flag,
+                        site_transportation=event_reg_request.site_transportation,
+                        vehicle_make=event_reg_request.vehicle_make,
+                        vehicle_model=event_reg_request.vehicle_model,
+                        vehicle_color=event_reg_request.vehicle_color,
+                        vehicle_registration=event_reg_request.vehicle_registration,
+                        local_contact=event_reg_request.local_contact,
+                        registration_request=event_reg_request,
+                        mealplan_flag=event_reg_request.mealplan_flag,
+                        food_allergies=event_reg_request.food_allergies,
+                        vegetarian_flag=event_reg_request.vegetarian_flag,
+                        vegan_flag=event_reg_request.vegan_flag,
+                        pay_at_door_flag=event_reg_request.pay_at_door_flag,
+                        already_paid_flag=event_reg_request.already_paid_flag,
                         )
+                    registration.save()
+                    # email staff with a link to the registration
+                    # send email using the self.cleaned_data dictionary
+                    message = """
+                    Hello!
+
+                    {} {} has a new registration for event {}.
+
+                    See it here:
+                    {}
+
+                    --ToV MechCrow
+                    """.format(
+                            user.first_name,
+                            user.last_name,
+                            event.name,
+                            request.build_absolute_uri(
+                                reverse("registration:detail", kwargs={
+                                    'pk': registration.id
+                                })
+                            )
+                        )
+                    email_message = mail.EmailMessage(
+                        "Registration for {} {}".format(
+                            user.first_name,
+                            user.last_name
+                        ),
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
                     )
-                email_message = mail.EmailMessage(
-                    "Registration for {} {}".format(
-                        user.first_name,
-                        user.last_name
-                    ),
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    ["rob@crowbringsdaylight.com", "wyldharrt@gmail.com", "ambisinister@gmail.com"]
-                )
-                email_messages.append(email_message)
-        # send an email to each of them.
-        email_connection.send_messages(email_messages)
-        # close the connection to the email server
-        email_connection.close()
+                    email_messages.append(email_message)
+                # Only mark the request complete once the registrations exist,
+                # so that a failure above rolls back and leaves the request
+                # retryable by the player.
+                event_reg_request.status = COMPLETE
+                event_reg_request.save()
+        # send the emails now that the registrations are committed
+        if email_messages:
+            email_connection = mail.get_connection()
+            email_connection.send_messages(email_messages)
+            # close the connection to the email server
+            email_connection.close()
 
 
 class Registration(models.Model):
@@ -482,6 +540,15 @@ class Registration(models.Model):
         permissions = (
             ("register_as_cast", "Can register as cast"),
         )
+        constraints = [
+            # One registration per event per request.  'registration_request'
+            # is nullable and MySQL allows repeated NULLs in a unique index, so
+            # registrations created by hand are unaffected.
+            models.UniqueConstraint(
+                fields=['registration_request', 'event'],
+                name='unique_registration_per_request_event'
+            ),
+        ]
 
 
 class PEL(models.Model):

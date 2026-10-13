@@ -23,6 +23,16 @@ paths:
 Add `--noinput` to drop a leftover test database from an interrupted run
 instead of being prompted.
 
+The same commands are written up for humans under "Testing > Unit tests" in
+`README.md`; keep the two in step when either changes.
+
+## Where tests go
+
+Tests for an app live in that app's own `tests/` package, next to the code
+they cover: `talesofvalor/players/tests/test_models.py`,
+`talesofvalor/events/tests/test_influence.py`. This holds even when the
+feature spans apps - put each app's tests under that app.
+
 ## Notes
 
 - Tests run against MySQL, and creating the test database runs every

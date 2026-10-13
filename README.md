@@ -348,7 +348,43 @@ DATABASES = {
 
 
 # Testing
-## Setup
+## Unit tests
+
+`manage.py` is at the repository root and the apps live inside the
+`talesofvalor` package, so test labels need the full dotted path.
+
+Make sure your pipenv shell is running, then:
+
+```
+# every test
+$ ./manage.py test --settings=talesofvalor.settings.local
+
+# one app
+$ ./manage.py test --settings=talesofvalor.settings.local talesofvalor.players
+
+# one module, class or single test
+$ ./manage.py test --settings=talesofvalor.settings.local talesofvalor.players.tests.test_models.RequestCompleteTest
+```
+
+Add `--noinput` to drop a leftover test database from an interrupted run
+instead of being prompted for it.
+
+Tests for an app live in that app's own `tests/` package, for example
+`talesofvalor/players/tests/test_models.py`.
+
+Things worth knowing when a test fails for reasons that look unrelated to
+your change:
+
+* The test database is built by running every migration from scratch, so a
+  migration that only works against an existing database will fail here even
+  though it applied fine locally.
+* django-cms keeps the logged in user in a threadlocal that outlives a test.
+  Call `cms.utils.permissions.set_current_user(None)` in `setUp` before
+  creating any users, or they get stamped as created by a user the previous
+  test has already rolled back.
+
+## Browser tests
+### Setup
 if you have not already, in the virtual environment that you have created for TOV, run the following pip install commands
 ```
 pip install selenium
@@ -356,7 +392,7 @@ pip install --upgrade mailosaur
 ```
 This will install the packaged needed to interface with a webdriver. For now there is a instance of chrome included in the repo.
 
-## Note: below instructions are for a windows machine
+### Note: below instructions are for a windows machine
 1. Open project in VSCode
 2. Click 'View' > 'Terminal'
 3. In the terminal that opens in VSCode start the server using above method
