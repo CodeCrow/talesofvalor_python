@@ -15,6 +15,11 @@ django-recaptcha = "*"
 djangocms-style = "*"
 djangocms-snippet = "*"
 djangocms-video = "*"
+# Pulled in by djangocms-video, which asks only for django-filer>=1.7.
+# From 3.5 filer depends on py-svg-hush, a Rust extension with no macOS
+# wheel below CPython 3.11, so an unpinned resolve breaks "pipenv lock"
+# on a mac.  Lift this once the project moves to python 3.11 or newer.
+django-filer = "<3.5"
 djangorestframework = "*"
 django-taggit = "~=3.0"
 # djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
@@ -24,7 +29,10 @@ paypal-checkout-serversdk = "*"
 selenium = "*"
 mailosaur = "*"
 names = "*"
-wiki = {git = "https://github.com/django-wiki/django-wiki.git"}
+# Was an unpinned git dependency, so every lock silently took whatever
+# django-wiki's main branch was that day.  0.13 is released on PyPI
+# and is the same code, minus unreleased commits.
+wiki = "~=0.13.0"
 django-hijack = "*"
 django-autocomplete-light = "*"
 gunicorn = "*"

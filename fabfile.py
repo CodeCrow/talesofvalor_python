@@ -148,7 +148,10 @@ def deploy(c, environment, branch=None, migrate=False, updaterequirements=False)
                 # c.run('echo Updating pip')
                 # c.run('pip install --upgrade pip')
                 c.run('echo Updating requirements...')
-                c.run('pipenv install')
+                # 'sync' installs exactly what Pipfile.lock pins.
+                # 'install' would re-resolve against PyPI here, so a
+                # deploy could pick up versions nobody has tested.
+                c.run('pipenv sync')
 
             if migrate is True:
                 c.run('echo Migrating database schema...')
