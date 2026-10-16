@@ -26,9 +26,6 @@ django-taggit = "~=3.0"
 mysql-connector-python = "*"
 mysqlclient = "*"
 paypal-checkout-serversdk = "*"
-selenium = "*"
-mailosaur = "*"
-names = "*"
 # Was an unpinned git dependency, so every lock silently took whatever
 # django-wiki's main branch was that day.  0.13 is released on PyPI
 # and is the same code, minus unreleased commits.

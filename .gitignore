@@ -16,7 +16,5 @@ passenger_wsgi.py
 /node_modules/*
 package-lock.json
 poetry.lock
-testing.out
-chromedriver.exe
 .idea/
 .idea/*
