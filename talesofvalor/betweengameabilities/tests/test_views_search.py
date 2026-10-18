@@ -214,3 +214,76 @@ class PlayerCannotSearchTest(BGATextSearchTestCase):
         response = self.search("dragon")
 
         self.assertNotIn(theirs.id, self.ids_in(response))
+
+
+class EventFilterTest(BGATextSearchTestCase):
+    """
+    How the event picker and the text search interact.
+
+    A text search is meant to look across every event, so it deliberately
+    skips the event narrowing.  Everything else still defaults to an event.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username='staff', password='secret')
+        older = date.today() - timedelta(days=120)
+        self.older_event = Event.objects.create(
+            name="Winter 1",
+            event_date=older,
+            pel_due_date=older + timedelta(days=7),
+            bgs_due_date=older + timedelta(days=7)
+        )
+        self.in_winter = BetweenGameAbility.objects.create(
+            character=self.character,
+            event=self.older_event,
+            count=1,
+            non_ability_source_flag=True,
+            question="<p>A dragon in winter.</p>",
+            answer=""
+        )
+
+    def get(self, **params):
+        return self.client.get(reverse(
+            'betweengameabilities:betweengameability_list'), params)
+
+    def test_the_picked_event_is_the_one_shown(self):
+        """
+        The chosen event has to survive dispatch.  It was briefly being
+        overwritten by the previous event, so the heading and the dropdown
+        disagreed with the list.
+        """
+        response = self.get(event_id=self.older_event.id)
+
+        self.assertEqual(response.context['event'].id, self.older_event.id)
+
+    def test_a_search_reaches_across_events(self):
+        """The point of the search: do not confine it to one event."""
+        response = self.get(search_text="dragon")
+
+        ids = {bga.id for bga in response.context['object_list']}
+        self.assertEqual(ids, {self.about_dragon.id, self.in_winter.id})
+
+    def test_an_event_and_a_search_together_still_narrow(self):
+        response = self.get(event_id=self.event.id, search_text="dragon")
+
+        ids = {bga.id for bga in response.context['object_list']}
+        self.assertEqual(ids, {self.about_dragon.id})
+
+    def test_a_junk_event_id_does_not_break_the_page(self):
+        """'?event_id=abc' used to raise ValueError out of the view."""
+        response = self.get(event_id='abc')
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_no_upcoming_event_still_lists(self):
+        """
+        Every event here is in the past, so there is no next event to
+        default to.  That should leave the list alone rather than filtering
+        it down to nothing.
+        """
+        self.assertIsNone(Event.next_event())
+
+        response = self.get()
+
+        self.assertGreater(len(response.context['object_list']), 0)

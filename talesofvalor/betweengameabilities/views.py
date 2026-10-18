@@ -304,9 +304,10 @@ class BetweenGameAbilityListView(
         if event_id:
             try:
                 self.event = Event.objects.get(pk=event_id)
-            except Event.DoesNotExist:
+            except (Event.DoesNotExist, ValueError, TypeError):
+                # a junk event_id in the query string is just no event.
                 pass
-        if self.event:
+        if not self.event:
             self.event = Event.previous_event()
         return super().dispatch(request, *args, **kwargs)
 
@@ -367,22 +368,28 @@ class BetweenGameAbilityListView(
         # template: a player sees a BGA's answer only once
         # 'answer_available' is true, so a hand written ?text= would
         # otherwise let them confirm words in an answer still being withheld.
+        search_text = ''
         if self.request.user.has_perm('players.change_any_player'):
-            search_text = self.request.GET.get('search_text', '')
-            if search_text.strip():
-                queryset = queryset.filter(
-                    get_query(search_text, ['question', 'answer'])
-                )
+            search_text = self.request.GET.get('search_text', '').strip()
+        if search_text:
+            queryset = queryset.filter(
+                get_query(search_text, ['question', 'answer'])
+            )
         # filter by event
-        event_id = int(self.request.GET.get('event_id', 0))
-        if event_id and event_id > 0:
-            print("IM DOING THE EVENT ID ANYWAY!s")
+        try:
+            event_id = int(self.request.GET.get('event_id', 0) or 0)
+        except (TypeError, ValueError):
+            event_id = 0
+        if event_id > 0:
             queryset = queryset.filter(event__id=event_id)
-        elif not self.request.GET.get('search_text', False):
-            print("I'M SETTING THE EVENT ID")
+        elif not search_text:
+            # with no event picked and nothing being searched for, default to
+            # the upcoming event.  A search deliberately spans every event,
+            # so it is left unfiltered.  If there is no upcoming event there
+            # is nothing to narrow to, and the whole list stands.
             event = Event.next_event()
-            event_id = None if not event else event.id
-            queryset = queryset.filter(event__id=event_id)
+            if event:
+                queryset = queryset.filter(event__id=event.id)
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('players.view_any_player'):
             # if the player id was sent, filter by that.
@@ -393,7 +400,6 @@ class BetweenGameAbilityListView(
         if player:
             characters = player.character_set.all()
             queryset = queryset.filter(character__in=characters)
-        print(f"QUERYSET: {queryset.__dict__}")
         return queryset
 
 
