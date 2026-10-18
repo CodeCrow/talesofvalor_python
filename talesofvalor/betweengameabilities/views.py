@@ -306,7 +306,7 @@ class BetweenGameAbilityListView(
                 self.event = Event.objects.get(pk=event_id)
             except Event.DoesNotExist:
                 pass
-        if not self.event:
+        if not (self.event or self.request.GET.get('search_text', False)):
             self.event = Event.previous_event()
         return super().dispatch(request, *args, **kwargs)
 
@@ -344,7 +344,7 @@ class BetweenGameAbilityListView(
             queryset = queryset.filter(
                 Q(answer_date__isnull=True)
             )
-            # more complicated query that deals with situaltions 
+            # more complicated query that deals with situations
             # where people submit without entering information.
             '''
             queryset = queryset.filter(
@@ -368,18 +368,21 @@ class BetweenGameAbilityListView(
         # 'answer_available' is true, so a hand written ?text= would
         # otherwise let them confirm words in an answer still being withheld.
         if self.request.user.has_perm('players.change_any_player'):
-            text = self.request.GET.get('text', '')
-            if text.strip():
+            search_text = self.request.GET.get('search_text', '')
+            if search_text.strip():
                 queryset = queryset.filter(
-                    get_query(text, ['question', 'answer'])
+                    get_query(search_text, ['question', 'answer'])
                 )
         # filter by event
-        event_id = self.request.GET.get('event_id', None)
-        if event_id:
+        event_id = int(self.request.GET.get('event_id', 0))
+        if event_id and event_id > 0:
+            print("IM DOING THE EVENT ID ANYWAY!s")
             queryset = queryset.filter(event__id=event_id)
-        else:
+        elif not self.request.GET.get('search_text', False):
+            print("I'M SETTING THE EVENT ID")
             event = Event.next_event()
             event_id = None if not event else event.id
+            queryset = queryset.filter(event__id=event_id)
         # now filter based on what they are allowed to see
         if self.request.user.has_perm('players.view_any_player'):
             # if the player id was sent, filter by that.
@@ -390,6 +393,7 @@ class BetweenGameAbilityListView(
         if player:
             characters = player.character_set.all()
             queryset = queryset.filter(character__in=characters)
+        print(f"QUERYSET: {queryset.__dict__}")
         return queryset
 
 

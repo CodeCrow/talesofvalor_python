@@ -20,23 +20,24 @@
 </div>
 {% endif %}
 <div class="row">
-    <div id="bga_list_filter" class="col-sm-7">
+    <div id="bga_list_filter" class="filter col-sm-7">
         <div class="box">
             <form method="GET">
             {% if perms.players.change_any_player %}
-            <p>Filter: 
-              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=0&unanswered=0{% for key, value in request.GET.items %}{% if key != 'assigned' and key != 'unanswered' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">All</a> | 
-              <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=1{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Assigned to Me</a> 
-            </p>
-            <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
-            <p>Text: <input name="text" type="text" value="{{ request.GET.text }}" placeholder="word or &quot;phrase&quot; in a question or answer" /></p>
+                <p><label>Filter:</label>
+                <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=0&unanswered=0{% for key, value in request.GET.items %}{% if key != 'assigned' and key != 'unanswered' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">All</a> |
+                <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=1{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Assigned to Me</a>
+                </p>
+                <p><label>Name:</label> <input name="name" type="text" value="{{ request.GET.name }}" /></p>
+                <p><label>Text:</label> <input name="search_text" type="text" value="{{ request.GET.search_text }}" placeholder="word or &quot;phrase&quot; in a question or answer" /></p>
             {% endif %}
-            <p>Event:&nbsp;<select name="event_id" id="event_id">
-              <option value="0"{% if not event %} selected{% endif %}>---</option>
-              {% for e in event_list %}
-                <option value="{{ e.id }}"{% if e.id == event.id %} selected{% endif %}>{{ e }}</option>
-              {% endfor %}
-            </select></p>
+                <p><label>Event:</label>
+                    <select name="event_id" id="event_id">
+                        <option value="0"{% if not event %} selected{% endif %}>---</option>
+                        {% for e in event_list %}
+                            <option value="{{ e.id }}"{% if e.id == event.id %} selected{% endif %}>{{ e }}</option>
+                        {% endfor %}
+                    </select></p>
             <p><input type="checkbox" name="unanswered" value="1"{% if request.GET.unanswered %} checked="checked"{% endif %}>&nbsp;Not Answered</p>
             <button id="bga_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search">Search</button>
             </form>

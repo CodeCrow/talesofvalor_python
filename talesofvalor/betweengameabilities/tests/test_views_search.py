@@ -80,7 +80,7 @@ class BGATextSearchTestCase(TestCase):
 
     def search(self, text, **extra):
         """GET the list filtered by text, as the form submits it."""
-        params = {'event_id': self.event.id, 'text': text}
+        params = {'event_id': self.event.id, 'search_text': text}
         params.update(extra)
         return self.client.get(reverse(
             'betweengameabilities:betweengameability_list'), params)
