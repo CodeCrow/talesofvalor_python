@@ -361,6 +361,18 @@ class BetweenGameAbilityListView(
                 ['character__player__user__username', 'character__player__user__first_name', 'character__player__user__last_name', 'character__name']
             )
             queryset = queryset.filter(entry_query)
+        # search the text of the question and the answer.
+        #
+        # Staff only, and the check has to live here rather than only in the
+        # template: a player sees a BGA's answer only once
+        # 'answer_available' is true, so a hand written ?text= would
+        # otherwise let them confirm words in an answer still being withheld.
+        if self.request.user.has_perm('players.change_any_player'):
+            text = self.request.GET.get('text', '')
+            if text.strip():
+                queryset = queryset.filter(
+                    get_query(text, ['question', 'answer'])
+                )
         # filter by event
         event_id = self.request.GET.get('event_id', None)
         if event_id:

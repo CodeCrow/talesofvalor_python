@@ -29,6 +29,7 @@
               <a href="{% url 'betweengameabilities:betweengameability_list' %}?assigned=1{% for key, value in request.GET.items %}{% if key != 'assigned' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Assigned to Me</a> 
             </p>
             <p>Name: <input name="name" type="text" value="{{ request.GET.name }}" /></p>
+            <p>Text: <input name="text" type="text" value="{{ request.GET.text }}" placeholder="word or &quot;phrase&quot; in a question or answer" /></p>
             {% endif %}
             <p>Event:&nbsp;<select name="event_id" id="event_id">
               <option value="0"{% if not event %} selected{% endif %}>---</option>
