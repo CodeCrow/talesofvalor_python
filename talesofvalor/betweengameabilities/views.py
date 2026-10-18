@@ -297,6 +297,18 @@ class BetweenGameAbilityListView(
             return False
         return self.event.attended_player(self.request.user.player)
 
+    def search_text(self):
+        """
+        The text being searched for, or '' when nobody is searching.
+
+        Staff only.  A player sees a BGA's answer only once
+        'answer_available' is true, so neither the filtering nor the
+        highlighting may act on anything they send.
+        """
+        if not self.request.user.has_perm('players.change_any_player'):
+            return ''
+        return self.request.GET.get('search_text', '').strip()
+
     def dispatch(self, request, *args, **kwargs):
         # get the event
         self.event = None
@@ -329,6 +341,7 @@ class BetweenGameAbilityListView(
         # get the list of events so we can pick from them to filter the lists.
         context['event_list'] = Event.objects.all()
         context['event'] = self.event
+        context['search_text'] = self.search_text()
         context['character'] = character
         return context
 
@@ -368,9 +381,7 @@ class BetweenGameAbilityListView(
         # template: a player sees a BGA's answer only once
         # 'answer_available' is true, so a hand written ?text= would
         # otherwise let them confirm words in an answer still being withheld.
-        search_text = ''
-        if self.request.user.has_perm('players.change_any_player'):
-            search_text = self.request.GET.get('search_text', '').strip()
+        search_text = self.search_text()
         if search_text:
             queryset = queryset.filter(
                 get_query(search_text, ['question', 'answer'])

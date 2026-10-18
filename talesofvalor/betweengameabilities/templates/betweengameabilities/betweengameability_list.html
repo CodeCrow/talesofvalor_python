@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cms_tags comment_tags %}
+{% load cms_tags comment_tags highlight %}
 
 
 {% block bar_title %}Between Game Skills{% endblock bar_title %}
@@ -69,7 +69,7 @@
     {% endif %}
     <div class="bga-item-right bga-item-internal">
         <h4>Questions</h4>
-        {{ bga.question }}<br />
+        {{ bga.question|highlight:search_text }}<br />
         {% if perms.players.change_any_player or not bga.answer %}
         {% comment %}Can't use parenthesis in if statments . . .{% endcomment %}
         {% if perms.players.change_any_player or not bga.event.bga_past_due %}
@@ -84,7 +84,7 @@
         {% if bga.answer %}
         {% if perms.players.change_any_player or bga.created_by.user == request.user and bga.answer_available %}
             <hr />
-            {{ bga.answer }}
+            {{ bga.answer|highlight:search_text }}
         {% endif %}
         {% endif %}
         {% if perms.players.change_any_player and bga.tags.all %}

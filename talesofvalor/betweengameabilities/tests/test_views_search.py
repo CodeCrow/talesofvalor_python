@@ -287,3 +287,57 @@ class EventFilterTest(BGATextSearchTestCase):
         response = self.get()
 
         self.assertGreater(len(response.context['object_list']), 0)
+
+
+class SearchHighlightingTest(BGATextSearchTestCase):
+    """The matched term is marked up in the list so the reader can see it."""
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username='staff', password='secret')
+
+    def test_a_match_in_a_question_is_marked(self):
+        response = self.search("marshwort")
+
+        self.assertContains(
+            response, '<span class="highlight">marshwort</span>')
+
+    def test_a_match_in_an_answer_is_marked(self):
+        response = self.search("dragon")
+
+        self.assertContains(
+            response, '<span class="highlight">dragon</span>')
+
+    def test_nothing_is_marked_without_a_search(self):
+        response = self.client.get(reverse(
+            'betweengameabilities:betweengameability_list'),
+            {'event_id': self.event.id})
+
+        self.assertNotContains(response, 'class="highlight"')
+
+    def test_the_surrounding_markup_survives(self):
+        """The stored question is HTML; marking must not disturb it."""
+        response = self.search("marshwort")
+
+        self.assertContains(
+            response,
+            '<p>Can I brew a healing potion from '
+            '<span class="highlight">marshwort</span>?</p>'
+        )
+
+
+class PlayerSeesNoHighlightingTest(BGATextSearchTestCase):
+    """
+    A player cannot search, so nothing of theirs is ever marked -- including
+    when they write 'search_text' into the query string by hand.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username='player', password='secret')
+
+    def test_a_hand_written_search_marks_nothing(self):
+        response = self.search("potion")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'class="highlight"')

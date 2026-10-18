@@ -100,3 +100,12 @@
       page-break-after: always;
    }
 }
+
+// Marks a run of text found by a search.  Deliberately generic: any search
+// that wants to show the reader what it matched can use it.
+.highlight {
+	background-color: $highlight-background-color;
+	color: $highlight-text-color;
+	padding: 0 0.15em;
+	border-radius: 0.15em;
+}

@@ -8,3 +8,7 @@ $divider-color: #333;
 $alert-color: #76B46A;
 $text-danger-color: #dc3545; // from bootstrap
 
+// Marking a search term inside a block of text.  Matches the "info" button
+// colouring so a highlight reads as the same family of thing.
+$highlight-background-color: #17a2b8; // bootstrap "info"
+$highlight-text-color: #f8f9fa; // bootstrap gray-100
