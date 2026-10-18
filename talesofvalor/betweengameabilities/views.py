@@ -306,7 +306,7 @@ class BetweenGameAbilityListView(
                 self.event = Event.objects.get(pk=event_id)
             except Event.DoesNotExist:
                 pass
-        if not (self.event or self.request.GET.get('search_text', False)):
+        if self.event:
             self.event = Event.previous_event()
         return super().dispatch(request, *args, **kwargs)
 
