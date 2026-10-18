@@ -33,7 +33,7 @@
             {% endif %}
                 <p><label>Event:</label>
                     <select name="event_id" id="event_id">
-                        <option value="0"{% if not event %} selected{% endif %}>---</option>
+                        <option value="0"{% if not event %} selected{% endif %}>All Events</option>
                         {% for e in event_list %}
                             <option value="{{ e.id }}"{% if e.id == event.id %} selected{% endif %}>{{ e }}</option>
                         {% endfor %}

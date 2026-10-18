@@ -341,3 +341,77 @@ class PlayerSeesNoHighlightingTest(BGATextSearchTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'class="highlight"')
+
+
+class AllEventsTest(BGATextSearchTestCase):
+    """
+    Choosing "All Events" has to stick.
+
+    It is not the same as arriving with nothing chosen: opening the page
+    cold still settles on an event, but asking for every event is a choice
+    the page has to keep.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username='staff', password='secret')
+        older = date.today() - timedelta(days=120)
+        self.older_event = Event.objects.create(
+            name="Winter 1",
+            event_date=older,
+            pel_due_date=older + timedelta(days=7),
+            bgs_due_date=older + timedelta(days=7)
+        )
+        self.in_winter = BetweenGameAbility.objects.create(
+            character=self.character,
+            event=self.older_event,
+            count=1,
+            non_ability_source_flag=True,
+            question="<p>A question from winter.</p>",
+            answer=""
+        )
+
+    def get(self, **params):
+        return self.client.get(reverse(
+            'betweengameabilities:betweengameability_list'), params)
+
+    def test_all_events_lists_every_event(self):
+        response = self.get(event_id=0)
+
+        ids = {bga.id for bga in response.context['object_list']}
+        self.assertIn(self.in_winter.id, ids)
+        self.assertIn(self.about_herbs.id, ids)
+
+    def test_all_events_leaves_the_heading_off(self):
+        """The page used to fall back to showing the most recent event."""
+        response = self.get(event_id=0)
+
+        self.assertIsNone(response.context['event'])
+
+    def test_all_events_stays_selected_in_the_picker(self):
+        response = self.get(event_id=0)
+
+        self.assertContains(
+            response, '<option value="0" selected>All Events</option>',
+            html=True
+        )
+
+    def test_all_events_survives_a_search(self):
+        response = self.get(event_id=0, search_text="question")
+
+        self.assertIsNone(response.context['event'])
+        ids = {bga.id for bga in response.context['object_list']}
+        self.assertIn(self.in_winter.id, ids)
+
+    def test_choosing_an_event_still_shows_that_event(self):
+        response = self.get(event_id=self.older_event.id)
+
+        self.assertEqual(response.context['event'].id, self.older_event.id)
+        ids = {bga.id for bga in response.context['object_list']}
+        self.assertEqual(ids, {self.in_winter.id})
+
+    def test_arriving_with_nothing_chosen_still_settles_on_an_event(self):
+        """Opening the page cold is not the same as asking for all."""
+        response = self.get()
+
+        self.assertIsNotNone(response.context['event'])

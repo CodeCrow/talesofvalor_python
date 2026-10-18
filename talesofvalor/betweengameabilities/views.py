@@ -313,13 +313,20 @@ class BetweenGameAbilityListView(
         # get the event
         self.event = None
         event_id = self.request.GET.get('event_id', None)
-        if event_id:
+        # '0' is the "All Events" choice in the picker, and is not the same
+        # as arriving with no event_id at all: asking for every event has to
+        # stick, while simply opening the page still settles on one.
+        self.all_events = (event_id is not None
+                           and str(event_id).strip() == '0')
+        if event_id and not self.all_events:
             try:
                 self.event = Event.objects.get(pk=event_id)
             except (Event.DoesNotExist, ValueError, TypeError):
                 # a junk event_id in the query string is just no event.
                 pass
         if not self.event:
+            # the access check below still needs an event to ask about,
+            # even when the reader has asked to see all of them.
             self.event = Event.previous_event()
         return super().dispatch(request, *args, **kwargs)
 
@@ -340,7 +347,8 @@ class BetweenGameAbilityListView(
 
         # get the list of events so we can pick from them to filter the lists.
         context['event_list'] = Event.objects.all()
-        context['event'] = self.event
+        # None here leaves the picker on "All Events" and the heading off.
+        context['event'] = None if self.all_events else self.event
         context['search_text'] = self.search_text()
         context['character'] = character
         return context
@@ -393,11 +401,14 @@ class BetweenGameAbilityListView(
             event_id = 0
         if event_id > 0:
             queryset = queryset.filter(event__id=event_id)
+        elif self.all_events:
+            # "All Events" was chosen, so do not narrow at all.
+            pass
         elif not search_text:
-            # with no event picked and nothing being searched for, default to
-            # the upcoming event.  A search deliberately spans every event,
-            # so it is left unfiltered.  If there is no upcoming event there
-            # is nothing to narrow to, and the whole list stands.
+            # arriving with nothing chosen and nothing searched for settles
+            # on the upcoming event.  A search deliberately spans every
+            # event, so it is left unfiltered.  If there is no upcoming
+            # event there is nothing to narrow to and the whole list stands.
             event = Event.next_event()
             if event:
                 queryset = queryset.filter(event__id=event.id)
