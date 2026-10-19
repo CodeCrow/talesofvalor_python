@@ -11,6 +11,8 @@ npm-debug.log
 passenger_wsgi.py
 /talesofvalor/settings/local.py
 /media/
+# the file based cache and upload scratch space live here
+/tmp/
 /config/
 /node_modules
 /node_modules/*

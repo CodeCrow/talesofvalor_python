@@ -254,7 +254,13 @@ MIGRATION_MODULES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "/var/tmp/django_cache",
+        # Under the project rather than a shared /var/tmp path.  Stage and
+        # production are separate accounts on the same machine, so a shared
+        # directory ends up owned by whichever of them writes to it first,
+        # mode 700, and the other cannot start at all.  BASE_DIR differs
+        # per checkout, which keeps them apart, and matches where
+        # FILE_UPLOAD_TEMP_DIR already points.
+        "LOCATION": os.path.join(BASE_DIR, "tmp", "django_cache"),
     }
 }
 

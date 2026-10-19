@@ -180,6 +180,27 @@ def _normalise_unit(text):
     return lines
 
 
+def _python_health(c, virtualenv_path):
+    """
+    Whether the environment's interpreter can actually run.
+
+    A DreamHost OS upgrade can leave a hand built python linked against an
+    OpenSSL that is no longer installed, and nothing else in this report
+    would say so: systemd reports a bare exit code, and the real error only
+    appears if you run the ExecStart line by hand.
+    """
+    result = c.run(
+        '{}/bin/python -c "import ssl, sys; '
+        'print(sys.version.split()[0], ssl.OPENSSL_VERSION)"'.format(
+            virtualenv_path),
+        warn=True, hide=True
+    )
+    if result.ok:
+        return result.stdout.strip()
+    lines = (result.stderr or result.stdout or '').strip().splitlines()
+    return 'BROKEN - {}'.format(lines[-1] if lines else 'no such interpreter')
+
+
 def _remote_file(c, path):
     """The contents of a remote file, or None if it isn't there."""
     result = c.run('cat {}'.format(path), warn=True, hide=True)
@@ -269,6 +290,7 @@ def init(c, environment, writeunit=False, restart=False):
             'systemctl --user is-active gunicorn.service',
             warn=True, hide=True
         ).stdout.strip()
+        report['python'] = _python_health(c, env.virtualenv_path)
         report['responding'] = c.run(
             'curl -s -o /dev/null -w "%{{http_code}}" --max-time 15 '
             'http://{}/'.format(env.gunicorn_bind),
@@ -276,13 +298,15 @@ def init(c, environment, writeunit=False, restart=False):
         ).stdout.strip() or 'no answer'
 
     print('\n{} gunicorn'.format(env.verbose_name))
-    for key in ('linger', 'unit', 'enabled', 'active', 'responding'):
+    for key in ('linger', 'unit', 'python', 'enabled', 'active',
+                'responding'):
         print('  {:<11} {}'.format(key, report[key]))
 
     healthy = (
         report['linger'] == 'yes'
         and report['enabled'] == 'enabled'
         and report['active'] == 'active'
+        and not report['python'].startswith('BROKEN')
     )
     if not healthy:
         print(
