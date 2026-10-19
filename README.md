@@ -382,3 +382,113 @@ your change:
   Call `cms.utils.permissions.set_current_user(None)` in `setUp` before
   creating any users, or they get stamped as created by a user the previous
   test has already rolled back.
+
+# Running on Dreamhost
+Instructions for running this on dreamhost and letting it restart.
+
+Allowing the server to run through crashes and reboots: https://help.dreamhost.com/hc/en-us/articles/23971547819412-Using-linger-with-Gunicorn
+
+We want the following information specifically on `/home/talesof/.config/systemd/user`
+
+## default.target.wants
+### file: gunicorn.service
+```
+[Unit]
+Description=Gunicorn instance to serve Tales of Valor production application
+After=network.target
+
+[Service]
+WorkingDirectory=/home/talesof/rhiven.talesofvalor.com
+Environment="PATH=/home/talesof/rhiven.talesofvalor.com/.venv/bin"
+ExecStart=/home/talesof/rhiven.talesofvalor.com/.venv/bin/gunicorn --workers 3 --bind=rhiven.talesofvalor.com:8000 passen
+ger_wsgi:application --access-logfile /home/talesof/logs/rhiven.talesofvalor.com/gunicorn_access --error-logfile /home/ta
+lesof/logs/rhiven.talesofvalor.com/gunicorn_error --capture-output
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+# StandardOutput=append:/home/talesof/output.log
+# StandardError=append:/home/talesof/error.log
+
+[Install]
+WantedBy=default.target
+```
+
+## gunicorn.service
+```
+[Unit]
+Description=Gunicorn instance to serve Tales of Valor production application
+After=network.target
+
+[Service]
+WorkingDirectory=/home/talesof/rhiven.talesofvalor.com
+Environment="PATH=/home/talesof/rhiven.talesofvalor.com/.venv/bin"
+ExecStart=/home/talesof/rhiven.talesofvalor.com/.venv/bin/gunicorn --workers 3 --bind=rhiven.talesofvalor.com:8000 passen
+ger_wsgi:application --access-logfile /home/talesof/logs/rhiven.talesofvalor.com/gunicorn_access --error-logfile /home/ta
+lesof/logs/rhiven.talesofvalor.com/gunicorn_error --capture-output
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+# StandardOutput=append:/home/talesof/output.log
+# StandardError=append:/home/talesof/error.log
+
+[Install]
+WantedBy=default.target
+```
+
+## gunicorn.servicetest
+
+This was for testing the service to see what was happening: 
+
+```
+[Unit]
+Description=Gunicorn instance to serve Tales of Valor production application
+After=network.target
+
+[Service]
+User=talesof
+Group=pg1559836  # Use the existing group of the talesof user
+WorkingDirectory=/home/talesof/rhiven.talesofvalor.com
+Environment="PATH=/home/talesof/rhiven.talesofvalor.com/.venv/bin"
+ExecStart=/home/talesof/rhiven.talesofvalor.com/.venv/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 talesofvalor.wsgi:appl
+ication
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+```
+
+## Recovering from upgrades
+
+Often, when there has been an upgrade, we have to reenable linger.   Log in and run the following command:
+
+```
+loginctl enable-linger
+```
+
+You might have to enable `gunicorn`:
+
+```
+systemctl --user enable gunicorn
+```
+
+Then start it:
+
+```
+systemctl --user start gunicorn
+```
+
+And make sure it is running
+
+```
+systemctl --user status gunicorn
+```

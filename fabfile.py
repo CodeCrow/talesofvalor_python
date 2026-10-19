@@ -7,6 +7,7 @@ https://medium.com/gopyjs/automate-deployment-with-fabric-python-fad992e68b5
 
 import datetime
 import importlib
+import io
 import logging
 import os
 import re
@@ -109,6 +110,187 @@ def _get_settings_file():
         return os.environ['DJANGO_SETTINGS_MODULE']
     except KeyError:
         return env.settings_module_for_management_commands
+
+
+# The gunicorn unit, as DreamHost documents it for a systemd user service:
+# https://help.dreamhost.com/hc/en-us/articles/23971547819412-Using-linger-with-Gunicorn
+#
+# WantedBy=default.target is what makes "systemctl --user enable" put the
+# symlink in default.target.wants, and linger is what lets that target come
+# up without the user being logged in.  Both are needed; neither is enough.
+GUNICORN_UNIT_TEMPLATE = """[Unit]
+Description=Gunicorn instance to serve Tales of Valor {verbose_name} application
+After=network.target
+
+[Service]
+WorkingDirectory={project_dir}
+Environment="PATH={virtualenv_path}/bin"
+ExecStart={virtualenv_path}/bin/gunicorn --workers {workers} --bind={bind} passenger_wsgi:application{logging}
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+"""
+
+SYSTEMD_USER_DIR = '~/.config/systemd/user'
+GUNICORN_UNIT_PATH = SYSTEMD_USER_DIR + '/gunicorn.service'
+# sftp does not expand '~', and the session starts in the home directory,
+# so uploads use the relative form of the same path.
+GUNICORN_UNIT_UPLOAD_PATH = '.config/systemd/user/gunicorn.service'
+
+
+def _gunicorn_unit(env):
+    """Render the unit file this environment should be running."""
+    log_dir = env.get('gunicorn_log_dir', '')
+    logging_args = ''
+    if log_dir:
+        logging_args = (
+            ' --access-logfile {0}/gunicorn_access'
+            ' --error-logfile {0}/gunicorn_error'
+            ' --capture-output'
+        ).format(log_dir)
+    return GUNICORN_UNIT_TEMPLATE.format(
+        verbose_name=env.verbose_name,
+        project_dir=env.project_dir,
+        virtualenv_path=env.virtualenv_path,
+        workers=env.get('gunicorn_workers', 3),
+        bind=env.gunicorn_bind,
+        logging=logging_args
+    )
+
+
+def _normalise_unit(text):
+    """
+    The directives a unit file actually sets.
+
+    Comments, blank lines and trailing spaces are dropped so that a unit
+    which merely looks different from the template is not reported as
+    drift.  The live production unit, for instance, carries two commented
+    out logging lines that change nothing.
+    """
+    lines = []
+    for line in (text or '').splitlines():
+        line = line.strip()
+        if line and not line.startswith('#'):
+            lines.append(line)
+    return lines
+
+
+def _remote_file(c, path):
+    """The contents of a remote file, or None if it isn't there."""
+    result = c.run('cat {}'.format(path), warn=True, hide=True)
+    return result.stdout if result.ok else None
+
+
+@task
+def init(c, environment, writeunit=False, restart=False):
+    """
+    Make sure gunicorn is set up and will survive the user logging out.
+
+    On DreamHost gunicorn runs as a systemd *user* service, which only keeps
+    running without an active login if linger is enabled for the account.
+    A server update can turn linger back off, which leaves the site up until
+    something restarts and then quietly not coming back.  This re-enables it
+    and checks the rest of the chain is still in place.
+
+    Safe to run against a healthy server: nothing here restarts a service
+    that is already running unless you ask for it.
+
+    fab init --environment production
+    fab init --environment stage --writeunit   # write the unit file too
+    fab init --environment production --restart
+    """
+    write_unit = _prep_bool_arg(writeunit)
+    do_restart = _prep_bool_arg(restart)
+    env = c.config[environment]
+    report = {}
+
+    with Connection(env.hosts, user=env.user, config=c.config) as c:
+        # 1. linger.  This is the part that a server update undoes.
+        c.run('loginctl enable-linger', warn=True)
+        linger = c.run(
+            'loginctl show-user $(whoami) --property=Linger --value',
+            warn=True, hide=True
+        )
+        report['linger'] = linger.stdout.strip() or 'unknown'
+
+        # 2. somewhere for the unit to live
+        c.run('mkdir -p {}'.format(SYSTEMD_USER_DIR))
+        if env.get('gunicorn_log_dir', ''):
+            c.run('mkdir -p {}'.format(env.gunicorn_log_dir))
+
+        # 3. the unit itself
+        wanted = _gunicorn_unit(env)
+        current = _remote_file(c, GUNICORN_UNIT_PATH)
+        if current is None:
+            print('No gunicorn.service on the server, writing one.')
+            c.put(io.StringIO(wanted), GUNICORN_UNIT_UPLOAD_PATH)
+            report['unit'] = 'created'
+        elif _normalise_unit(current) == _normalise_unit(wanted):
+            report['unit'] = 'present, matches'
+        elif write_unit:
+            print('Replacing gunicorn.service with the templated one.')
+            c.put(io.StringIO(wanted), GUNICORN_UNIT_UPLOAD_PATH)
+            report['unit'] = 'replaced'
+        else:
+            # Do not quietly rewrite something that is working.  The server
+            # is the authority until somebody says otherwise.
+            report['unit'] = (
+                'present, DIFFERS from the template '
+                '(run with --writeunit to replace it)'
+            )
+
+        # 4. make systemd read it, and make sure it comes up at boot
+        c.run('systemctl --user daemon-reload')
+        c.run('systemctl --user enable gunicorn.service', warn=True)
+
+        # 5. start it only if it is not already serving
+        active = c.run(
+            'systemctl --user is-active gunicorn.service',
+            warn=True, hide=True
+        ).stdout.strip()
+        if do_restart:
+            print('Restarting gunicorn.')
+            c.run('systemctl --user restart gunicorn.service')
+        elif active != 'active':
+            print('Gunicorn is not running, starting it.')
+            c.run('systemctl --user start gunicorn.service')
+
+        # 6. say plainly what the state is now
+        report['enabled'] = c.run(
+            'systemctl --user is-enabled gunicorn.service',
+            warn=True, hide=True
+        ).stdout.strip()
+        report['active'] = c.run(
+            'systemctl --user is-active gunicorn.service',
+            warn=True, hide=True
+        ).stdout.strip()
+        report['responding'] = c.run(
+            'curl -s -o /dev/null -w "%{{http_code}}" --max-time 15 '
+            'http://{}/'.format(env.gunicorn_bind),
+            warn=True, hide=True
+        ).stdout.strip() or 'no answer'
+
+    print('\n{} gunicorn'.format(env.verbose_name))
+    for key in ('linger', 'unit', 'enabled', 'active', 'responding'):
+        print('  {:<11} {}'.format(key, report[key]))
+
+    healthy = (
+        report['linger'] == 'yes'
+        and report['enabled'] == 'enabled'
+        and report['active'] == 'active'
+    )
+    if not healthy:
+        print(
+            '\nSomething above is not right.  Linger must be "yes" or the '
+            'service dies with your login; enabled is what brings it back '
+            'after a reboot.'
+        )
+    return report
 
 
 @task
