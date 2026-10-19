@@ -245,18 +245,21 @@ def init(c, environment, writeunit=False, restart=False):
             c.run('mkdir -p {}'.format(env.gunicorn_log_dir))
 
         # 3. the unit itself
+        unit_rewritten = False
         wanted = _gunicorn_unit(env)
         current = _remote_file(c, GUNICORN_UNIT_PATH)
         if current is None:
             print('No gunicorn.service on the server, writing one.')
             c.put(io.StringIO(wanted), GUNICORN_UNIT_UPLOAD_PATH)
             report['unit'] = 'created'
+            unit_rewritten = True
         elif _normalise_unit(current) == _normalise_unit(wanted):
             report['unit'] = 'present, matches'
         elif write_unit:
             print('Replacing gunicorn.service with the templated one.')
             c.put(io.StringIO(wanted), GUNICORN_UNIT_UPLOAD_PATH)
             report['unit'] = 'replaced'
+            unit_rewritten = True
         else:
             # Do not quietly rewrite something that is working.  The server
             # is the authority until somebody says otherwise.
@@ -269,7 +272,10 @@ def init(c, environment, writeunit=False, restart=False):
         c.run('systemctl --user daemon-reload')
         c.run('systemctl --user enable gunicorn.service', warn=True)
 
-        # 5. start it only if it is not already serving
+        # 5. start it if it is not serving, and restart it if the unit
+        #    changed underneath it.  A rewritten unit does nothing until
+        #    the service is restarted, so reporting it as replaced while
+        #    the old command is still the running process would be a lie.
         active = c.run(
             'systemctl --user is-active gunicorn.service',
             warn=True, hide=True
@@ -280,6 +286,9 @@ def init(c, environment, writeunit=False, restart=False):
         elif active != 'active':
             print('Gunicorn is not running, starting it.')
             c.run('systemctl --user start gunicorn.service')
+        elif unit_rewritten:
+            print('Restarting gunicorn so the new unit takes effect.')
+            c.run('systemctl --user restart gunicorn.service')
 
         # 6. say plainly what the state is now
         report['enabled'] = c.run(
