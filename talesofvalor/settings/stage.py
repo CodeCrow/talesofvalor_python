@@ -31,6 +31,13 @@ FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "tmp")
 STATIC_ROOT = BASE_DIR + '/public/static/'
 STATIC_URL = 'https://rhiven.stage.static.talesofvalor.com/'
 
+# Stage runs on Google's test reCAPTCHA keys deliberately: the real keys
+# are registered against the production domain and would fail here.
+# django_recaptcha raises that as a check *error* rather than a warning,
+# which stops every management command, so 'manage.py migrate' could not
+# run on stage at all.  Production sets real keys and never sees this.
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
+
 # Paypal integration for test Tales of Valor account
 PAYPAL_CLIENT_ID = "AQcJGiNp_J8n2KU7hVoD8g4O52zT0x0zhMF_TLaooJjJsnexdUkDaHC8DtqE3vYtYfSqPKLZeJjUcItf"
 PAYPAL_CLIENT_SECRET = "EE_iU3H-8gfhyCfZcgTySn2aH1g0_PrcwdUN4TJd8IKh_xiBobv1brZpF5DbmyEp7dMYURNAtMe-o4mh"
