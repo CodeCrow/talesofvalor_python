@@ -673,7 +673,10 @@ class PELListView(PermissionRequiredMixin, ListView):
     paginate_by = 25  # if pagination is desired
 
     def get_queryset(self):
-        queryset = super(PELListView, self).get_queryset()
+        # drafts are still being written, so they are not staff reading
+        # material yet.  They stay reachable by direct link.
+        queryset = super(PELListView, self).get_queryset()\
+            .filter(submitted__isnull=False)
         name = self.request.GET.get('name', '')
         if (name.strip()):
             entry_query = get_query(
@@ -791,31 +794,131 @@ class PELRedirectView(RedirectView):
             event = Event.objects.get(pk=self.kwargs['event_id'])
             character = Character.objects.get(pk=self.kwargs['character_id'])
             try:
-                kwargs['pk'] = PEL.objects.get(event=event, character=character).id
+                pel = PEL.objects.get(event=event, character=character)
             except PEL.MultipleObjectsReturned:
-                kwargs['pk'] = PEL.objects.filter(event=event, character=character).last().id
+                pel = PEL.objects.filter(
+                    event=event, character=character).last()
                 PEL.objects.filter(
                     event=event,
                     character=character
                 ).exclude(
-                    id=kwargs['pk']
+                    id=pel.id
                 ).delete()
+            kwargs['pk'] = pel.id
             del(kwargs['event_id'])
             del(kwargs['character_id'])
+            # a submitted PEL is read only for the player who wrote it, so
+            # the edit form would only give them a 403.
+            if pel.submitted:
+                return reverse("players:pel_detail", kwargs=kwargs)
             return reverse("players:pel_update", kwargs=kwargs)
         except PEL.DoesNotExist:
             return reverse("players:pel_create", kwargs=kwargs)
         return super().get_redirect_url(*args, **kwargs)
 
 
+class PELSubmissionMixin:
+    """
+    The save/submit split on the PEL form.
+
+    The form has two buttons.  "Save" keeps a draft, which does nothing
+    beyond storing what the player typed.  "Submit" sends it in, and that is
+    what earns the on time bonus and tells the staff about it.
+
+    Shared by the create and update views so a PEL can be started, saved,
+    and submitted later through whichever one the player happens to hit.
+    """
+
+    return_url = None
+
+    def submitting(self):
+        """Did the player press Submit rather than Save?"""
+        return 'submit_pel' in self.request.POST
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        Save, and if this is the submission, act on it.
+
+        Only the *first* submission counts.  Anything that comes back through
+        here on an already submitted PEL -- staff editing it, say -- must not
+        pay the bonus or mail the staff again.
+        """
+        self.return_url = form.cleaned_data['return_url']
+        newly_submitted = self.submitting() and not form.instance.submitted
+        if newly_submitted:
+            form.instance.submitted = timezone.now()
+        result = super().form_valid(form)
+        if newly_submitted:
+            self.award_on_time_bonus(form.instance)
+            self.alert_staff(form.instance)
+        return result
+
+    def award_on_time_bonus(self, pel):
+        """
+        Give the player their CP if they submitted by the deadline.
+
+        Measured against when they submitted rather than when they started
+        the draft, so sitting on a finished letter past the due date does not
+        still earn it.
+        """
+        if timezone.localtime(pel.submitted).date() > pel.event.pel_due_date:
+            return
+        player = pel.character.player
+        player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
+        player.save(update_fields=['cp_available'])
+        LogEntry.objects.create(
+            user=self.request.user,
+            content_type=ContentType.objects.get_for_model(Player),
+            object_id=player.id,
+            object_repr=player.__str__(),
+            action_flag=CHANGE,
+            change_message=f"\"{player}\" granted {PEL.ON_TIME_BONUS} CP for submitting PEL before the deadline {pel.event.pel_due_date.strftime('%A %m-%d-%Y, %H:%M:%S')}"
+        )
+
+    def alert_staff(self, pel):
+        """Tell the staff there is a PEL waiting to be read."""
+        message = """
+        Hello Staff!
+
+        Player {} has submitted a PEL.
+
+        See it here:
+        {}
+
+        --ToV MechCrow
+        """.format(
+                pel.character.player,
+                self.request.build_absolute_uri(
+                    reverse("players:pel_detail", kwargs={'pk': pel.id})
+                )
+            )
+        email_message = mail.EmailMessage(
+            f"PEL submitted by {pel.character.player}",
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            (settings.STAFF_EMAIL, )
+        )
+        email_message.send()
+
+    def get_success_url(self):
+        if self.return_url:
+            return self.return_url
+        return reverse("players:player_redirect_detail")
+
+
 class PELCreateView(
         LoginRequiredMixin,
         UserPassesTestMixin,
+        PELSubmissionMixin,
         CreateView
         ):
     model = PEL
     form_class = PELUpdateForm
-    return_url = None
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
@@ -828,11 +931,6 @@ class PELCreateView(
             return False
         return False
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
     def get_initial(self):
         # Get the initial dictionary from the superclass method
         initial = super().get_initial()
@@ -841,95 +939,25 @@ class PELCreateView(
 
         return initial
 
-    def form_valid(self, form):
-        '''
-        send the user back where they came from
-        Because they could have come from an event list
-        or the PEL list.
-
-        Send an email to the staff.
-        Add the CP if the player has submitted it in time.
-        '''
-        # set up current date
-        now = timezone.localtime(timezone.now())
-        self.return_url = form.cleaned_data['return_url']
-        result = super().form_valid(form)
-        # if the user has submitted in time, add point to the player.
-        if now.date() <= form.cleaned_data.get('event').pel_due_date:
-            form.instance.character.player.cp_available = F('cp_available') + PEL.ON_TIME_BONUS
-            form.instance.character.player.save(update_fields=['cp_available'])
-            LogEntry.objects.create(
-                user=self.request.user,
-                content_type=ContentType.objects.get_for_model(Player),
-                object_id=form.instance.character.player.id,
-                object_repr=form.instance.character.player.__str__(),
-                action_flag=CHANGE,
-                change_message=f"\"{form.instance.character.player}\" granted {PEL.ON_TIME_BONUS} CP for submitting PEL before the deadline {form.cleaned_data.get('event').pel_due_date.strftime('%A %m-%d-%Y, %H:%M:%S')}"
-            )
-        # Alert the staff
-        message = """
-        Hello Staff!
-
-        Player {} has submitted a PEL.
-
-        See it here:
-        {}
-
-        --ToV MechCrow
-        """.format(
-                form.instance.character.player,
-                self.request.build_absolute_uri(
-                    reverse("players:pel_detail", kwargs={
-                        'pk': form.instance.id
-                    })
-                )
-            )
-        email_message = mail.EmailMessage(
-            f"PEL submitted by {form.cleaned_data.get('character').player}",
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            (settings.STAFF_EMAIL, )
-        )
-        email_message.send()
-        return result
-
-    def get_success_url(self):
-        if self.return_url:
-            return self.return_url
-        return reverse("players:player_redirect_detail")
-
 
 class PELUpdateView(
         LoginRequiredMixin,
         UserPassesTestMixin,
+        PELSubmissionMixin,
         UpdateView
         ):
     model = PEL
     form_class = PELUpdateForm
-    return_url = None
 
     def test_func(self):
         if self.request.user.has_perm('players.view_any_player'):
             return True
         try:
             pel = PEL.objects.get(pk=self.kwargs['pk'])
-            player = pel.character.player
-            return (player.user == self.request.user)
-        except Event.DoesNotExist:
+        except PEL.DoesNotExist:
             return False
-        return True
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
-    def form_valid(self, form):
-        self.return_url = form.cleaned_data['return_url']
-        result = super().form_valid(form)
-        return result
-
-    def get_success_url(self):
-        if self.return_url:
-            return self.return_url
-        return reverse("players:player_redirect_detail")
+        # submitting is the player's handover: once it is in, it is the
+        # staff's to read and only they can change it.
+        if pel.submitted:
+            return False
+        return pel.character.player.user == self.request.user

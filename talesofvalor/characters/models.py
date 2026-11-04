@@ -223,8 +223,14 @@ class Character(models.Model):
         # are there 4 PELS with the heavy armor flag and all PELS have them for that character?
         # TODO:   Turn this into a better check so we can have a date that they gained this
         # and we can check for consecutive wearings.
-        # We should check and set that when submitting a PEL.
-        heavy_armor_count = PEL.objects.filter(character=self, heavy_armor_worn_flag=True).count()
+        # Only submitted PELs count.  A draft would otherwise let someone
+        # tick the box and take the cheaper prerequisite without ever
+        # sending the letter in.
+        heavy_armor_count = PEL.objects.filter(
+            character=self,
+            heavy_armor_worn_flag=True,
+            submitted__isnull=False
+        ).count()
         if (heavy_armor_count > 4):
             skill_grants.append(Skill.objects.get(id=HEAVY_ARMOR_SKILL_ID).id)
         return HeaderSkill.objects.filter(id__in=skill_grants)

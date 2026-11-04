@@ -585,6 +585,17 @@ class PEL(models.Model):
         auto_now=True,
         editable=False
     )
+    # When the player actually sent this in.  Empty means it is still a
+    # draft they are working on, which is why nothing here can be blank=False.
+    # 'editable=False' keeps it off the player's form: 'PELUpdateForm' is
+    # built with fields = '__all__', so an editable field would appear there
+    # as an input for them to fill in.
+    submitted = models.DateTimeField(
+        _('submitted'),
+        null=True,
+        blank=True,
+        editable=False
+    )
     donations_time = models.TextField(
         _('Donations (Time spent doing set up / breakdown.'),
         blank=True,

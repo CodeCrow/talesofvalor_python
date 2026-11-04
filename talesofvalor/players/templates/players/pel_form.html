@@ -10,7 +10,17 @@
         {{ form.as_table }}
     	<tr>
             <td colspan="2" class="text-right">
-                <input class="btn btn-primary" type="submit" value="{% if object.id %}Update{% else %}Save{% endif %}" />
+                <p class="pel-draft-state">
+                    {% if object.submitted %}
+                        Submitted {{ object.submitted|date:"m-d-Y" }}.
+                    {% else %}
+                        {% if object.id %}Saved as a draft.{% endif %}
+                        Save keeps working on it; submit sends it to the staff
+                        and you will not be able to change it afterwards.
+                    {% endif %}
+                </p>
+                <input class="btn btn-secondary" type="submit" name="save_draft" value="Save" />
+                <input class="btn btn-primary" type="submit" name="submit_pel" value="Submit" />
             </td>
         </tr>
     </table>
