@@ -12,7 +12,7 @@ from django.test import RequestFactory, TestCase, override_settings
 
 from talesofvalor.events.models import Event, EventRegistrationItem
 from talesofvalor.players.models import COMPLETE, REQUESTED, \
-    Registration, RegistrationRequest
+    Player, Registration, RegistrationRequest
 
 
 @override_settings(
@@ -167,3 +167,77 @@ class RequestCompleteTest(TestCase):
         self.registration_request.refresh_from_db()
         self.assertEqual(self.registration_request.status, REQUESTED)
         self.assertEqual(self.registrations().count(), 0)
+
+
+class PlayerOrderingTest(TestCase):
+    """
+    Players come back ordered by first name.
+
+    'Player.__str__' leads with the first name, so that is the order a
+    reader expects wherever players are listed -- the between game ability
+    "assigned to" picker being the one that prompted this.
+
+    These assertions are aimed at the mistake rather than the symptom.  The
+    ordering was declared in a second 'class Meta' on Player, which python
+    discards in favour of the later one, so it never reached Django and no
+    Player query was ordered at all.  Re-introducing a second Meta block
+    would fail here rather than quietly going unnoticed.
+    """
+
+    def setUp(self):
+        # django-cms keeps the logged in user in a threadlocal that outlives
+        # a test; left set, users created here are stamped as created by
+        # somebody the previous test rolled back.
+        set_current_user(None)
+
+    def make_player(self, first_name, last_name):
+        user = User.objects.create_user(
+            username='{}.{}'.format(first_name, last_name).lower(),
+            first_name=first_name,
+            last_name=last_name,
+            password='notarealpassword'
+        )
+        # a Player is created by a post_save receiver on User.
+        return user.player
+
+    def test_ordering_is_by_first_name(self):
+        self.assertEqual(
+            Player._meta.ordering,
+            ('user__first_name', 'user__last_name')
+        )
+
+    def test_the_permissions_survive_alongside_the_ordering(self):
+        """
+        Both used to live in separate Meta blocks.  Merging them must not
+        drop the permissions, which decide who can see and change players.
+        """
+        codenames = [name for name, _ in Player._meta.permissions]
+
+        self.assertIn('change_any_player', codenames)
+        self.assertIn('view_any_player', codenames)
+
+    def test_players_come_back_in_first_name_order(self):
+        self.make_player('Zara', 'Ashford')
+        self.make_player('Adrianna', 'Young')
+        self.make_player('Monty', 'Brook')
+
+        self.assertEqual(
+            [p.user.first_name for p in Player.objects.all()],
+            ['Adrianna', 'Monty', 'Zara']
+        )
+
+    def test_last_name_breaks_a_tie(self):
+        self.make_player('Sam', 'Wren')
+        self.make_player('Sam', 'Ashford')
+
+        self.assertEqual(
+            [p.user.last_name for p in Player.objects.all()],
+            ['Ashford', 'Wren']
+        )
+
+    def test_the_queryset_actually_carries_an_order_by(self):
+        """
+        The declaration is only worth having if it reaches the SQL, which is
+        exactly what the shadowed Meta block broke.
+        """
+        self.assertIn('ORDER BY', str(Player.objects.all().query).upper())

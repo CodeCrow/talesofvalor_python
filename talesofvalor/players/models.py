@@ -76,9 +76,6 @@ class Player(models.Model):
             )
         return player_string
 
-    class Meta:
-        ordering = ("user__last_name", "user__first_name")
-
     @property
     def active_character(self):
         """
@@ -117,8 +114,14 @@ class Player(models.Model):
         return None
 
     class Meta:
-        """Add permissions."""
+        """Ordering and permissions."""
 
+        # '__str__' leads with the first name, so order to match what the
+        # reader sees.  This used to sit in a second 'class Meta' further up,
+        # which python discarded in favour of this one, so no Player query
+        # was ordered at all.  Keep it here: a second Meta block silently
+        # throws away whichever comes first.
+        ordering = ("user__first_name", "user__last_name")
         permissions = (
             ("change_any_player", "Can change any player"),
             ("view_any_player", "Can view any player"),
