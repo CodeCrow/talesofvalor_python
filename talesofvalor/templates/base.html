@@ -23,6 +23,21 @@
             <header class="row ">
                 <div class="col-sm-8">
                     <h1>{% block title %}Tales of Valor{% endblock title %}</h1>
+                    {% if pel_deadline %}
+                        {% comment %}
+                        Counts down to the PEL deadline for the event that has
+                        just finished.  The context processor only sets
+                        'pel_deadline' when this player still owes one, so
+                        there is nothing to hide here: if it is set, it is
+                        worth showing.  The javascript reads the target off
+                        the data attribute and ticks it.
+                        {% endcomment %}
+                        <div class="box pel-countdown no-print"
+                             data-pel-deadline="{{ pel_deadline|date:'c' }}">
+                            <span class="pel-countdown-label">PEL for {{ pel_deadline_event }} due in</span>
+                            <span class="pel-countdown-clock">&hellip;</span>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="col-sm-4 no-print">
                     <div class="box">

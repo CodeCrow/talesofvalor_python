@@ -78,6 +78,16 @@ ul.flat-list li {
   position: relative;
 }
 
+.pel-countdown {
+  background-color: #e9ecef;
+  display: inline-block;
+  padding: 0.5em 1em;
+}
+.pel-countdown .pel-countdown-clock {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
 .item-navigation {
   margin-right: 0.25em;
 }

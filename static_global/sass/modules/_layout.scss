@@ -55,6 +55,20 @@ ul.flat-list {
     position: relative;
 }
 
+// The PEL countdown in the header.  It carries '.box' as well, so the
+// border and corners come from there and only the fill and the tighter
+// spacing are set here.
+.pel-countdown {
+    background-color: $countdown-background-color;
+    display: inline-block;
+    padding: 0.5em 1em;
+
+    .pel-countdown-clock {
+        font-weight: bold;
+        white-space: nowrap;
+    }
+}
+
 .item-navigation {
     margin-right:0.25em;
 }

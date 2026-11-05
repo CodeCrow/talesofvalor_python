@@ -109,7 +109,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'sekizai.context_processors.sekizai',
                 'cms.context_processors.cms_settings',
-                'talesofvalor.context_processors.character_settings'
+                'talesofvalor.context_processors.character_settings',
+                'talesofvalor.context_processors.pel_deadline'
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
