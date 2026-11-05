@@ -316,3 +316,50 @@ class DraftsDoNotGrantHeavyArmorTest(PELDraftTestCase):
         self.make_pels(5, submitted=True)
 
         self.assertEqual(self.counted(), 5)
+
+
+class TheDetailPageIsReachableByItsOwnerTest(PELDraftTestCase):
+    """
+    A player can read their own submitted PEL.
+
+    'PELDetailView.test_func' asked for 'pel.player', which a PEL does not
+    have -- it has a character, and the character has the player.  Nothing
+    reached the line: staff pass on the permission check above it, and
+    players were always routed to the edit form.  Routing a submitted PEL
+    here is what finally ran it, and it raised AttributeError as a 500.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.pel = PEL.objects.create(
+            character=self.character,
+            event=self.event,
+            submitted=timezone.now(),
+            favorites='the standing stones'
+        )
+
+    def detail_url(self, pel=None):
+        return reverse('players:pel_detail', kwargs={'pk': (pel or self.pel).id})
+
+    def test_the_author_can_read_their_submitted_pel(self):
+        self.client.login(username='player', password='secret')
+
+        response = self.client.get(self.detail_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'the standing stones')
+
+    def test_staff_can_read_it(self):
+        self.client.login(username='staff', password='secret')
+
+        self.assertEqual(self.client.get(self.detail_url()).status_code, 200)
+
+    def test_another_player_cannot_read_it(self):
+        """The fix must not have made the check permissive."""
+        intruder = User.objects.create_user(
+            username='intruder', password='secret')
+        Character.objects.create(
+            player=intruder.player, name="Nosy", active_flag=True)
+        self.client.login(username='intruder', password='secret')
+
+        self.assertEqual(self.client.get(self.detail_url()).status_code, 403)

@@ -733,10 +733,14 @@ class PELDetailView(
             return True
         try:
             pel = PEL.objects.get(pk=self.kwargs.get('pk'))
-            return (pel.player.user == self.request.user)
         except PEL.DoesNotExist:
             return False
-        return False
+        # a PEL belongs to a character, and the character to the player.
+        # This read 'pel.player' until now, which raised AttributeError, but
+        # nothing reached it: staff pass on the permission above, and players
+        # were always routed to the edit form instead of here.  Sending a
+        # submitted PEL to this page is what finally exercised it.
+        return pel.character.player.user == self.request.user
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
