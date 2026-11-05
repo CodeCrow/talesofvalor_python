@@ -252,6 +252,34 @@ MIGRATION_MODULES = {
 }
 
 # caching
+# Gunicorn listens on a port that is reachable from the internet, so
+# scanners connect to the bare IP and Django rejects the Host header.  That
+# is the right answer, but it logged a full traceback every time: 836,000 of
+# them were 82% of a 793MB error log.  Sending that logger nowhere stops it
+# being written down.  The request is still refused, and a one line
+# "Bad Request" from django.request still records that it happened.
+#
+# 'disable_existing_loggers' has to stay False, or naming one logger here
+# would throw away everything Django configures by default.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        # an empty handler list is not enough: python falls back to
+        # logging.lastResort, which writes to stderr, and gunicorn captures
+        # stderr straight into the same log we are trying to keep quiet.
+        'discard': {
+            'class': 'logging.NullHandler',
+        },
+    },
+    'loggers': {
+        'django.security.DisallowedHost': {
+            'handlers': ['discard'],
+            'propagate': False,
+        },
+    },
+}
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
