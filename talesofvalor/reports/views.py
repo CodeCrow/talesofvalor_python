@@ -22,7 +22,10 @@ class ReportListView(PermissionRequiredMixin, ListView):
         # filter by event
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
-            event_id = Event.next_event().id
+            next_event = Event.next_event()
+            if not next_event:
+                return queryset.none()
+            event_id = next_event.id
         queryset = queryset.filter(event__id=event_id)
         # by registration type
         registration_type = self.request.GET.get('registration_type')
@@ -48,7 +51,10 @@ class ReportListView(PermissionRequiredMixin, ListView):
         # set up the forms that appear in the list 
         event_id = self.kwargs.get('event_id', None)
         if not event_id:
-            event_id = Event.next_event().id
+            next_event = Event.next_event()
+            if not next_event:
+                return context_data
+            event_id = next_event.id
         context_data['event'] = Event.objects.get(pk=event_id)
         # return the resulting context
         return context_data
