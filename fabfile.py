@@ -136,6 +136,32 @@ Restart=on-failure
 WantedBy=default.target
 """
 
+# Nothing rotates the gunicorn logs by default.  Production's error log had
+# reached 793MB before this was set up, 82% of it one repeated traceback.
+#
+# copytruncate is the part that matters: gunicorn holds these files open and
+# appends to them, so a plain rotate would leave it writing into the renamed
+# inode while the new file stayed empty.  No delaycompress alongside it --
+# the rotated file is already a copy nothing is writing to, so waiting a
+# week to compress it would just keep a second full sized file on disk.
+LOGROTATE_TEMPLATE = """# Managed by 'fab init'.  Edits here are reported as drift and replaced
+# when it is run with --writeunit.
+{log_dir}/gunicorn_access
+{log_dir}/gunicorn_error {{
+    weekly
+    rotate 4
+    maxsize 100M
+    compress
+    missingok
+    notifempty
+    copytruncate
+}}
+"""
+
+LOGROTATE_CONF_PATH = '~/logrotate-gunicorn.conf'
+LOGROTATE_CONF_UPLOAD_PATH = 'logrotate-gunicorn.conf'
+LOGROTATE_STATE_PATH = '$HOME/.logrotate-gunicorn.state'
+
 SYSTEMD_USER_DIR = '~/.config/systemd/user'
 GUNICORN_UNIT_PATH = SYSTEMD_USER_DIR + '/gunicorn.service'
 # sftp does not expand '~', and the session starts in the home directory,
@@ -161,6 +187,50 @@ def _gunicorn_unit(env):
         bind=env.gunicorn_bind,
         logging=logging_args
     )
+
+
+def _logrotate_conf(env):
+    """Render the logrotate config for this environment."""
+    return LOGROTATE_TEMPLATE.format(log_dir=env.gunicorn_log_dir)
+
+
+def _logrotate_cron_line(env):
+    """The crontab line that runs the rotation."""
+    return (
+        '{schedule} /usr/sbin/logrotate -s {state} $HOME/{conf}'.format(
+            schedule=env.get('logrotate_cron', '17 4 * * 0'),
+            state=LOGROTATE_STATE_PATH,
+            conf=LOGROTATE_CONF_UPLOAD_PATH
+        )
+    )
+
+
+def _ensure_logrotate_cron(c, env):
+    """
+    Put the rotation in this account's crontab, once.
+
+    Appends rather than replaces.  Production's crontab carries a block
+    DreamHost maintains and warns it will overwrite, so anything already
+    there has to survive.
+    """
+    existing = c.run('crontab -l', warn=True, hide=True)
+    current = existing.stdout if existing.ok else ''
+    if 'logrotate-gunicorn' in current:
+        return 'already scheduled'
+
+    lines = []
+    if not current.strip():
+        # a fresh crontab: keep cron from mailing its output around.
+        lines.append('MAILTO=""')
+    elif not current.endswith('\n'):
+        current += '\n'
+    body = current + '\n'.join(lines)
+    body = (body.rstrip('\n') + '\n\n'
+            + '# Rotate the gunicorn logs.  Added by "fab init".\n'
+            + _logrotate_cron_line(env) + '\n')
+    c.put(io.StringIO(body), '.fab-crontab')
+    c.run('crontab .fab-crontab && rm -f .fab-crontab')
+    return 'scheduled'
 
 
 def _normalise_unit(text):
@@ -268,11 +338,32 @@ def init(c, environment, writeunit=False, restart=False):
                 '(run with --writeunit to replace it)'
             )
 
-        # 4. make systemd read it, and make sure it comes up at boot
+        # 4. log rotation.  Reconciled the same way as the unit: written if
+        #    absent, reported if it differs, replaced only when asked.
+        wanted_conf = _logrotate_conf(env)
+        current_conf = _remote_file(c, LOGROTATE_CONF_PATH)
+        if current_conf is None:
+            print('No logrotate config on the server, writing one.')
+            c.put(io.StringIO(wanted_conf), LOGROTATE_CONF_UPLOAD_PATH)
+            report['rotation'] = 'created'
+        elif _normalise_unit(current_conf) == _normalise_unit(wanted_conf):
+            report['rotation'] = 'present, matches'
+        elif write_unit:
+            print('Replacing the logrotate config with the templated one.')
+            c.put(io.StringIO(wanted_conf), LOGROTATE_CONF_UPLOAD_PATH)
+            report['rotation'] = 'replaced'
+        else:
+            report['rotation'] = (
+                'present, DIFFERS from the template '
+                '(run with --writeunit to replace it)'
+            )
+        report['rotation'] += ', {}'.format(_ensure_logrotate_cron(c, env))
+
+        # 5. make systemd read it, and make sure it comes up at boot
         c.run('systemctl --user daemon-reload')
         c.run('systemctl --user enable gunicorn.service', warn=True)
 
-        # 5. start it if it is not serving, and restart it if the unit
+        # 6. start it if it is not serving, and restart it if the unit
         #    changed underneath it.  A rewritten unit does nothing until
         #    the service is restarted, so reporting it as replaced while
         #    the old command is still the running process would be a lie.
@@ -290,7 +381,7 @@ def init(c, environment, writeunit=False, restart=False):
             print('Restarting gunicorn so the new unit takes effect.')
             c.run('systemctl --user restart gunicorn.service')
 
-        # 6. say plainly what the state is now
+        # 7. say plainly what the state is now
         report['enabled'] = c.run(
             'systemctl --user is-enabled gunicorn.service',
             warn=True, hide=True
@@ -307,7 +398,7 @@ def init(c, environment, writeunit=False, restart=False):
         ).stdout.strip() or 'no answer'
 
     print('\n{} gunicorn'.format(env.verbose_name))
-    for key in ('linger', 'unit', 'python', 'enabled', 'active',
+    for key in ('linger', 'unit', 'rotation', 'python', 'enabled', 'active',
                 'responding'):
         print('  {:<11} {}'.format(key, report[key]))
 
