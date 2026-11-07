@@ -492,3 +492,125 @@ And make sure it is running
 ```
 systemctl --user status gunicorn
 ```
+
+## `fab init`
+
+The steps above are what `fab init` does, so they rarely need doing by hand:
+
+```
+$ fab init --environment production
+$ fab init --environment stage
+```
+
+It enables linger, makes sure the unit and log directories exist, reconciles
+`~/.config/systemd/user/gunicorn.service` and `~/logrotate-gunicorn.conf`
+against the templates in `fabfile.py`, schedules the weekly log rotation,
+enables the service so it returns after a reboot, and starts it if it is not
+already running. Then it prints the state of each link in that chain:
+
+```
+production gunicorn
+  linger      yes
+  unit        present, matches
+  rotation    present, matches, already scheduled
+  python      3.10.1 OpenSSL 3.0.2 15 Mar 2022
+  enabled     enabled
+  active      active
+  responding  302
+```
+
+It is safe to run against a healthy server. It will not restart a running
+service unless you pass `--restart`, and it will not overwrite a unit or
+logrotate config that differs from the template unless you pass
+`--writeunit` — the server is treated as the authority until you say
+otherwise.
+
+`linger` is the one to look at after a DreamHost upgrade: gunicorn runs as a
+systemd *user* service, and without linger it dies when your login session
+ends. The site stays up until something restarts, then quietly does not come
+back.
+
+If `python` says `BROKEN`, a hand built python in that account is linked
+against a library the OS no longer ships. That is what happened to stage: its
+python-3.9.2 wanted `libssl.so.1.1`, which the move to Ubuntu 22.04 replaced
+with OpenSSL 3, so gunicorn could not even import `ssl`. Rebuilding the
+virtualenv on the system python 3.10 fixed it.
+
+## Gunicorn is bound to the public interface, not localhost
+
+Worth knowing before changing anything about how gunicorn listens.
+
+Both environments bind to their public hostname:
+
+```
+production   --bind=rhiven.talesofvalor.com:8000
+stage        --bind=rhiven.stage.talesofvalor.com:8002
+```
+
+Both names resolve to `208.113.158.227`, the VPS's public IP, so gunicorn
+listens on the public interface and **both ports are reachable from the open
+internet**. Checked from outside:
+
+```
+208.113.158.227:8000   OPEN   HTTP 400
+208.113.158.227:8002   OPEN   HTTP 302
+```
+
+This is not a mistake anyone made here. DreamHost's own article, *Using
+linger with Gunicorn*, gives the template as `--bind=<example.com>:<port>`.
+Following their documentation produces a publicly bound app server.
+
+### What it cost us once
+
+Scanners find the open port, connect by raw IP, and Django rejects the `Host`
+header because the IP is not in production's `ALLOWED_HOSTS`. That is the
+right answer, but every rejection used to write a full traceback:
+
+```
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '208.113.158.227:8000'.
+```
+
+836,122 of them were 82% of a 793MB error log. `django.security.DisallowedHost`
+now goes to a `NullHandler` in `settings/common.py`, so the request is still
+refused but the traceback is not written down. The logs also rotate weekly.
+That treats the symptom.
+
+### The part still outstanding
+
+`stage.py` has the IP **in** `ALLOWED_HOSTS`, which production does not:
+
+```python
+ALLOWED_HOSTS = [
+    '208.113.158.227',          # production does not have this
+    'rhiven.stage.talesofvalor.com',
+    'rhiven.stage.static.talesofvalor.com',
+]
+```
+
+So where production answers `400`, stage answers and serves the site:
+
+```
+http://208.113.158.227:8002/  ->  302  ->  /en/  ->  200
+<title>Tales of Valor : Fellowship
+```
+
+Stage is publicly browsable over plain HTTP on a raw IP, bypassing the proxy
+and TLS, and it holds a copy of real player data.
+
+### The actual fix
+
+Bind to localhost, so only the local proxy can reach gunicorn:
+
+```
+--bind=127.0.0.1:8000
+```
+
+This has **not** been done, deliberately. DreamHost's proxy sits in front, and
+it is not visible from the server whether it forwards to the public hostname
+or to `127.0.0.1`. If it forwards to the hostname and gunicorn stops
+listening there, the site goes down. Ask DreamHost before changing it.
+
+A smaller step that does not touch how gunicorn listens: remove
+`'208.113.158.227'` from stage's `ALLOWED_HOSTS`, so stage answers `400` on
+raw-IP access the way production does. It leaves the port open but stops
+stage serving content to it.
