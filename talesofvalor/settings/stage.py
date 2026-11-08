@@ -4,8 +4,14 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 FILER_DEBUG = DEBUG
 
+# No raw IP here.  Gunicorn is bound to the public hostname, so its port
+# answers from the open internet, and listing the IP meant stage served the
+# whole site over plain HTTP on http://208.113.158.227:8002/ -- no proxy, no
+# TLS, over a copy of real player data.  Production has never listed it and
+# is reached through the same proxy, which is how we know the proxy passes
+# the real hostname through.  See "Gunicorn is bound to the public
+# interface" in README.md.
 ALLOWED_HOSTS = [
-    '208.113.158.227',
     'rhiven.stage.talesofvalor.com',
     'rhiven.stage.static.talesofvalor.com',
 ]

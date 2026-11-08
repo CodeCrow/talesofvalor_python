@@ -610,7 +610,7 @@ it is not visible from the server whether it forwards to the public hostname
 or to `127.0.0.1`. If it forwards to the hostname and gunicorn stops
 listening there, the site goes down. Ask DreamHost before changing it.
 
-A smaller step that does not touch how gunicorn listens: remove
-`'208.113.158.227'` from stage's `ALLOWED_HOSTS`, so stage answers `400` on
-raw-IP access the way production does. It leaves the port open but stops
-stage serving content to it.
+A smaller step that does not touch how gunicorn listens has been taken:
+`'208.113.158.227'` is no longer in stage's `ALLOWED_HOSTS`, so stage now
+answers `400` on raw-IP access the way production does. The port is still
+open; stage just no longer serves anything to it.
