@@ -1,6 +1,24 @@
 {% load cms_tags %}
+{% comment %}
+Shared by the character list, the player detail page and the printable
+event roster.  'show_corruption' is passed only by the character list, so
+the extra column does not turn up on the roster or on a player's own page.
+It still needs the permission as well: the flag says where the column is
+wanted, the permission says who may see it.
+{% endcomment %}
+{% with corruption_column=show_corruption|default_if_none:0 %}
 <table id="{{ id }}" class="list list-characters">
 	<caption><h2>{{ caption }}</h2></caption>
+	{% if corruption_column and perms.players.view_any_player %}
+	<thead>
+	<tr>
+	    <th>Character</th>
+	    <th>CPs</th>
+	    <th colspan="5">&nbsp;</th>
+	    <th>Corrupted</th>
+	</tr>
+	</thead>
+	{% endif %}
 	{% for character in objects %}
 	<tr>
 	    <td><a href="{% url 'characters:character_detail' pk=character.pk %}">{{ character.name }}{% if character == character.player.active_character %}&nbsp;&#x2714;{% endif %}</a></td>
@@ -10,6 +28,10 @@
 	    <td><a href="{% url 'characters:character_reset' pk=character.pk %}">Reset</a></td>
 	    <td><a href="{% url 'characters:character_delete' pk=character.pk %}">Destroy</a></td>
 	    <td>Steal</td>
+	    {% if corruption_column and perms.players.view_any_player %}
+	    <td class="character-corrupted">{% if character.is_corrupted %}<span class="corrupted-mark" title="Influence has reached the lowest corruption level.">&#x2714;</span>{% endif %}</td>
+	    {% endif %}
 	</tr>
 	{% endfor %}
 </table>
+{% endwith %}

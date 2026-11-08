@@ -290,6 +290,15 @@ table.list td.influence-current {
     break-inside: avoid;
   }
 }
+.corrupted-mark {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.character-corrupted {
+  text-align: center;
+}
+
 .list-comment {
   list-style: none;
   padding-left: 0.5rem;

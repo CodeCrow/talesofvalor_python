@@ -52,3 +52,14 @@ table.list td.influence-current {
 		break-inside: avoid;
 	}
 }
+
+// The tick in the character list's "Corrupted" column.  Reuses the
+// existing danger colour rather than introducing another red.
+.corrupted-mark {
+	color: $text-danger-color;
+	font-weight: bold;
+}
+
+.character-corrupted {
+	text-align: center;
+}

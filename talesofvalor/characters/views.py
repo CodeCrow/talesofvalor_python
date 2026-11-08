@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,\
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import F
+from django.db.models import BooleanField, Case, F, Value, When
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -29,7 +29,7 @@ from talesofvalor.events.models import Event
 from talesofvalor.players.models import Player, Registration, PLAYER
 from talesofvalor.skills.models import Header, HeaderSkill, Skill
 
-from .models import Character, CharacterEventInfluence
+from .models import Character, CharacterEventInfluence, CorruptionLevel
 from .forms import CharacterForm, CharacterSkillForm,\
     CharacterConceptApproveForm, CharacterHistoryApproveForm,\
     ResetPointsForm, InfluenceAdjustmentForm
@@ -779,8 +779,42 @@ class CharacterListView(
     model = Character
     paginate_by = 25
 
+    def corruption_threshold(self):
+        """
+        The influence at which a character counts as corrupted.
+
+        That is the lowest rung of the ladder staff maintain in the admin.
+        None when no rungs are configured, in which case nobody is
+        corrupted: there is nothing to reach.
+        """
+        lowest = CorruptionLevel.objects.order_by('threshold').first()
+        return lowest.threshold if lowest else None
+
     def get_queryset(self):
         queryset = super().get_queryset()
+        # Worked out once and annotated, rather than asked per row in the
+        # template, which would be a query for every character on the page.
+        threshold = self.corruption_threshold()
+        if threshold is None:
+            queryset = queryset.annotate(
+                is_corrupted=Value(False, output_field=BooleanField())
+            )
+        else:
+            queryset = queryset.annotate(
+                is_corrupted=Case(
+                    When(influence__gte=threshold, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField()
+                )
+            )
+            # Staff only, and the check has to be here rather than only on
+            # the checkbox in the template: narrowing the list is itself the
+            # answer, so a player writing ?corrupted=1 by hand would learn
+            # who is corrupted without ever seeing the column.
+            if (self.request.GET.get('corrupted', False)
+                    and self.request.user.has_perm(
+                        'players.view_any_player')):
+                queryset = queryset.filter(influence__gte=threshold)
         criteria = self.request.GET.get('criteria', '')
         if (criteria.strip()):
             entry_query = get_query(
@@ -818,6 +852,8 @@ class CharacterListView(
             context_data['player_only'] = '1'
         context_data.update(**self.request.GET.dict())
         # set up the search title
+        context_data['corruption_configured'] = (
+            self.corruption_threshold() is not None)
         if header_id :=  self.request.GET.get('header_id', False):
             context_data['subtitle'] = f"Showing characters with header \"{Header.objects.get(pk=header_id)}\""
         elif skill_id := self.request.GET.get('skill_id', False):

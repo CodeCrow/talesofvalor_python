@@ -18,6 +18,13 @@
             <p><input type="checkbox" name="concept_approved_flag" id="concept_approved_flag" autocomplete="off" value="1"{% if concept_approved_flag == '1' %} checked{% endif %}><label>Concept Approved</label></p>
             <p><input type="checkbox" name="history_approved_flag" id="history_approved_flag" autocomplete="off" value="1"{% if history_approved_flag == '1' %} checked{% endif %}><label>History Approved</label></p>
             <p><input type="checkbox" name="player_only" id="player_only" autocomplete="off" value="1"{% if player_only == '1' %} checked{% endif %}><label>Players Only</label></p>
+            {% if perms.players.view_any_player %}
+                <p><input type="checkbox" name="corrupted" id="corrupted" autocomplete="off" value="1"{% if corrupted == '1' %} checked{% endif %}><label>Corrupted</label>
+                {% if not corruption_configured %}
+                    <em>&mdash; no corruption levels are set up yet, so this will not match anyone.</em>
+                {% endif %}
+                </p>
+            {% endif %}
             <button id="character_list_filter_submit" class="btn btn-primary btn-submit" type="submit" name="search" value="search">Search</button>
             </form>
         </div>
@@ -28,7 +35,7 @@
         {% if subtitle %}
         <h3 class="filter-subtitle">{{ subtitle }}&nbsp;<a class="btn btn-primary" href="?{% for key, value in request.GET.items %}{% if key != 'skill_id' and key != 'header_id' %}{{ key }}={{ value }}{% endif %}&{% endfor %}">Clear Filters</a></h3>
         {% endif %}
-        {% include "characters/includes/character_list.html" with objects=object_list id="character_list" caption="" %}
+        {% include "characters/includes/character_list.html" with objects=object_list id="character_list" caption="" show_corruption=1 %}
     </div>
 </div>
 
