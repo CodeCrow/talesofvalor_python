@@ -106,6 +106,12 @@ ul.flat-list li {
   width: 45%;
 }
 
+.influence-actions {
+  margin-top: 1em;
+  gap: 2em;
+  flex-wrap: wrap;
+}
+
 .page-item span {
   position: relative;
   display: block;

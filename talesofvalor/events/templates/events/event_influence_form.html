@@ -99,8 +99,15 @@
         </table>
 
         {% if form|length and not processed_count %}
-            <button type="submit" class="btn btn-primary btn-submit">Save all influence</button>
-            <a class="btn btn-secondary" href="{% url 'events:influence_process' pk=event.pk %}">Process this event</a>
+            {% comment %}
+            Held apart deliberately.  Saving is the routine action and
+            processing rolls everyone's influence forward at once, so the
+            two should not sit under the same mouse position.
+            {% endcomment %}
+            <div class="d-flex justify-content-between align-items-center influence-actions">
+                <button type="submit" class="btn btn-primary btn-submit">Save all influence</button>
+                <a class="btn btn-secondary" href="{% url 'events:influence_process' pk=event.pk %}">Process this event</a>
+            </div>
         {% endif %}
     </form>
 

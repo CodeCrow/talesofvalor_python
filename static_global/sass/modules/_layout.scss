@@ -86,3 +86,13 @@ ul.flat-list {
 .header-group {
     width:45%;
 }
+
+// The save and process buttons under the influence grid.  Bootstrap's
+// flex utilities already push them to opposite ends; this is only the
+// breathing room above them, and a floor under the gap so they do not
+// end up adjacent on a narrow screen.
+.influence-actions {
+	margin-top: 1em;
+	gap: 2em;
+	flex-wrap: wrap;
+}
