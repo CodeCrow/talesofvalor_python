@@ -48,4 +48,13 @@ autopep8 = "*"
 black = "*"
 
 [requires]
-python_version = "3.10"
+# The newest python both django 4.2 and django-cms 3.11 declare support
+# for.  3.13 appears to work but neither project tests against it, and
+# 3.14 is actively broken: django 4.2's BaseContext.__copy__ does
+# copy(super()), which 3.14 refuses to set attributes on, so every page
+# that renders a template fails.
+#
+# Installed on the servers from a prebuilt standalone build under
+# ~/opt/python-3.12 rather than compiled: the boxes have no ffi.h, so a
+# local build would come out without ctypes.
+python_version = "3.12"

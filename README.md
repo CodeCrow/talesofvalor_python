@@ -585,23 +585,57 @@ against the live database.
 If you ever switch back to `mysqlclient` for speed, know that you are
 taking on a rebuild every time DreamHost moves the OS forward.
 
-### Rebuilding a virtualenv after an upgrade
+### Do not use the system python
 
-The system python moves with the OS, so the venv has to be rebuilt against
-whatever is now there:
+Both accounts run their own python under `~/opt`, and should keep doing so.
+The system one is the wrong tool twice over:
+
+* **It moves with the OS.** 26.04 replaced 3.10 with 3.14 and every venv
+  built on it was left pointing at an interpreter that no longer existed.
+* **Django 4.2 does not work on it.** `BaseContext.__copy__` does
+  `copy(super())`, which 3.14 refuses to set attributes on, so *every page
+  that renders a template* 500s. `django.setup()` still succeeds, so this
+  does not show up until a request arrives.
+
+The pin in the `Pipfile` is **3.12**: the newest python both Django 4.2 and
+django-cms 3.11 declare in their classifiers. 3.13 passes a template render
+in testing but neither project tests against it.
+
+### Installing python, and rebuilding a virtualenv
+
+Use a prebuilt standalone build rather than compiling. These boxes have no
+`ffi.h`, so a local `configure` produces a python without `ctypes`, and the
+failure turns up later in something unrelated.
+
+Pick the newest `cpython-3.12.*-x86_64-unknown-linux-gnu-install_only`
+asset from
+[python-build-standalone](https://github.com/astral-sh/python-build-standalone/releases):
+
+```
+$ cd /tmp && curl -sSLO <asset url> && tar xzf cpython-3.12*.tar.gz
+$ mv python ~/opt/python-3.12
+$ ~/opt/python-3.12/bin/python3 -c 'import ssl, ctypes; print("ok")'
+```
+
+`pipenv` needs a venv of its own. Ubuntu 26.04 marks the system python as
+externally managed (PEP 668), so `pip install --user` is refused outright,
+and a `--user` install would break again the next time the interpreter it
+was built against is replaced:
+
+```
+$ ~/opt/python-3.12/bin/python3 -m venv ~/opt/pipenv
+$ ~/opt/pipenv/bin/pip install --upgrade pip pipenv
+```
+
+Put it on the login `PATH` ahead of `~/.local/bin`, with
+`PIPENV_VENV_IN_PROJECT=1`, then rebuild the project environment:
 
 ```
 $ cd ~/rhiven.stage.talesofvalor.com
 $ rm -rf .venv
-$ /usr/bin/python3 -m pip install --user --upgrade pipenv   # pipenv's own
-$ pipenv --python /usr/bin/python3 sync                      # shebang breaks too
+$ pipenv --python ~/opt/python-3.12/bin/python3 sync
 $ systemctl --user restart gunicorn
 ```
-
-`pipenv` is installed with `--user` against a specific interpreter, so its
-shebang breaks when that interpreter goes. Reinstall it before trying to
-use it, or the error is a confusing `bad interpreter` rather than anything
-about the venv.
 
 ## Gunicorn is bound to the public interface, not localhost
 
