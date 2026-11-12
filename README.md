@@ -536,6 +536,73 @@ python-3.9.2 wanted `libssl.so.1.1`, which the move to Ubuntu 22.04 replaced
 with OpenSSL 3, so gunicorn could not even import `ssl`. Rebuilding the
 virtualenv on the system python 3.10 fixed it.
 
+## When DreamHost upgrades the OS
+
+This has now broken the site twice, both times in the same shape: something
+in the virtualenv is linked against a system library the new OS no longer
+ships, so gunicorn starts and its workers die immediately.
+
+| Upgrade | What went | Symptom |
+| --- | --- | --- |
+| 22.04 | `libssl.so.1.1` | stage's python-3.9.2 could not `import ssl` |
+| 26.04 | `libmysqlclient.so.21` | `mysqlclient` fails, every worker dies on import |
+| 26.04 | `/usr/bin/python3.10` | `pipenv` fails with `bad interpreter`, so deploys stop |
+| 26.04 | `PrivateTmp=true` | systemd 259 refuses the namespace, `status=226/NAMESPACE` |
+
+The 26.04 upgrade took production down for roughly two days before anyone
+noticed, because a 503 from the proxy looks the same whatever the cause.
+
+### First thing to run
+
+```
+$ fab init --environment production
+```
+
+Its report names the usual suspects: `linger` goes off on an upgrade, and
+`python` reports `BROKEN` when the interpreter has lost a library. If both
+look fine but the site is still down, the workers are dying after startup
+and the real error is only in the gunicorn error log, or from running the
+unit's `ExecStart` line by hand:
+
+```
+$ cd ~/rhiven.talesofvalor.com
+$ .venv/bin/gunicorn --workers 1 --bind=127.0.0.1:8099 passenger_wsgi:application
+```
+
+`systemctl --user status` will say `Worker failed to boot` and nothing more
+useful, so go to the log or the command line rather than reading the unit
+state.
+
+### Why the database driver is the pure python one
+
+`DATABASES` uses `mysql.connector.django`, not `django.db.backends.mysql`.
+The latter goes through `mysqlclient`, a compiled extension linked against
+`libmysqlclient`, which is exactly what the 26.04 upgrade broke. The pure
+python connector needs nothing from the OS, so the same upgrade cannot
+break it. It honours the `init_command` option the same way — checked
+against the live database.
+
+If you ever switch back to `mysqlclient` for speed, know that you are
+taking on a rebuild every time DreamHost moves the OS forward.
+
+### Rebuilding a virtualenv after an upgrade
+
+The system python moves with the OS, so the venv has to be rebuilt against
+whatever is now there:
+
+```
+$ cd ~/rhiven.stage.talesofvalor.com
+$ rm -rf .venv
+$ /usr/bin/python3 -m pip install --user --upgrade pipenv   # pipenv's own
+$ pipenv --python /usr/bin/python3 sync                      # shebang breaks too
+$ systemctl --user restart gunicorn
+```
+
+`pipenv` is installed with `--user` against a specific interpreter, so its
+shebang breaks when that interpreter goes. Reinstall it before trying to
+use it, or the error is a confusing `bad interpreter` rather than anything
+about the venv.
+
 ## Gunicorn is bound to the public interface, not localhost
 
 Worth knowing before changing anything about how gunicorn listens.

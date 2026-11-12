@@ -129,7 +129,11 @@ ExecStart={virtualenv_path}/bin/gunicorn --workers {workers} --bind={bind} passe
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
-PrivateTmp=true
+# PrivateTmp=false deliberately.  With it true, systemd 259 on Ubuntu
+# 26.04 refuses to set up the namespace and the service dies in 31ms with
+# status=226/NAMESPACE, which reads as a crash with no further
+# explanation anywhere.  A private /tmp buys this service nothing.
+PrivateTmp=false
 Restart=on-failure
 
 [Install]

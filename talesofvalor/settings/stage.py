@@ -22,7 +22,14 @@ CSRF_TRUSTED_ORIGINS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        # The pure python connector, not django.db.backends.mysql.  That
+        # backend goes through mysqlclient, which is compiled against
+        # libmysqlclient.so.21; DreamHost's move to Ubuntu 26.04 replaced
+        # that with .so.24 and every gunicorn worker died on import, taking
+        # the site down.  This driver needs nothing from the OS, so an
+        # upgrade cannot break it the same way.  'init_command' below is
+        # honoured by it -- checked against the live database.
+        'ENGINE': 'mysql.connector.django',
         'NAME': 'talesof_rhiven_stage',
         'USER': 'fodder',
         'PASSWORD': 'wereunicorn',
