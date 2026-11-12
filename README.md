@@ -549,6 +549,10 @@ ships, so gunicorn starts and its workers die immediately.
 | 26.04 | `/usr/bin/python3.10` | `pipenv` fails with `bad interpreter`, so deploys stop |
 | 26.04 | `PrivateTmp=true` | systemd 259 refuses the namespace, `status=226/NAMESPACE` |
 
+Each one presents as a 503 from the proxy or a service that "starts" and
+then dies, so work out which it is before changing anything. The gunicorn
+error log is the only place the real cause appears.
+
 The 26.04 upgrade took production down for roughly two days before anyone
 noticed, because a 503 from the proxy looks the same whatever the cause.
 
@@ -636,6 +640,56 @@ $ rm -rf .venv
 $ pipenv --python ~/opt/python-3.12/bin/python3 sync
 $ systemctl --user restart gunicorn
 ```
+
+#### Build it at `.venv`, not somewhere else to be moved into place
+
+A virtualenv is **not relocatable**. Every console script in `.venv/bin`
+carries an absolute shebang pointing at the interpreter inside the
+directory it was created in, so moving or renaming the directory breaks all
+of them at once:
+
+```
+$ .venv/bin/gunicorn --version
+bash: .venv/bin/gunicorn: .../.venv-new/bin/python3: bad interpreter
+```
+
+Building at `.venv-new` and renaming it to `.venv` to keep the site up
+therefore does not work, and it fails *after* the swap, with the old
+environment already gone. Build at `.venv` and accept the short downtime.
+
+If you ever have to repair the shebangs rather than rebuild, they must
+match what `passenger_wsgi.py` compares against **exactly**:
+
+```python
+INTERP = os.path.expanduser("~/rhiven.talesofvalor.com/.venv/bin/python")
+if sys.executable != INTERP: os.execl(INTERP, INTERP, *sys.argv)
+```
+
+`.venv/bin/python3` is not the same string as `.venv/bin/python`. With the
+`3` on the end the comparison fails, `os.execl` re-runs the whole command
+line, and each copy starts another arbiter fighting for the port:
+
+```
+[ERROR] Connection in use: ('rhiven.talesofvalor.com', 8000)
+[ERROR] connection to ('rhiven.talesofvalor.com', 8000) failed: [Errno 98] Address already in use
+```
+
+That reads like something else is holding the port. It is not: it is this
+file re-executing itself. `ps -eo pid,cmd | grep gunicorn` should show one
+master and `--workers` children, and nothing else.
+
+#### Keep the old environment until the new one serves
+
+Rename rather than delete, so there is something to go back to:
+
+```
+$ mv .venv .venv-previous      # before building the new one at .venv
+```
+
+Note that the old environment's shebangs now point at `.venv`, which is
+the *new* environment. Rolling back by renaming it back to `.venv` makes
+them correct again, so the rollback works -- but only in that direction.
+Do not try to run the old environment from under its temporary name.
 
 ## Gunicorn is bound to the public interface, not localhost
 
