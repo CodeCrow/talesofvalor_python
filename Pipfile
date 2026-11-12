@@ -24,7 +24,11 @@ djangorestframework = "*"
 django-taggit = "~=3.0"
 # djangocms-page-tags = "*" -- doesn't work with newer versons of django cms
 mysql-connector-python = "*"
-mysqlclient = "*"
+# mysqlclient deliberately absent.  It is a compiled extension linked
+# against libmysqlclient, which is what DreamHost's move to Ubuntu 26.04
+# broke and what took production down; it also needs a compiler the
+# servers do not have.  Nothing imports it: every environment uses
+# mysql.connector.django instead.
 paypal-checkout-serversdk = "*"
 # Was an unpinned git dependency, so every lock silently took whatever
 # django-wiki's main branch was that day.  0.13 is released on PyPI
@@ -33,6 +37,11 @@ wiki = "~=0.13.0"
 django-hijack = "*"
 django-autocomplete-light = "*"
 gunicorn = "*"
+# django-polymorphic imports typing_extensions unconditionally, but the
+# resolver marks it as only needed below python 3.11, so it is skipped on
+# anything newer and django will not start.  Listed here so it installs
+# whatever python the environment is on.
+typing-extensions = "*"
 
 [dev-packages]
 autopep8 = "*"
