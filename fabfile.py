@@ -254,6 +254,67 @@ def _normalise_unit(text):
     return lines
 
 
+def _checkout_state(c, env):
+    """
+    Whether the server is running the code that has been pushed.
+
+    The checkout can fall behind without anything saying so: a 'git pull'
+    run for some other reason moves it part way, and work committed after
+    that never arrives.  Both servers had drifted to different commits this
+    way, which is what this exists to catch.
+    """
+    branch = env.default_project_branch
+    # read only; it updates the remote refs without touching the checkout.
+    cd = 'cd {} && '.format(env.project_dir)
+    c.run(cd + 'git fetch --quiet', warn=True, hide=True)
+    local = c.run(cd + 'git rev-parse --short HEAD',
+                  warn=True, hide=True)
+    remote = c.run(
+        cd + 'git rev-parse --short origin/{}'.format(branch),
+        warn=True, hide=True
+    )
+    if not local.ok or not remote.ok:
+        return 'unknown (not a git checkout?)'
+    local, remote = local.stdout.strip(), remote.stdout.strip()
+    subject = c.run(cd + 'git log -1 --format=%s',
+                    warn=True, hide=True)
+    subject = subject.stdout.strip() if subject.ok else ''
+    if local == remote:
+        return '{} up to date with origin/{}'.format(local, branch)
+    behind = c.run(
+        cd + 'git rev-list --count HEAD..origin/{}'.format(branch),
+        warn=True, hide=True
+    )
+    count = behind.stdout.strip() if behind.ok else '?'
+    return '{} BEHIND origin/{} by {} commit(s) -- "{}"'.format(
+        local, branch, count, subject
+    )
+
+
+def _pending_migrations(c, env):
+    """
+    How many migrations are waiting.
+
+    New code against an old schema fails on whichever column it reaches
+    first, so this is worth knowing before wondering why a page is broken.
+    """
+    result = c.run(
+        'cd {project} && {venv}/bin/python manage.py showmigrations '
+        '--skip-checks --settings={settings}'.format(
+            project=env.project_dir,
+            venv=env.virtualenv_path,
+            settings=env.settings_module_for_management_commands
+        ),
+        warn=True, hide=True
+    )
+    if not result.ok:
+        return 'could not be read'
+    pending = result.stdout.count('[ ]')
+    if not pending:
+        return 'none pending'
+    return '{} PENDING -- run a deploy with --migrate'.format(pending)
+
+
 def _python_health(c, virtualenv_path):
     """
     Whether the environment's interpreter can actually run.
@@ -394,6 +455,8 @@ def init(c, environment, writeunit=False, restart=False):
             'systemctl --user is-active gunicorn.service',
             warn=True, hide=True
         ).stdout.strip()
+        report['checkout'] = _checkout_state(c, env)
+        report['migrations'] = _pending_migrations(c, env)
         report['python'] = _python_health(c, env.virtualenv_path)
         report['responding'] = c.run(
             'curl -s -o /dev/null -w "%{{http_code}}" --max-time 15 '
@@ -402,8 +465,8 @@ def init(c, environment, writeunit=False, restart=False):
         ).stdout.strip() or 'no answer'
 
     print('\n{} gunicorn'.format(env.verbose_name))
-    for key in ('linger', 'unit', 'rotation', 'python', 'enabled', 'active',
-                'responding'):
+    for key in ('linger', 'unit', 'rotation', 'checkout', 'migrations',
+                'python', 'enabled', 'active', 'responding'):
         print('  {:<11} {}'.format(key, report[key]))
 
     healthy = (
@@ -411,13 +474,47 @@ def init(c, environment, writeunit=False, restart=False):
         and report['enabled'] == 'enabled'
         and report['active'] == 'active'
         and not report['python'].startswith('BROKEN')
+        and 'BEHIND' not in report['checkout']
+        and 'PENDING' not in report['migrations']
     )
     if not healthy:
-        print(
-            '\nSomething above is not right.  Linger must be "yes" or the '
-            'service dies with your login; enabled is what brings it back '
-            'after a reboot.'
-        )
+        # say which line is wrong and what it means, rather than leaving
+        # the reader to work out which of seven lines matters.
+        notes = []
+        if report['linger'] != 'yes':
+            notes.append(
+                'linger is off, so gunicorn dies when your login session '
+                'ends.  A DreamHost upgrade turns it off.'
+            )
+        if report['enabled'] != 'enabled':
+            notes.append(
+                'the service is not enabled, so it will not come back '
+                'after a reboot.'
+            )
+        if report['active'] != 'active':
+            notes.append(
+                'the service is not running.  systemctl will say only '
+                '"Worker failed to boot"; the reason is in the gunicorn '
+                'error log.'
+            )
+        if report['python'].startswith('BROKEN'):
+            notes.append(
+                'the interpreter has lost a library the OS no longer '
+                'ships.  Rebuild the virtualenv -- see README.md.'
+            )
+        if 'BEHIND' in report['checkout']:
+            notes.append(
+                'the server is running older code than has been pushed.  '
+                'Deploy it.'
+            )
+        if 'PENDING' in report['migrations']:
+            notes.append(
+                'there are unapplied migrations, so the code is running '
+                'against an older schema.  Deploy with --migrate.'
+            )
+        print('')
+        for note in notes:
+            print('  - {}'.format(note))
     return report
 
 
